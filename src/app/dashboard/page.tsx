@@ -35,7 +35,8 @@ import {
   Layers,
   RotateCcw,
   LogOut,
-  Loader2
+  Loader2,
+  Signal
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -149,7 +150,7 @@ const SEED_COLORS = [
   { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient' },
 ]
 
-const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v1';
+const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v2';
 
 interface FoundWallet {
   id: string;
@@ -188,6 +189,7 @@ export default function AiCryptoDashboard() {
   const [hardwareCores, setHardwareCores] = useState<number>(8)
   const [allocatedCores, setAllocatedCores] = useState([4])
   const [selectedServerId, setSelectedServerId] = useState('node-na-east')
+  const [networkPing, setNetworkPing] = useState(24)
   
   const [seedPhraseColor, setSeedPhraseColor] = useState('text-white/80')
   const [consoleFontSize, setConsoleFontSize] = useState([11])
@@ -335,7 +337,13 @@ export default function AiCryptoDashboard() {
   }
 
   useEffect(() => {
-    const updateTime = () => setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
+    const updateTime = () => {
+        setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
+        setNetworkPing(prev => {
+            const fluctuation = Math.floor(Math.random() * 5) - 2;
+            return Math.max(12, Math.min(180, prev + fluctuation));
+        });
+    }
     updateTime();
     if (typeof window !== 'undefined') {
       const cores = navigator.hardwareConcurrency || 8;
@@ -394,6 +402,7 @@ export default function AiCryptoDashboard() {
 
   useEffect(() => {
     let aiFetchInterval: NodeJS.Timeout
+    let smoothCounterInterval: NodeJS.Timeout
 
     if (isInterrogating) {
       const bootSequence = async () => {
@@ -418,26 +427,25 @@ export default function AiCryptoDashboard() {
 
         const coreFactor = allocatedCores[0] / hardwareCores;
         const intensityFactor = systemIntensity[0] / 100;
-        const aiBoost = isAiSearchConnected ? 3.5 : 1.0;
+        const aiBoost = isAiSearchConnected ? 4.5 : 1.2;
         
-        // Decoupled loop: Batch process for high throughput while maintaining smooth UI updates
+        // Background logical processing for "throughput"
         aiFetchInterval = setInterval(() => {
-          // Calculate batch size based on system specs
-          const batchSize = Math.ceil(intensityFactor * 25 * coreFactor * aiBoost);
-          
-          // Background "processing"
+          const batchSize = Math.ceil(intensityFactor * 10 * coreFactor * aiBoost);
           for(let i = 0; i < batchSize; i++) {
-              bip39.generateMnemonic(); // Simulated load
+              bip39.generateMnemonic(); // Workload
           }
-
-          // Visual Update (only one visual entry to keep log smooth)
           const visualPhrase = bip39.generateMnemonic();
           addLog(visualPhrase, "ai")
-          
-          // Actual throughput counter (increased more)
-          setCheckedCount(prev => prev + batchSize)
           setCpuLoad(Math.min(100, (systemIntensity[0] * coreFactor) + (Math.random() * 5)))
-        }, 80) // Fixed 80ms tick for smooth visual flow
+        }, 120)
+
+        // Smooth "1 by 1" counter increment
+        // We tick faster with a smaller increment to feel smooth
+        smoothCounterInterval = setInterval(() => {
+            const incrementPerTick = Math.ceil(intensityFactor * 2 * coreFactor * aiBoost);
+            setCheckedCount(prev => prev + incrementPerTick);
+        }, 30); // 33fps target for smooth numbers
       }
 
       bootSequence()
@@ -447,6 +455,7 @@ export default function AiCryptoDashboard() {
 
     return () => {
       if (aiFetchInterval) clearInterval(aiFetchInterval)
+      if (smoothCounterInterval) clearInterval(smoothCounterInterval)
     }
   }, [isInterrogating, addLog, systemIntensity, hardwareCores, allocatedCores, isAiSearchConnected])
 
@@ -657,13 +666,23 @@ export default function AiCryptoDashboard() {
                             {foundCount}
                           </p>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            <Timer className="w-3 h-3" /> Session time
-                          </p>
-                          <p className="text-2xl font-black font-code text-primary tracking-tighter">
-                            {formatTime(sessionSeconds)}
-                          </p>
+                        <div className="space-y-4">
+                          <div className="space-y-1">
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                              <Timer className="w-3 h-3" /> Session time
+                            </p>
+                            <p className="text-2xl font-black font-code text-primary tracking-tighter">
+                              {formatTime(sessionSeconds)}
+                            </p>
+                          </div>
+                          <div className="space-y-1 pt-2 border-t border-white/5">
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                              <Signal className="w-3 h-3" /> Network Latency
+                            </p>
+                            <p className="text-lg font-black font-code text-cyan-400 tracking-tighter">
+                              {networkPing} ms
+                            </p>
+                          </div>
                         </div>
                       </div>
                       <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mt-6">
