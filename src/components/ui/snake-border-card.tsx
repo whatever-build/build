@@ -12,12 +12,12 @@ interface SnakeBorderCardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function SnakeBorderCard({ active = true, processing = false, children, className, ...props }: SnakeBorderCardProps) {
   return (
     <div className={cn(
-      "snake-border-container group", 
+      "snake-border-container group flex flex-col", 
       processing && "active-processing",
       className
     )} {...props}>
       {active && <div className="snake-border-animation" />}
-      <div className="snake-border-content h-full">
+      <div className="snake-border-content flex-1 min-h-0">
         {children}
       </div>
     </div>
