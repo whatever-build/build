@@ -126,7 +126,7 @@ export default function AiCryptoDashboard() {
         timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
         type
       }
-      return [newEntry, ...prev].slice(0, 100)
+      return [newEntry, ...prev].slice(0, 50) // Reduced buffer for performance
     })
   }, [])
 
@@ -225,7 +225,7 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval)
   }, [isAutoMemoryEnabled, clearMemory])
 
-  // Core Interrogation Logic - 1-by-1 sequential generation
+  // Core Generation Logic
   useEffect(() => {
     let aiFetchInterval: NodeJS.Timeout
 
@@ -244,22 +244,24 @@ export default function AiCryptoDashboard() {
         addLog("RESOLVING PROXY TUNNEL...", "info")
         await new Promise(resolve => setTimeout(resolve, 500))
         
-        const aiStatusMsg = isAiSearchConnected ? "AI SEARCH: LINKED [HEURISTIC MODE]" : "AI SEARCH: NOT CONNECTED [BRUTE MODE]";
+        const aiStatusMsg = isAiSearchConnected ? "AI SEARCH: LINKED [HEURISTIC BOOST]" : "AI SEARCH: NOT CONNECTED [STANDARD MODE]";
         addLog(aiStatusMsg, isAiSearchConnected ? "success" : "warning")
         await new Promise(resolve => setTimeout(resolve, 500))
         
         addLog("CRYPTOGRAPHIC ENGINE: INITIALIZED", "system")
         addLog(`WORKER THREADS: ${hardwareCores || 8}`, "info")
 
-        // Smooth sequential generation loop
-        const intervalTime = Math.max(1, 100 - (systemIntensity[0] * 0.95));
+        // Smooth sequential generation loop with AI Search Speed Boost
+        const baseInterval = Math.max(1, 50 - (systemIntensity[0] * 0.45));
+        const aiBoostMultiplier = isAiSearchConnected ? 0.6 : 1.0; // 40% reduction in delay if AI connected
+        const finalInterval = baseInterval * aiBoostMultiplier;
         
         aiFetchInterval = setInterval(() => {
           const phrase = bip39.generateMnemonic();
           addLog(phrase, "ai")
           setCheckedCount(prev => prev + 1)
           setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 2)))
-        }, intervalTime)
+        }, Math.max(1, finalInterval))
       }
 
       bootSequence()
@@ -284,7 +286,7 @@ export default function AiCryptoDashboard() {
       toast({ 
         variant: "destructive", 
         title: "Configuration Error", 
-        description: "Please select at least one blockchain network before initiating interrogation." 
+        description: "Please select at least one blockchain network before initiating scan." 
       })
       return
     }
@@ -293,17 +295,11 @@ export default function AiCryptoDashboard() {
 
   const stopInterrogation = () => {
     setIsInterrogating(false)
-    addLog("INTERROGATION PROTOCOL ABORTED BY OPERATOR", "error")
+    addLog("SCAN PROTOCOL ABORTED BY OPERATOR", "error")
     toast({
-      title: "Interrogation Stopped",
+      title: "Scan Stopped",
       description: "Cryptographic engine has been safely powered down."
     })
-  }
-
-  const toggleProtocol = (id: string) => {
-    setActiveProtocols(prev => 
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
-    )
   }
 
   const formatTime = (seconds: number) => {
@@ -375,7 +371,7 @@ export default function AiCryptoDashboard() {
                 <div className="pt-4 flex items-center gap-3">
                   <div className={cn("w-2 h-2 rounded-full", isInterrogating ? "bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.6)]" : "bg-red-500")} />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    {isInterrogating ? "Interrogating" : "Standby"}
+                    {isInterrogating ? "Scanning" : "Standby"}
                   </span>
                 </div>
               </SidebarGroupContent>
@@ -485,7 +481,7 @@ export default function AiCryptoDashboard() {
                     <div className="flex items-center justify-between mb-4 shrink-0">
                       <div className="flex items-center gap-3">
                         <SearchCode className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Interrogation Console</h3>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Scan Console</h3>
                       </div>
                     </div>
                     
@@ -493,8 +489,8 @@ export default function AiCryptoDashboard() {
                       <div className="h-full p-6 font-code text-[11px] overflow-hidden flex flex-col relative bg-black/60">
                         <div ref={scrollRef} className="flex-1 overflow-y-auto terminal-scrollbar space-y-2 z-10 flex flex-col-reverse">
                           {logs.length === 0 && !isInterrogating && (
-                            <div className="h-full flex items-center justify-center text-gray-700 uppercase tracking-widest font-bold">
-                              Interrogator Ready
+                            <div className="h-full flex items-center justify-center text-gray-700 uppercase tracking-widest font-black">
+                              Scan Engine Ready
                             </div>
                           )}
                           {logs.map((log) => (
@@ -520,7 +516,7 @@ export default function AiCryptoDashboard() {
                   <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                     <div className="flex items-center gap-2 mb-1 shrink-0">
                       <Radio className="w-4 h-4 text-primary" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">AI Neural Engine</h3>
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">AI Search</h3>
                     </div>
                     <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden">
                        {!isAiSearchConnected ? (
@@ -530,14 +526,14 @@ export default function AiCryptoDashboard() {
                              {isAiSearchConnecting ? "Negotiating Uplink" : "AI Search Standby"}
                            </h4>
                            <p className="text-[10px] text-gray-600 uppercase mb-6 leading-relaxed">
-                             Connection required for advanced heuristic discovery.
+                             Connection required for advanced heuristic discovery & speed boost.
                            </p>
                            <Button 
                              onClick={connectAiSearch} 
                              disabled={isAiSearchConnecting}
                              className="w-full bg-primary/10 border border-primary/20 text-primary font-black text-[10px] uppercase hover:bg-primary/20 transition-all h-10"
                            >
-                             {isAiSearchConnecting ? "Connecting..." : "Connect Neural Engine"}
+                             {isAiSearchConnecting ? "Connecting..." : "Connect AI Search"}
                            </Button>
                            
                            {aiSearchLogs.length > 0 && (
@@ -578,12 +574,12 @@ export default function AiCryptoDashboard() {
                                     <span className="text-[9px] font-code text-primary font-bold">ACTIVE</span>
                                   </div>
                                   <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Deep Path Scan</span>
-                                    <span className="text-[9px] font-code text-primary font-bold">ENABLED</span>
+                                    <span className="text-[9px] font-code text-primary/60 uppercase">Entropy Boost</span>
+                                    <span className="text-[9px] font-code text-primary font-bold">MAXED</span>
                                   </div>
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Neural Priority</span>
-                                    <span className="text-[9px] font-code text-primary font-bold">HIGH</span>
+                                    <span className="text-[9px] font-code text-primary/60 uppercase">Neural Speed</span>
+                                    <span className="text-[9px] font-code text-primary font-bold">SUPERCHARGED</span>
                                   </div>
                                 </div>
                               </div>
@@ -810,7 +806,7 @@ export default function AiCryptoDashboard() {
                       variant="outline" 
                       className="bg-red-500/10 border-red-500/40 hover:bg-red-500/20 text-red-500 h-14 px-12 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all"
                     >
-                      <Power className="w-4 h-4 mr-3" /> STOP ENGINE
+                      <Power className="w-4 h-4 mr-3" /> STOP SCAN
                     </Button>
                   ) : (
                     <Button 
@@ -820,7 +816,7 @@ export default function AiCryptoDashboard() {
                         "h-14 px-20 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_30px_rgba(173,79,230,0.3)] hover:opacity-90 disabled:opacity-30"
                       )}
                     >
-                      <Zap className="w-4 h-4 mr-3" /> START INTERROGATION
+                      <Zap className="w-4 h-4 mr-3" /> START SCAN
                     </Button>
                   )}
                   {activeBlockchains.length === 0 && !isInterrogating && (
@@ -836,7 +832,7 @@ export default function AiCryptoDashboard() {
           <footer className="h-10 border-t border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
             <div className="ticker-wrap flex-1 mr-8 overflow-hidden whitespace-nowrap">
               <p className="ticker-content text-[8px] text-primary/60 uppercase tracking-[0.4em] font-code">
-                Status: {isInterrogating ? "INTERROGATING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: BIP39-Elite • Encryption: AES-256 Verified
+                Status: {isInterrogating ? "SCANNING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: BIP39-Elite • Encryption: AES-256 Verified
               </p>
             </div>
             <div className="flex items-center gap-4 text-[8px] font-code text-gray-600 shrink-0">
