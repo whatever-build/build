@@ -69,6 +69,7 @@ export default function AiCryptoDashboard() {
   const [cpuLoad, setCpuLoad] = useState(0)
   const [systemIntensity, setSystemIntensity] = useState([75])
   const [sessionSeconds, setSessionSeconds] = useState(0)
+  const [systemTime, setSystemTime] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   
   const addLog = useCallback((message: string, type: LogEntry['type'] = 'info') => {
@@ -82,6 +83,16 @@ export default function AiCryptoDashboard() {
       return [newEntry, ...prev].slice(0, 100)
     })
   }, [])
+
+  // System Time Handler
+  useEffect(() => {
+    const updateTime = () => {
+      setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -287,7 +298,7 @@ export default function AiCryptoDashboard() {
             <div className="flex items-center gap-4">
               <div className="flex flex-col items-end">
                 <span className="text-[9px] font-code text-gray-600 uppercase">System Time</span>
-                <span className="text-xs font-code text-white/80">{new Date().toLocaleTimeString('en-GB', { hour12: false })}</span>
+                <span className="text-xs font-code text-white/80">{systemTime || "00:00:00"}</span>
               </div>
             </div>
           </header>
