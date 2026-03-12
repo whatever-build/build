@@ -24,7 +24,9 @@ import {
   Timer,
   Terminal,
   CheckCircle2,
-  ChevronRight
+  Wifi,
+  Radio,
+  Share2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -102,7 +104,6 @@ export default function AiCryptoDashboard() {
     ].slice(0, 50))
   }, [])
 
-  // Hydration fix for system time
   useEffect(() => {
     const updateTime = () => setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
     updateTime();
@@ -110,7 +111,6 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Simulate background server activity
   useEffect(() => {
     const interval = setInterval(() => {
       const msgs = [
@@ -336,8 +336,8 @@ export default function AiCryptoDashboard() {
                   <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                     <section className="space-y-4 shrink-0">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Parameters</h2>
-                        <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} Active chains</span>
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Blockchains</h2>
+                        <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} Active</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         {BLOCKCHAINS.map((chain) => {
@@ -370,7 +370,7 @@ export default function AiCryptoDashboard() {
                       <div className="space-y-6">
                         <div className="space-y-1">
                           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            <Zap className="w-3 h-3" /> Vectors checked
+                            <Zap className="w-3 h-3" /> Seed phrases checked
                           </p>
                           <p className="text-2xl font-black font-code text-white tracking-tighter">
                             {checkedCount.toLocaleString()}
@@ -394,7 +394,7 @@ export default function AiCryptoDashboard() {
                         </div>
                       </div>
                       <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mt-6">
-                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">Server: {selectedServer?.name}</span>
+                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">Node: {selectedServer?.id}</span>
                       </div>
                     </div>
                   </div>
@@ -438,33 +438,38 @@ export default function AiCryptoDashboard() {
 
                   <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                     <div className="flex items-center gap-2 mb-1 shrink-0">
-                      <Database className="w-4 h-4 text-primary" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Recovery Ledger</h3>
+                      <Activity className="w-4 h-4 text-primary" />
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">AI Search</h3>
                     </div>
-                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden">
-                       {foundCount === 0 ? (
-                         <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
-                           <Binary className="w-8 h-8 text-gray-600 mb-4" />
-                           <p className="text-[10px] text-gray-600 uppercase tracking-tighter">Waiting for matches</p>
+                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden space-y-6">
+                       <div className="space-y-4">
+                         <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                           <span className="text-[9px] font-bold text-gray-500 uppercase">Connect Status</span>
+                           <span className={cn("text-[9px] font-bold uppercase", isInterrogating ? "text-green-500" : "text-gray-600")}>
+                             {isInterrogating ? "Synchronized" : "Disconnected"}
+                           </span>
                          </div>
-                       ) : (
-                         <div className="flex-1 overflow-y-auto terminal-scrollbar space-y-3 pr-2">
-                            {Array.from({ length: foundCount }).map((_, i) => (
-                              <div key={i} className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 animate-in zoom-in-95">
-                                <span className="text-[9px] font-black text-green-500 uppercase">Match found</span>
-                                <p className="text-[11px] font-code text-white my-1">0x{Math.random().toString(16).slice(2, 12).toUpperCase()}...</p>
-                                <div className="flex items-center justify-between text-[10px] font-code text-gray-400">
-                                  <span>{(Math.random() * 0.5).toFixed(3)} ETH</span>
-                                  <span className="text-green-500/60 font-bold">Verified</span>
-                                </div>
-                              </div>
-                            ))}
+                         <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                           <span className="text-[9px] font-bold text-gray-500 uppercase">Neural Uplink</span>
+                           <Wifi className={cn("w-3 h-3", isInterrogating ? "text-primary" : "text-gray-800")} />
                          </div>
-                       )}
+                         <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                           <span className="text-[9px] font-bold text-gray-500 uppercase">Entropy Source</span>
+                           <span className="text-[9px] font-bold text-white uppercase">Neural Cloud v2</span>
+                         </div>
+                         <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                           <span className="text-[9px] font-bold text-gray-500 uppercase">Probe Level</span>
+                           <Radio className={cn("w-3 h-3", isInterrogating ? "text-primary animate-pulse" : "text-gray-800")} />
+                         </div>
+                       </div>
+                       
+                       <div className="flex-1 flex flex-col items-center justify-center text-center">
+                          <Share2 className={cn("w-12 h-12 mb-4 transition-colors", isInterrogating ? "text-primary" : "text-gray-800")} />
+                          <p className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">
+                            {isInterrogating ? "Broadcasting discovery packets" : "AI Search on standby"}
+                          </p>
+                       </div>
                     </div>
-                    <Button onClick={() => setActiveTab('withdraw')} disabled={foundCount === 0} className="w-full h-12 bg-primary text-black font-black uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(173,79,230,0.2)] hover:opacity-90 transition-opacity">
-                      Go to withdrawal
-                    </Button>
                   </div>
                 </div>
               )}
@@ -478,7 +483,7 @@ export default function AiCryptoDashboard() {
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Session earnings</h4>
                       </div>
                       <p className="text-4xl font-black font-code text-white">${(foundCount * 145.22).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-[10px] text-green-500 mt-2">{foundCount} Active matches in current session</p>
+                      <p className="text-[10px] text-green-500 mt-2">{foundCount} Found wallets in current session</p>
                     </div>
                     
                     <div className="glass-panel p-6 rounded-2xl border-white/5 bg-white/[0.02]">
@@ -501,7 +506,12 @@ export default function AiCryptoDashboard() {
                   </div>
 
                   <div className="flex-1 glass-panel rounded-2xl p-8 flex flex-col overflow-hidden">
-                    <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6">Session asset list</h3>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-sm font-black uppercase tracking-[0.2em]">Recovery Ledger</h3>
+                      <div className="flex items-center gap-4 text-[10px] font-code text-primary/60">
+                        <span>{foundCount} ASSETS DISCOVERED</span>
+                      </div>
+                    </div>
                     <div className="flex-1 overflow-y-auto terminal-scrollbar space-y-4">
                       {foundCount > 0 ? Array.from({ length: foundCount }).map((_, i) => (
                         <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
@@ -661,13 +671,13 @@ export default function AiCryptoDashboard() {
               {activeTab === 'dashboard' && (
                 <div className="flex gap-4 items-center justify-center pt-8 border-t border-white/5 pb-4 shrink-0">
                   <Button onClick={stopInterrogation} disabled={!isInterrogating} variant="outline" className="bg-red-500/5 border-red-500/20 hover:bg-red-500/10 text-red-500/80 h-14 px-12 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all">
-                    <Power className="w-4 h-4 mr-3" /> Stop scan
+                    <Power className="w-4 h-4 mr-3" /> STOP SCAN
                   </Button>
                   <Button onClick={startInterrogation} disabled={isInterrogating} className={cn("h-14 px-20 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_30px_rgba(173,79,230,0.3)] hover:opacity-90")}>
                     {isInterrogating ? (
                       <div className="flex items-center gap-3"><RefreshCcw className="w-4 h-4 animate-spin" /> Active</div>
                     ) : (
-                      <div className="flex items-center gap-3"><Zap className="w-4 h-4" /> Initialize Interrogator</div>
+                      <div className="flex items-center gap-3"><Zap className="w-4 h-4" /> START SCAN</div>
                     )}
                   </Button>
                 </div>
