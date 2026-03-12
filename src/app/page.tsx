@@ -233,24 +233,35 @@ export default function AiCryptoDashboard() {
     let bootTimeout: NodeJS.Timeout
 
     if (isInterrogating) {
+      // Professional boot sequence
       setLogs([])
       addLog("CONNECTING TO SERVERS...", "system")
-      addLog("CHECKING PORTS AND HANDSHAKES...", "info")
-      addLog("VERIFYING BIP39 ENTROPY ENGINE...", "system")
       
-      bootTimeout = setTimeout(() => {
+      const bootSequence = async () => {
+        await new Promise(resolve => setTimeout(resolve, 400));
+        addLog("CHECKING PORTS AND HANDSHAKES...", "info")
+        await new Promise(resolve => setTimeout(resolve, 400));
+        addLog("CHECKING CONFIGURATIONS...", "info")
+        await new Promise(resolve => setTimeout(resolve, 400));
+        addLog("CHECKING PROXY...", "info")
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        const aiStatusMsg = isAiSearchConnected ? "AI SEARCH: CONNECTED" : "AI SEARCH: NOT CONNECTED";
+        addLog(aiStatusMsg, isAiSearchConnected ? "success" : "warning")
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
         addLog("SCAN ENGINE: ACTIVE", "system")
         addLog(`UTILIZING ${hardwareCores || 8} THREADS`, "info")
 
-        // Extremely fast interval while maintaining 1-by-1 increment
-        // Minimum interval is around 1ms to 4ms depending on browser caps
+        // Start high-velocity generation
+        // Sequential 1-by-1 increment as requested
         const intervalTime = Math.max(1, 80 - (systemIntensity[0] * 0.75));
-
+        
         aiFetchInterval = setInterval(() => {
           // Generate actual BIP39 mnemonic
           const phrase = bip39.generateMnemonic();
           
-          // Use only raw words as requested
+          // Display raw phrase smoothly
           addLog(phrase, "ai")
           
           // Sequential 1-by-1 increment
@@ -259,7 +270,9 @@ export default function AiCryptoDashboard() {
           // Dynamic CPU load simulation
           setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 3)))
         }, intervalTime)
-      }, 2500)
+      }
+
+      bootSequence()
     } else {
       setCpuLoad(0)
     }
@@ -268,7 +281,7 @@ export default function AiCryptoDashboard() {
       if (aiFetchInterval) clearInterval(aiFetchInterval)
       if (bootTimeout) clearTimeout(bootTimeout)
     }
-  }, [isInterrogating, addLog, systemIntensity, hardwareCores])
+  }, [isInterrogating, addLog, systemIntensity, hardwareCores, isAiSearchConnected])
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return
