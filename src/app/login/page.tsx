@@ -53,8 +53,8 @@ export default function LoginPage() {
     if (cleanLicense.length !== 12) {
        toast({
         variant: "destructive",
-        title: "Invalid License",
-        description: "Standard license keys must be exactly 12 alphanumeric characters."
+        title: "Invalid License Format",
+        description: "License keys must be exactly 12 alphanumeric characters."
       })
       return
     }
@@ -62,7 +62,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // 1. Verify License Key in Firestore using your specific collection and document ID
+      // 1. Verify License Key in Firestore
       const licenseRef = doc(db, 'licenses', cleanLicense);
       const licenseSnap = await getDoc(licenseRef);
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
       const licenseData = licenseSnap.data();
       
       if (licenseData.status !== 'active') {
-        throw new Error("This license is currently suspended or expired.");
+        throw new Error("This license is currently suspended or inactive.");
       }
 
       // 2. Simulate Neural Handshake for visual immersion
