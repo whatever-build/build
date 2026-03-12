@@ -24,7 +24,8 @@ import {
   Radio,
   Share2,
   Eye,
-  EyeOff
+  EyeOff,
+  Trash2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -53,7 +54,7 @@ const SERVERS = [
   { id: 'node-sigma-02', name: 'SILK-ROAD-02', region: 'Asia (Singapore)', latency: '145ms', status: 'active', load: 12 },
   { id: 'node-sigma-01', name: 'PACIFIC-RIM-09', region: 'Asia (Tokyo)', latency: '112ms', status: 'active', load: 54 },
   { id: 'node-delta-03', name: 'ANDES-CORE-03', region: 'SA (São Paulo)', latency: '168ms', status: 'active', load: 22 },
-  { id: 'node-zeta-01', name: 'SAHARA-RELAY-01', region: 'Africa (Joburg)', latency: '210ms', status: 'active', load: 15 },
+  { id: 'node-zeta-01', name: 'SAHARA-RELAY-01', region: 'Africa (Joburg)', latency: '112ms', status: 'active', load: 15 },
   { id: 'node-kappa-05', name: 'GULF-STREAM-05', region: 'Middle East (Dubai)', latency: '85ms', status: 'active', load: 38 },
   { id: 'node-nexus-02', name: 'SYDNEY-HUB-02', region: 'Oceania (Sydney)', latency: '190ms', status: 'active', load: 29 },
   { id: 'node-arctic-01', name: 'ARCTIC-VAULT-01', region: 'Arctic (Reykjavik)', latency: '45ms', status: 'active', load: 8 },
@@ -98,6 +99,10 @@ export default function AiCryptoDashboard() {
   const [selectedServerId, setSelectedServerId] = useState('node-alpha-01')
   const [activeProtocols, setActiveProtocols] = useState<string[]>(['autonomous', 'mesh-relay'])
   
+  // Memory Management States
+  const [isAutoMemoryEnabled, setIsAutoMemoryEnabled] = useState(true)
+  const [lastPurgeTime, setLastPurgeTime] = useState<string | null>(null)
+  
   const [isAiSearchConnected, setIsAiSearchConnected] = useState(false)
   const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
   const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
@@ -124,6 +129,16 @@ export default function AiCryptoDashboard() {
     ].slice(0, 50))
   }, [])
 
+  const clearMemory = useCallback(() => {
+    setLogs([])
+    setServerLogs([])
+    setLastPurgeTime(new Date().toLocaleTimeString('en-GB', { hour12: false }))
+    toast({
+      title: "Memory Purged",
+      description: "Terminal buffers and session cache have been cleared."
+    })
+  }, [toast])
+
   const connectAiSearch = async () => {
     if (isAiSearchConnecting || isAiSearchConnected) return
     setIsAiSearchConnecting(true)
@@ -148,6 +163,7 @@ export default function AiCryptoDashboard() {
     toast({ title: "Neural Core Linked", description: "Heuristic search mode enabled." })
   }
 
+  // Handle Hydration and Cores detection
   useEffect(() => {
     const updateTime = () => setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
     updateTime();
@@ -158,6 +174,7 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // Server heartbeats
   useEffect(() => {
     const interval = setInterval(() => {
       const msgs = [
@@ -174,11 +191,13 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, [addServerLog]);
 
+  // Scroll management
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
     if (serverLogRef.current) serverLogRef.current.scrollTop = 0;
   }, [logs, serverLogs]);
 
+  // Session timer
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
     if (isInterrogating) {
@@ -189,6 +208,18 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(timerInterval)
   }, [isInterrogating])
 
+  // Memory Management Auto-Purge Interval (5 minutes)
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isAutoMemoryEnabled) {
+      interval = setInterval(() => {
+        clearMemory()
+      }, 5 * 60 * 1000)
+    }
+    return () => clearInterval(interval)
+  }, [isAutoMemoryEnabled, clearMemory])
+
+  // Core Interrogation Logic
   useEffect(() => {
     let aiFetchInterval: NodeJS.Timeout
     let bootTimeout: NodeJS.Timeout
@@ -204,7 +235,6 @@ export default function AiCryptoDashboard() {
         addLog(`UTILIZING ${hardwareCores || 8} THREADS`, "info")
 
         // Smooth 1-by-1 generation
-        // Calculate interval based on intensity (faster intensity = shorter interval)
         const intervalTime = Math.max(10, 150 - (systemIntensity[0] * 1.3));
 
         aiFetchInterval = setInterval(() => {
@@ -704,6 +734,36 @@ export default function AiCryptoDashboard() {
                       <p className="text-[10px] text-gray-500 uppercase leading-relaxed">
                         Adjusts cryptographic throughput. Detected cores: {hardwareCores || 8}.
                       </p>
+                    </div>
+
+                    <div className="space-y-6 pt-4">
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Memory Management</h4>
+                      <div className="grid grid-cols-1 gap-4">
+                         <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Auto-Purge Buffers (5 min)</p>
+                              <p className="text-[9px] text-gray-600 uppercase">Automatically clear terminal logs to sustain PPS throughput.</p>
+                            </div>
+                            <Switch 
+                              checked={isAutoMemoryEnabled}
+                              onCheckedChange={setIsAutoMemoryEnabled}
+                            />
+                         </div>
+                         <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Manual System Purge</p>
+                              <p className="text-[9px] text-gray-600 uppercase">Last purge: {lastPurgeTime || "Never"}</p>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={clearMemory}
+                              className="h-8 text-[9px] uppercase font-bold border-primary/20 text-primary hover:bg-primary/10"
+                            >
+                              Purge Now
+                            </Button>
+                         </div>
+                      </div>
                     </div>
 
                     <div className="space-y-6 pt-4">
