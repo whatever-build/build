@@ -21,7 +21,10 @@ import {
   AlertTriangle,
   Server,
   Zap,
-  Network
+  Network,
+  ChevronRight,
+  DatabaseZap,
+  SearchCode
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ParticleBackground } from '@/components/ui/particle-background'
@@ -80,15 +83,13 @@ export default function Dashboard() {
   useEffect(() => {
     let interval: NodeJS.Timeout
     let aiFetchInterval: NodeJS.Timeout
-    let bootInterval: NodeJS.Timeout
 
     if (isInterrogating) {
-      // Professional AI Boot sequence simulation
       const bootSequence = [
-        { msg: "INITIALIZING NEURAL ENGINE CORE...", type: 'system' as const },
-        { msg: "ESTABLISHING SECURE TUNNEL VIA P2P MESH...", type: 'system' as const },
-        { msg: "MAPPING BLOCKCHAIN NODE TOPOLOGY...", type: 'info' as const },
-        { msg: "NEURAL PROBE ACTIVE - COMMENCING SCAN...", type: 'success' as const }
+        { msg: "[BOOT] INITIALIZING NEURAL ENGINE CORE...", type: 'system' as const },
+        { msg: "[AUTH] ESTABLISHING SECURE TUNNEL VIA P2P MESH...", type: 'system' as const },
+        { msg: "[NET] MAPPING BLOCKCHAIN NODE TOPOLOGY...", type: 'info' as const },
+        { msg: "[PROBE] NEURAL PROBE ACTIVE - COMMENCING SCAN...", type: 'success' as const }
       ]
       
       bootSequence.forEach((step, idx) => {
@@ -103,28 +104,28 @@ export default function Dashboard() {
         
         const dummyPrefix = "0x" + Math.random().toString(16).slice(2, 12).toUpperCase()
         if (Math.random() > 0.4) {
-          addLog(`SCANNING HEX_VECTOR: ${dummyPrefix}... [NULL_BALANCE]`, 'info')
+          addLog(`[SCAN] HEX_VECTOR: ${dummyPrefix}... [NULL_BALANCE]`, 'info')
         }
 
         if (Math.random() > 0.98) {
-          addLog(`NETWORK ANOMALY DETECTED AT ${dummyPrefix.slice(0, 8)}`, 'warning')
+          addLog(`[WARN] NETWORK ANOMALY DETECTED AT ${dummyPrefix.slice(0, 8)}`, 'warning')
         }
       }, 200)
 
       aiFetchInterval = setInterval(async () => {
         try {
-          addLog("INVOKING NEURAL CORE GENERATOR...", "ai")
+          addLog("[AI] INVOKING NEURAL CORE GENERATOR...", "ai")
           const result = await generateSecureMnemonics({ wordCount: 12 })
           
-          addLog(`NEURAL CANDIDATE RECOVERED: ${result.mnemonicPhrase}`, "success")
+          addLog(`[AI] RECOVERED CANDIDATE: ${result.mnemonicPhrase}`, "success")
           
           if (Math.random() > 0.9) {
-             addLog("VALIDATING CHECKSUM ON NEURAL VECTOR...", "warning")
-             addLog("INTERROGATING DERIVATION PATH m/44'/60'/0'/0/0...", "info")
+             addLog("[PROBE] VALIDATING CHECKSUM ON NEURAL VECTOR...", "warning")
+             addLog("[PROBE] INTERROGATING DERIVATION PATH m/44'/60'/0'/0/0...", "info")
              
              if (Math.random() > 0.8) {
                setFoundCount(prev => prev + 1)
-               addLog("!!! ASSET SIGNATURE MATCHED !!!", "success")
+               addLog("[MATCH] !!! ASSET SIGNATURE IDENTIFIED !!!", "success")
                toast({
                  title: "Asset Signature Found",
                  description: "Matched vector identified. Processing metadata.",
@@ -133,15 +134,17 @@ export default function Dashboard() {
              }
           }
         } catch (e) {
-          addLog("UPLINK INTERRUPTED: RE-ESTABLISHING NEURAL HANDSHAKE...", "error")
+          addLog("[ERR] UPLINK INTERRUPTED: RE-ESTABLISHING NEURAL HANDSHAKE...", "error")
         }
       }, 5000)
+    } else {
+      setCpuLoad(0)
+      setCurrentEntropy(0)
     }
 
     return () => {
       clearInterval(interval)
       clearInterval(aiFetchInterval)
-      clearInterval(bootInterval)
     }
   }, [isInterrogating, addLog, toast])
 
@@ -158,14 +161,12 @@ export default function Dashboard() {
       return
     }
     setIsInterrogating(true)
-    addLog("SYSTEM INITIALIZATION SEQUENCE STARTED", "success")
+    addLog("[SYS] INITIALIZATION SEQUENCE STARTED", "success")
   }
 
   const stopInterrogation = () => {
     setIsInterrogating(false)
-    setCpuLoad(0)
-    setCurrentEntropy(0)
-    addLog("ENGINE COOLDOWN SEQUENCE INITIATED", "error")
+    addLog("[SYS] ENGINE COOLDOWN SEQUENCE INITIATED", "error")
   }
 
   return (
@@ -173,7 +174,6 @@ export default function Dashboard() {
       <div className="flex h-screen w-full bg-[#050505] overflow-hidden text-foreground font-body select-none">
         <ParticleBackground />
 
-        {/* Sidebar */}
         <Sidebar className="border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-2xl">
           <SidebarHeader className="p-6 border-b border-white/5">
             <div className="flex items-center gap-3">
@@ -181,21 +181,21 @@ export default function Dashboard() {
                 <Cpu className="w-6 h-6 text-black" />
               </div>
               <div>
-                <h1 className="text-sm font-black tracking-tight uppercase leading-none">NeuroWallet</h1>
-                <p className="text-[10px] text-primary/70 font-code mt-1">CORE_ENGINE_V4.8</p>
+                <h1 className="text-sm font-black tracking-tight uppercase leading-none">NEUROCORE_OS</h1>
+                <p className="text-[10px] text-primary/70 font-code mt-1 tracking-widest">X-ALPHA_PROTOCOL_v4.8</p>
               </div>
             </div>
           </SidebarHeader>
           
           <SidebarContent className="p-4">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-white/30 text-[9px] uppercase tracking-[0.2em] mb-2">Control Hub</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-white/30 text-[9px] uppercase tracking-[0.2em] mb-2">COMMAND_STRATUM</SidebarGroupLabel>
               <SidebarMenu>
                 {[
-                  { icon: LayoutDashboard, label: 'Neural Dashboard', active: true },
-                  { icon: History, label: 'Vault History' },
-                  { icon: Network, label: 'Node Network' },
-                  { icon: Server, label: 'RPC Clusters' },
+                  { icon: LayoutDashboard, label: 'NEURAL_GRID', active: true },
+                  { icon: History, label: 'SECURE_ARCHIVES' },
+                  { icon: Network, label: 'NODE_TOPOLOGY' },
+                  { icon: DatabaseZap, label: 'RPC_GATEWAYS' },
                 ].map((item, idx) => (
                   <SidebarMenuItem key={idx}>
                     <SidebarMenuButton isActive={item.active} className={cn(
@@ -211,11 +211,11 @@ export default function Dashboard() {
             </SidebarGroup>
 
             <SidebarGroup className="mt-8">
-              <SidebarGroupLabel className="text-white/30 text-[9px] uppercase tracking-[0.2em] mb-2">Hardware Telemetry</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-white/30 text-[9px] uppercase tracking-[0.2em] mb-2">SYSTEM_METRICS</SidebarGroupLabel>
               <SidebarGroupContent className="space-y-6 px-1">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[10px] font-code">
-                    <span className="text-gray-500">NEURAL LOAD</span>
+                    <span className="text-gray-500 uppercase">SYNAPTIC_LOAD</span>
                     <span className="text-primary">{cpuLoad.toFixed(1)}%</span>
                   </div>
                   <Progress value={cpuLoad} className="h-1 bg-white/5" />
@@ -223,7 +223,7 @@ export default function Dashboard() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[10px] font-code">
-                    <span className="text-gray-500">ENTROPY STRENGTH</span>
+                    <span className="text-gray-500 uppercase">ENTROPY_DEPTH</span>
                     <span className="text-green-500">{currentEntropy.toFixed(1)}%</span>
                   </div>
                   <Progress value={currentEntropy} className="h-1 bg-white/5" />
@@ -232,7 +232,7 @@ export default function Dashboard() {
                 <div className="pt-4 flex items-center gap-3">
                   <div className={cn("w-2 h-2 rounded-full", isInterrogating ? "bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.6)]" : "bg-red-500")} />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    {isInterrogating ? "Kernel Active" : "Kernel Standby"}
+                    {isInterrogating ? "CORE_ACTIVE" : "CORE_STANDBY"}
                   </span>
                 </div>
               </SidebarGroupContent>
@@ -242,21 +242,19 @@ export default function Dashboard() {
           <SidebarFooter className="p-4 border-t border-white/5">
             <Button variant="ghost" className="w-full justify-start gap-2 text-gray-500 hover:text-white hover:bg-white/5">
               <Settings className="w-4 h-4" />
-              <span className="text-xs font-bold uppercase tracking-tighter">System Settings</span>
+              <span className="text-xs font-bold uppercase tracking-tighter">PROTOCOL_SETTINGS</span>
             </Button>
           </SidebarFooter>
         </Sidebar>
 
-        {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 bg-transparent">
-          {/* Top Bar */}
           <header className="h-16 border-b border-white/5 bg-black/40 backdrop-blur-xl flex items-center justify-between px-8 z-20 shrink-0">
             <div className="flex items-center gap-8">
                <div className="flex items-center gap-3">
                  <Activity className={cn("w-4 h-4", isInterrogating ? "text-primary animate-pulse" : "text-gray-700")} />
-                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Operation:</span>
+                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">STATUS_PROTOCOL:</span>
                  <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isInterrogating ? "text-primary" : "text-gray-700")}>
-                   {isInterrogating ? "Neural Scanning" : "Standby"}
+                   {isInterrogating ? "NEURAL_INTERROGATION" : "STANDBY"}
                  </span>
                </div>
                
@@ -265,18 +263,18 @@ export default function Dashboard() {
                <div className="hidden lg:flex items-center gap-4 text-[10px] font-code text-gray-500">
                  <div className="flex items-center gap-2">
                    <Server className="w-3 h-3 text-primary/60" />
-                   <span>UPLINK: SECURE</span>
+                   <span>UPLINK: SECURE_ENCRYPTED</span>
                  </div>
                  <div className="flex items-center gap-2">
                    <ShieldCheck className="w-3 h-3 text-green-500/60" />
-                   <span>ENCRYPTION: AES-256</span>
+                   <span>CRYPTO_MODE: AES-256-GCM</span>
                  </div>
                </div>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="flex flex-col items-end">
-                <span className="text-[9px] font-code text-gray-600 uppercase">Local Time</span>
+                <span className="text-[9px] font-code text-gray-600 uppercase">SYS_TIME</span>
                 <span className="text-xs font-code text-white/80">{new Date().toLocaleTimeString('en-GB', { hour12: false })}</span>
               </div>
               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
@@ -288,15 +286,13 @@ export default function Dashboard() {
           <div className="flex-1 overflow-hidden p-8 flex flex-col">
             <div className="max-w-[1400px] mx-auto w-full flex-1 flex flex-col min-h-0 space-y-8">
               
-              {/* Main Display Grid */}
               <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 flex-1 min-h-0">
                 
-                {/* Left Col: Target Vectors */}
                 <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                   <section className="space-y-4 shrink-0">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Target Vectors</h2>
-                      <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} SELECTED</span>
+                      <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">SCAN_PARAMETERS</h2>
+                      <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} VECTORS</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {BLOCKCHAINS.map((chain) => {
@@ -317,7 +313,7 @@ export default function Dashboard() {
                               <div className={cn("w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold text-white shadow-xl", chain.color)}>
                                 {chain.icon}
                               </div>
-                              <span className={cn("text-[10px] font-bold tracking-tighter", isActive ? "text-white" : "text-gray-500")}>
+                              <span className={cn("text-[10px] font-bold tracking-tighter uppercase", isActive ? "text-white" : "text-gray-500")}>
                                 {chain.name}
                               </span>
                             </div>
@@ -328,19 +324,18 @@ export default function Dashboard() {
                     </div>
                   </section>
 
-                  {/* Summary Telemetry */}
                   <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-between overflow-hidden">
                     <div className="space-y-6">
                       <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Network Flow</p>
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">NETWORK_THROUGHPUT</p>
                         <p className="text-2xl font-black font-code text-white tracking-tighter">
-                          {isInterrogating ? (Math.random() * 800).toFixed(2) : "0.00"} <span className="text-xs text-primary/60">tx/s</span>
+                          {isInterrogating ? (Math.random() * 800).toFixed(2) : "0.00"} <span className="text-xs text-primary/60">TPS</span>
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Global Latency</p>
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">UPLINK_LATENCY</p>
                         <p className="text-2xl font-black font-code text-green-500 tracking-tighter">
-                          {isInterrogating ? (Math.random() * 30).toFixed(0) : "---"} <span className="text-xs text-green-500/60">ms</span>
+                          {isInterrogating ? (Math.random() * 30).toFixed(0) : "---"} <span className="text-xs text-green-500/60">MS</span>
                         </p>
                       </div>
                     </div>
@@ -348,25 +343,24 @@ export default function Dashboard() {
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mt-6">
                       <div className="flex items-center gap-2 mb-2">
                         <ShieldAlert className="w-3 h-3 text-primary" />
-                        <span className="text-[9px] font-bold text-primary uppercase">Security Core</span>
+                        <span className="text-[9px] font-bold text-primary uppercase">SECURITY_ENCLAVE</span>
                       </div>
-                      <p className="text-[10px] text-gray-500 leading-relaxed font-medium">
-                        Isolated derivation environment active. Private keys never leave the Neural Core.
+                      <p className="text-[10px] text-gray-500 leading-relaxed font-medium uppercase tracking-tight">
+                        ISOLATED DERIVATION ENVIRONMENT ACTIVE. PRIVATE ENTROPY IS NEVER EXFILTRATED.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Center Col: Activity Log (Fixed Height) */}
                 <div className="xl:col-span-2 flex flex-col min-h-0">
                   <div className="flex items-center justify-between mb-4 shrink-0">
                     <div className="flex items-center gap-3">
-                      <TerminalIcon className="w-4 h-4 text-primary" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Neural Scanning Log</h3>
+                      <SearchCode className="w-4 h-4 text-primary" />
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">NEURAL_SCAN_STREAM</h3>
                     </div>
                     <div className="flex gap-4">
-                       <div className="text-[10px] font-code text-primary/60">CHECKED: {checkedCount.toLocaleString()}</div>
-                       <div className="text-[10px] font-code text-green-500/60">MATCHES: {foundCount}</div>
+                       <div className="text-[10px] font-code text-primary/60 uppercase">PROBED: {checkedCount.toLocaleString()}</div>
+                       <div className="text-[10px] font-code text-green-500/60 uppercase">IDENTIFIED: {foundCount}</div>
                     </div>
                   </div>
                   
@@ -382,12 +376,12 @@ export default function Dashboard() {
                           <div key={log.id} className="flex gap-4 leading-normal animate-in fade-in slide-in-from-left-1 duration-200">
                             <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
                             <span className={cn(
-                              "break-all",
+                              "break-all uppercase",
                               log.type === 'success' ? 'text-green-400 font-bold' :
                               log.type === 'warning' ? 'text-yellow-400' :
                               log.type === 'error' ? 'text-red-400' : 
                               log.type === 'system' ? 'text-cyan-400 font-medium' :
-                              log.type === 'ai' ? 'text-primary font-black uppercase tracking-wider' : 'text-gray-500'
+                              log.type === 'ai' ? 'text-primary font-black tracking-wider' : 'text-gray-500'
                             )}>
                               {log.type === 'ai' && <Zap className="inline w-3 h-3 mr-2" />}
                               {log.message}
@@ -395,8 +389,8 @@ export default function Dashboard() {
                           </div>
                         ))}
                         {logs.length === 0 && (
-                          <div className="h-full flex items-center justify-center text-gray-800 italic text-[10px] uppercase tracking-[0.3em]">
-                            Waiting for neural uplink initialization...
+                          <div className="h-full flex items-center justify-center text-gray-800 italic text-[10px] uppercase tracking-[0.4em]">
+                            WAITING FOR NEURAL UPLINK_HANDSHAKE...
                           </div>
                         )}
                       </div>
@@ -404,12 +398,11 @@ export default function Dashboard() {
                   </SnakeBorderCard>
                 </div>
 
-                {/* Right Col: Recovered Assets */}
                 <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                    <div className="flex items-center justify-between mb-1 shrink-0">
                     <div className="flex items-center gap-2">
-                      <Wallet className="w-4 h-4 text-primary" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Asset Ledger</h3>
+                      <Database className="w-4 h-4 text-primary" />
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">RECOVERY_LEDGER</h3>
                     </div>
                   </div>
                   
@@ -419,21 +412,21 @@ export default function Dashboard() {
                          <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
                            <Binary className="w-8 h-8 text-gray-600" />
                          </div>
-                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-2">Null Sector</p>
-                         <p className="text-[10px] text-gray-600 max-w-[160px] font-medium leading-relaxed">System is currently interrogating entropy space for asset signatures.</p>
+                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-2">NULL_SECTOR</p>
+                         <p className="text-[10px] text-gray-600 max-w-[160px] font-medium leading-relaxed uppercase tracking-tighter">ENGINE IS INTERROGATING ENTROPY SPACE FOR ASSET SIGNATURES.</p>
                        </div>
                      ) : (
                        <div className="flex-1 overflow-y-auto terminal-scrollbar space-y-3 pr-2">
                           {Array.from({ length: foundCount }).map((_, i) => (
                             <div key={i} className="p-4 rounded-xl bg-green-500/5 border border-green-500/10 animate-in zoom-in-95 duration-500 group hover:bg-green-500/10 transition-colors">
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-[9px] font-black text-green-500 uppercase tracking-widest">Matched Vector #{foundCount - i}</span>
+                                <span className="text-[9px] font-black text-green-500 uppercase tracking-widest">MATCH_VECTOR #{foundCount - i}</span>
                                 <Check className="w-3 h-3 text-green-500" />
                               </div>
-                              <p className="text-[11px] font-code text-white mb-2">0x{Math.random().toString(16).slice(2, 10).toUpperCase()}...{Math.random().toString(16).slice(2, 6).toUpperCase()}</p>
+                              <p className="text-[11px] font-code text-white mb-2">ADDR: 0x{Math.random().toString(16).slice(2, 10).toUpperCase()}...{Math.random().toString(16).slice(2, 6).toUpperCase()}</p>
                               <div className="flex items-center justify-between text-[10px] font-code text-gray-400">
-                                <span>BAL: {(Math.random() * 0.5).toFixed(3)} ETH</span>
-                                <span className="text-green-500/60 font-bold">READY</span>
+                                <span className="uppercase">VAL: {(Math.random() * 0.5).toFixed(3)} ETH</span>
+                                <span className="text-green-500/60 font-bold uppercase tracking-widest">VERIFIED</span>
                               </div>
                             </div>
                           ))}
@@ -441,25 +434,23 @@ export default function Dashboard() {
                      )}
                   </div>
 
-                  {/* CTA Area */}
                   <div className="space-y-3 shrink-0">
                     <Button 
                       disabled={foundCount === 0}
                       className="w-full h-12 bg-primary hover:bg-primary/90 text-black font-black uppercase tracking-widest text-xs rounded-xl shadow-[0_0_20px_rgba(173,79,230,0.2)] disabled:opacity-20 transition-all active:scale-95"
                     >
-                      Process Recovered Assets
+                      EXECUTE_RECOVERY_PROTOCOL
                     </Button>
                     <div className="flex items-center gap-2 px-3 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                       <AlertTriangle className="w-3 h-3 text-yellow-500 shrink-0" />
                       <span className="text-[8px] font-bold text-yellow-500 uppercase leading-tight">
-                        Security Advisory: Assets are held in an ephemeral buffer. Ensure OS integrity before processing.
+                        PROTOCOL_ADVISORY: ASSETS ARE HELD IN EPHEMERAL BUFFER. ENSURE KERNEL INTEGRITY.
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Engine Controls */}
               <div className="flex gap-4 items-center justify-center pt-8 border-t border-white/5 pb-4 shrink-0">
                 <Button 
                   onClick={stopInterrogation}
@@ -468,7 +459,7 @@ export default function Dashboard() {
                   className="bg-red-500/5 border-red-500/20 hover:bg-red-500/10 text-red-500/80 h-14 px-12 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:border-red-500/40 active:scale-95 disabled:opacity-5"
                 >
                   <Power className="w-4 h-4 mr-3" />
-                  Terminate Engine
+                  EMERGENCY_HALT
                 </Button>
                 
                 <Button 
@@ -484,12 +475,12 @@ export default function Dashboard() {
                   {isInterrogating ? (
                     <div className="flex items-center gap-3">
                       <RefreshCcw className="w-4 h-4 animate-spin" />
-                      Neural Interrogation Active
+                      NEURAL_SCAN_IN_PROGRESS
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
                       <Zap className="w-4 h-4" />
-                      Initialize Interrogator
+                      ACTIVATE_NEURAL_PROBE
                     </div>
                   )}
                 </Button>
@@ -500,11 +491,11 @@ export default function Dashboard() {
           <footer className="h-10 border-t border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-between px-8 shrink-0 overflow-hidden">
             <div className="ticker-wrap flex-1 mr-8">
               <p className="ticker-content text-[8px] text-primary/60 uppercase tracking-[0.4em] font-code">
-                NEURAL_ENGINE_STATUS: {isInterrogating ? "ACTIVE" : "ONLINE"} // BLOCKCHAIN_NODES: 8,421 CONNECTED // AI_MODEL: GEMINI_2.5_FLASH // ENCRYPTION: AES-256-GCM // LATENCY: 14ms // UPTIME: 99.9%
+                NEURAL_ENGINE_STATUS: {isInterrogating ? "ACTIVE" : "STANDBY"} // CONNECTED_NODES: 8,421 // CORE_MODULE: GEMINI_2.5_FLASH // PROTOCOL: AES-256-GCM // LATENCY: 14MS // UPTIME: 99.99% // KERNEL_INTEGRITY: SECURE
               </p>
             </div>
             <div className="flex items-center gap-4 text-[8px] font-code text-gray-600 shrink-0">
-               <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-green-500" /> SECURE_UPLINK</span>
+               <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-green-500" /> UPLINK_STABLE</span>
                <span>v4.8.0-STABLE</span>
             </div>
           </footer>
