@@ -1,89 +1,139 @@
+
 "use client"
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useState, useMemo } from "react"
+import Particles, { initParticlesEngine } from "@tsparticles/react"
+import { loadSlim } from "@tsparticles/slim"
+import type { Container, ISourceOptions } from "@tsparticles/engine"
+
+/**
+ * @fileOverview Full-screen animated particle background using tsParticles.
+ * Creates a "blockchain network" effect with dots and interactive glowing connections.
+ */
 
 export function ParticleBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [init, setInit] = useState(false)
 
+  // Initialize the particles engine once
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let animationFrameId: number
-    let particles: Particle[] = []
-
-    const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-
-    class Particle {
-      x: number
-      y: number
-      size: number
-      speedX: number
-      speedY: number
-      color: string
-
-      constructor() {
-        this.x = Math.random() * canvas!.width
-        this.y = Math.random() * canvas!.height
-        this.size = Math.random() * 2 + 0.5
-        this.speedX = (Math.random() - 0.5) * 0.5
-        this.speedY = (Math.random() - 0.5) * 0.5
-        this.color = 'rgba(173, 79, 230, 0.2)'
-      }
-
-      update() {
-        this.x += this.speedX
-        this.y += this.speedY
-
-        if (this.x > canvas!.width) this.x = 0
-        if (this.x < 0) this.x = canvas!.width
-        if (this.y > canvas!.height) this.y = 0
-        if (this.y < 0) this.y = canvas!.height
-      }
-
-      draw() {
-        ctx!.fillStyle = this.color
-        ctx!.beginPath()
-        ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx!.fill()
-      }
-    }
-
-    const init = () => {
-      resize()
-      particles = Array.from({ length: 100 }, () => new Particle())
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      particles.forEach((p) => {
-        p.update()
-        p.draw()
-      })
-      animationFrameId = requestAnimationFrame(animate)
-    }
-
-    window.addEventListener('resize', resize)
-    init()
-    animate()
-
-    return () => {
-      window.removeEventListener('resize', resize)
-      cancelAnimationFrame(animationFrameId)
-    }
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine)
+    }).then(() => {
+      setInit(true)
+    })
   }, [])
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: 'transparent' }}
-    />
+  const particlesLoaded = async (container?: Container): Promise<void> => {
+    // Optional: add logic when particles are loaded
+  }
+
+  // Memoize options to prevent unnecessary re-renders
+  const options: ISourceOptions = useMemo(
+    () => ({
+      fullScreen: {
+        enable: true,
+        zIndex: -1,
+      },
+      background: {
+        color: {
+          value: "transparent", // Background color #0a0a0a is handled by body CSS
+        },
+      },
+      fpsLimit: 60,
+      interactivity: {
+        events: {
+          onClick: {
+            enable: true,
+            mode: "push",
+          },
+          onHover: {
+            enable: true,
+            mode: "grab", // Creates connections to the mouse
+            parallax: {
+              enable: true,
+              force: 60,
+              smooth: 10,
+            },
+          },
+          resize: {
+            enable: true,
+          },
+        },
+        modes: {
+          push: {
+            quantity: 4,
+          },
+          grab: {
+            distance: 200,
+            links: {
+              opacity: 0.8,
+              color: "#4facfe",
+            },
+          },
+          repulse: {
+            distance: 100,
+            duration: 0.4,
+          },
+        },
+      },
+      particles: {
+        color: {
+          value: "#ffffff",
+        },
+        links: {
+          color: "#4facfe",
+          distance: 150,
+          enable: true,
+          opacity: 0.3,
+          width: 1,
+          shadow: {
+            enable: true,
+            blur: 5,
+            color: "#00ffff",
+          },
+        },
+        move: {
+          direction: "none",
+          enable: true,
+          outModes: {
+            default: "out",
+          },
+          random: false,
+          speed: 0.8,
+          straight: false,
+        },
+        number: {
+          density: {
+            enable: true,
+            area: 800,
+          },
+          value: 80,
+        },
+        opacity: {
+          value: 0.5,
+        },
+        shape: {
+          type: "circle",
+        },
+        size: {
+          value: { min: 1, max: 3 },
+        },
+      },
+      detectRetina: true,
+    }),
+    []
   )
+
+  if (init) {
+    return (
+      <Particles
+        id="tsparticles"
+        particlesLoaded={particlesLoaded}
+        options={options}
+        className="fixed inset-0 pointer-events-none z-0"
+      />
+    )
+  }
+
+  return null
 }
