@@ -11,7 +11,8 @@ import {
   Zap,
   User,
   Loader2,
-  Key
+  Key,
+  AlertCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,8 +39,10 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Clean inputs
     const cleanUsername = username.trim()
-    const cleanLicense = licenseKey.trim().toUpperCase()
+    // Convert to uppercase and keep only alphanumeric characters for the database lookup
+    const cleanLicense = licenseKey.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
 
     if (!cleanUsername || !cleanLicense) {
       toast({
@@ -50,24 +53,16 @@ export default function LoginPage() {
       return
     }
 
-    if (cleanLicense.length !== 12) {
-       toast({
-        variant: "destructive",
-        title: "Invalid License Format",
-        description: "License keys must be exactly 12 alphanumeric characters."
-      })
-      return
-    }
-
     setIsLoading(true)
 
     try {
       // 1. Verify License Key in Firestore
+      // We look for the document ID matching the cleaned license string
       const licenseRef = doc(db, 'licenses', cleanLicense);
       const licenseSnap = await getDoc(licenseRef);
 
       if (!licenseSnap.exists()) {
-        throw new Error("License key not found in the central registry.");
+        throw new Error("Credential mismatch. License key not found in central registry.");
       }
 
       const licenseData = licenseSnap.data();
