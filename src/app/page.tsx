@@ -30,7 +30,8 @@ import {
   Type,
   Palette,
   Unplug,
-  Layers
+  Layers,
+  RotateCcw
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -75,6 +76,8 @@ const SEED_COLORS = [
   { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient' },
 ]
 
+const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v1';
+
 interface FoundWallet {
   id: string;
   address: string;
@@ -103,7 +106,7 @@ export default function AiCryptoDashboard() {
   const [checkedCount, setCheckedCount] = useState(0)
   const [foundCount, setFoundCount] = useState(0)
   const [foundWallets, setFoundWallets] = useState<FoundWallet[]>([])
-  const [activeBlockchains, setActiveBlockchains] = useState<string[]>(BLOCKCHAINS.slice(0, 2).map(b => b.id))
+  const [activeBlockchains, setActiveBlockchains] = useState<string[]>([])
   const [cpuLoad, setCpuLoad] = useState(0)
   const [systemIntensity, setSystemIntensity] = useState([85])
   const [sessionSeconds, setSessionSeconds] = useState(0)
@@ -112,7 +115,6 @@ export default function AiCryptoDashboard() {
   const [allocatedCores, setAllocatedCores] = useState([4])
   const [selectedServerId, setSelectedServerId] = useState('node-na-east')
   
-  // Customization States
   const [seedPhraseColor, setSeedPhraseColor] = useState('text-white/80')
   const [consoleFontSize, setConsoleFontSize] = useState([11])
   const [isAutoMemoryEnabled, setIsAutoMemoryEnabled] = useState(true)
@@ -125,13 +127,65 @@ export default function AiCryptoDashboard() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
 
-  // Initialize Buffer for bip39
+  // Initialize Buffer
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const { Buffer } = require('buffer');
       window.Buffer = window.Buffer || Buffer;
     }
   }, []);
+
+  // Load Session on Mount
+  useEffect(() => {
+    const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (savedSession) {
+      try {
+        const data = JSON.parse(savedSession);
+        if (data.checkedCount !== undefined) setCheckedCount(data.checkedCount);
+        if (data.activeBlockchains) setActiveBlockchains(data.activeBlockchains);
+        if (data.systemIntensity) setSystemIntensity(data.systemIntensity);
+        if (data.allocatedCores) setAllocatedCores(data.allocatedCores);
+        if (data.seedPhraseColor) setSeedPhraseColor(data.seedPhraseColor);
+        if (data.consoleFontSize) setConsoleFontSize(data.consoleFontSize);
+        if (data.selectedServerId) setSelectedServerId(data.selectedServerId);
+        if (data.isAutoMemoryEnabled !== undefined) setIsAutoMemoryEnabled(data.isAutoMemoryEnabled);
+      } catch (e) {
+        console.error("Failed to restore session", e);
+      }
+    }
+  }, []);
+
+  // Persist Session on State Changes
+  useEffect(() => {
+    const sessionData = {
+      checkedCount,
+      activeBlockchains,
+      systemIntensity,
+      allocatedCores,
+      seedPhraseColor,
+      consoleFontSize,
+      selectedServerId,
+      isAutoMemoryEnabled
+    };
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+  }, [checkedCount, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, selectedServerId, isAutoMemoryEnabled]);
+
+  const clearSession = useCallback(() => {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    setCheckedCount(0);
+    setActiveBlockchains([]);
+    setSystemIntensity([85]);
+    setAllocatedCores([Math.floor((navigator.hardwareConcurrency || 8) / 2)]);
+    setSeedPhraseColor('text-white/80');
+    setConsoleFontSize([11]);
+    setIsAutoMemoryEnabled(true);
+    setFoundCount(0);
+    setFoundWallets([]);
+    toast({
+      title: "Workstation Reset",
+      description: "All saved progress and configurations have been purged."
+    });
+  }, [toast]);
   
   const addLog = useCallback((message: string, type: LogEntry['type'] = 'info') => {
     setLogs(prev => {
@@ -195,20 +249,21 @@ export default function AiCryptoDashboard() {
     })
   }
 
-  // Handle Hydration and Cores detection
   useEffect(() => {
     const updateTime = () => setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
     updateTime();
     if (typeof window !== 'undefined') {
       const cores = navigator.hardwareConcurrency || 8;
       setHardwareCores(cores);
-      setAllocatedCores([Math.floor(cores / 2)]);
+      // Only set allocated cores if it wasn't loaded from session
+      if (allocatedCores[0] === 4 && !localStorage.getItem(SESSION_STORAGE_KEY)) {
+        setAllocatedCores([Math.floor(cores / 2)]);
+      }
     }
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [allocatedCores]);
 
-  // Server heartbeats
   useEffect(() => {
     const interval = setInterval(() => {
       const msgs = [
@@ -225,13 +280,11 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, [addServerLog]);
 
-  // Scroll management
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
     if (serverLogRef.current) serverLogRef.current.scrollTop = 0;
   }, [logs, serverLogs]);
 
-  // Session timer
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
     if (isInterrogating) {
@@ -240,7 +293,6 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(timerInterval)
   }, [isInterrogating])
 
-  // Memory Management Auto-Purge Interval (5 minutes)
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isAutoMemoryEnabled) {
@@ -251,7 +303,6 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval)
   }, [isAutoMemoryEnabled, clearMemory])
 
-  // Core Generation Logic
   useEffect(() => {
     let aiFetchInterval: NodeJS.Timeout
 
@@ -259,7 +310,6 @@ export default function AiCryptoDashboard() {
       const bootSequence = async () => {
         setLogs([])
         setSessionSeconds(0)
-        setCheckedCount(0)
         
         addLog("ESTABLISHING SECURE HANDSHAKE...", "system")
         await new Promise(resolve => setTimeout(resolve, 300))
@@ -277,24 +327,19 @@ export default function AiCryptoDashboard() {
         addLog("CRYPTOGRAPHIC ENGINE: INITIALIZED", "system")
         addLog(`ALLOCATED CORES: ${allocatedCores[0]}`, "info")
 
-        // Smooth sequential generation loop with AI Search Speed Boost and Core scaling
-        // Higher intensity + more cores = faster speed
         const coreFactor = allocatedCores[0] / hardwareCores;
         const intensityFactor = systemIntensity[0] / 100;
         
-        const baseInterval = 100; // ms
+        const baseInterval = 100;
         const speedBoost = 1000 * intensityFactor * coreFactor;
-        const aiBoost = isAiSearchConnected ? 2.0 : 1.0;
+        const aiBoost = isAiSearchConnected ? 2.5 : 1.0;
         
-        // Final interval targeting smooth sequential flow
-        const finalDelay = Math.max(1, (baseInterval / (1 + (speedBoost / 100))) / aiBoost);
+        const finalDelay = Math.max(1, (baseInterval / (1 + (speedBoost / 50))) / aiBoost);
         
         aiFetchInterval = setInterval(() => {
           const phrase = bip39.generateMnemonic();
           addLog(phrase, "ai")
           setCheckedCount(prev => prev + 1)
-          
-          // Smooth CPU Load visual scaling
           setCpuLoad(Math.min(100, (systemIntensity[0] * coreFactor) + (Math.random() * 5)))
         }, finalDelay)
       }
@@ -807,7 +852,6 @@ export default function AiCryptoDashboard() {
                   <div className="glass-panel rounded-2xl p-10 border-white/5">
                     <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">Engine Protocols</h3>
                     <div className="space-y-12">
-                      {/* Processing Intensity */}
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -829,7 +873,6 @@ export default function AiCryptoDashboard() {
                         </p>
                       </div>
 
-                      {/* Core Allocation */}
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -853,7 +896,7 @@ export default function AiCryptoDashboard() {
                       </div>
 
                       <div className="space-y-6 pt-4 border-t border-white/5">
-                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Memory & Buffer Protocol</h4>
+                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Memory & Session Protocol</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                            <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
                               <div className="space-y-1">
@@ -867,16 +910,16 @@ export default function AiCryptoDashboard() {
                            </div>
                            <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
                               <div className="space-y-1">
-                                <p className="text-[11px] font-bold text-white uppercase tracking-wider">Manual Purge</p>
-                                <p className="text-[9px] text-gray-600 uppercase">Last: {lastPurgeTime || "None"}</p>
+                                <p className="text-[11px] font-bold text-white uppercase tracking-wider">Reset Workstation</p>
+                                <p className="text-[9px] text-gray-600 uppercase">Purge all session and progress data.</p>
                               </div>
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                onClick={clearMemory}
-                                className="h-8 text-[9px] uppercase font-bold border-primary/20 text-primary hover:bg-primary/10"
+                                onClick={clearSession}
+                                className="h-8 text-[9px] uppercase font-bold border-red-500/20 text-red-500 hover:bg-red-500/10"
                               >
-                                Flush
+                                <RotateCcw className="w-3 h-3 mr-2" /> Reset
                               </Button>
                            </div>
                         </div>
