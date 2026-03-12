@@ -27,7 +27,8 @@ import {
   CheckCircle2,
   Wifi,
   Radio,
-  Share2
+  Share2,
+  Signal
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -315,6 +316,13 @@ export default function AiCryptoDashboard() {
                   <div className="flex items-center justify-between text-[10px] font-code">
                     <span className="text-gray-500 uppercase">Latency</span>
                     <span className="text-green-500">{isInterrogating ? "12ms" : "---"}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-[10px] font-code">
+                    <span className="text-gray-500 uppercase">Net Speed</span>
+                    <span className="text-primary font-bold">{isInterrogating ? "842 MB/s" : "0 MB/s"}</span>
                   </div>
                 </div>
 
