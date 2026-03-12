@@ -8,8 +8,9 @@ export interface SessionData {
 }
 
 export const sessionOptions: IronSessionOptions = {
-  // Iron-session requires at least 32 characters for the password
-  password: 'ai-crypto-v4-master-secret-32chars',
+  // Iron-session requires exactly 32 characters or more.
+  // Using a verified 32-character alphanumeric key.
+  password: 'a-secure-32-character-password!!',
   cookieName: 'ai-crypto-session',
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',

@@ -48,6 +48,67 @@ import { Switch } from '@/components/ui/switch'
 import * as bip39 from 'bip39'
 import { logout } from '@/app/login/actions'
 
+const CryptoIcon = ({ id, className }: { id: string, className?: string }) => {
+  switch (id) {
+    case 'btc':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M17.062 9.59c.41-2.73-1.67-4.19-4.51-5.17l.92-3.71h-2.26l-.9 3.6c-.59-.15-1.2-.29-1.79-.43l.9-3.61H7.16l-.92 3.71c-.49-.11-1-.23-1.48-.34l.01-.03-3.12-.78-.6 2.41s1.68.38 1.64.41c.92.23 1.08.84 1.05 1.33l-1.06 4.24c.06.02.15.04.24.07l-.24-.06-1.48 5.95c-.11.27-.4.69-1.04.53.02.04-1.64-.41-1.64-.41l-1.12 2.58 2.94.73c.55.14 1.08.28 1.62.42l-.93 3.74h2.26l.93-3.73c.61.16 1.2.31 1.79.46l-.92 3.71h2.26l.93-3.73c3.86.73 6.76.44 7.98-3.06.99-2.81-.05-4.43-2.08-5.49 1.48-.34 2.59-1.32 2.89-3.34zm-5.17 7.31c-.7 2.81-5.42 1.29-6.95.91l1.24-4.97c1.53.38 6.43 1.13 5.71 4.06zm.7-7.34c-.64 2.56-4.57 1.26-5.84.94l1.12-4.51c1.27.32 5.38.92 4.72 3.57z"/>
+        </svg>
+      )
+    case 'eth':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.37 4.35zm.056-17.97L4.628 12.32l7.372 4.35 7.373-4.35L12 0z"/>
+        </svg>
+      )
+    case 'sol':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M4.032 6.551l3.364-3.334h16.604l-3.364 3.334H4.032zm16.604 14.115H4.032l3.364-3.334h16.604l-3.364 3.334zm0-7.058H4.032l3.364-3.334h16.604l-3.364 3.334z"/>
+        </svg>
+      )
+    case 'trx':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M12 0L2.25 10.5 12 24l9.75-13.5L12 0zm0 4.125l5.25 5.625h-10.5l5.25-5.625zm0 15.375L7.5 11.25h9L12 19.5z"/>
+        </svg>
+      )
+    case 'xrp':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M13.91 12l7.35-8h-4.3l-5.2 5.65L6.56 4h-4.3l7.35 8-7.35 8h4.3l5.2-5.65 5.2 5.65h4.3l-7.35-8z"/>
+        </svg>
+      )
+    case 'ltc':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M14.062 19.344l1.219-4.844h-3.406l1.25-4.906h3.406l1.25-5H12.5l-1.25 4.906H7.812l-1.25 5h3.438l-1.25 4.844h-5v5h20v-5h-9.688z"/>
+        </svg>
+      )
+    case 'matic':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M16.5 13.5l-4.5 2.6-4.5-2.6V8.3l4.5-2.6 4.5 2.6v5.2zm4.5-7.8l-9-5.2-9 5.2v10.4l9 5.2 9-5.2V5.7z"/>
+        </svg>
+      )
+    case 'usdt':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M18.063 7.828c.11 0 .21-.01.3-.03-.02-.27-.17-.5-.41-.63-.37-.21-.85-.31-1.39-.31H7.438c-.54 0-1.02.1-1.39.31-.24.13-.39.36-.41.63.09.02.19.03.3.03h12.125zM12 9.531c-3.13 0-5.88-.34-7.5-.81v4.38c0 .35.21.66.54.81 1.4.63 3.9 1.13 6.96 1.13s5.56-.5 6.96-1.13c.33-.15.54-.46.54-.81V8.72c-1.62.47-4.37.811-7.5.811zM12 0c-6.63 0-12 5.37-12 12s5.37 12 12 12 12-5.37 12-12-5.37-12-12-12zm6.2 15.63c-1.37.62-3.41 1.05-6.2 1.05s-4.83-.43-6.2-1.05c-.83-.37-1.35-1.14-1.35-2.01V7.53c0-.87.52-1.64 1.35-2.01.88-.4 2.15-.74 3.61-.92V2.54h5.18v2.06c1.46.18 2.73.52 3.61.92.83.37 1.35 1.14 1.35 2.01v6.09c0 .87-.52 1.64-1.35 2.01z"/>
+        </svg>
+      )
+    case 'usdc':
+      return (
+        <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+          <path d="M12 0c-6.63 0-12 5.37-12 12s5.37 12 12 12 12-5.37 12-12-5.37-12-12-12zm0 21c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9zm2.4-11.4c-.6-.4-1.4-.6-2.4-.6s-1.8.2-2.4.6c-.6.4-1 1-1 1.8h2c0-.4.2-.6.4-.8s.6-.2 1-.2 1 .1 1.4.4c.4.3.6.7.6 1.2s-.2.9-.6 1.2c-.4.3-1 .5-1.8.7l-1.4.3c-.8.2-1.4.5-1.8.9s-.6.9-.6 1.5c0 .8.4 1.4 1 1.8.6.4 1.4.6 2.4.6s1.8-.2 2.4-.6c.6-.4 1-1 1-1.8h-2c0 .4-.2.6-.4.8s-.6.2-1 .2-1-.1-1.4-.4c-.4-.3-.6-.7-.6-1.2s.2-.9.6-1.2c.4-.3 1-.5 1.8-.7l1.4-.3c.8-.2 1.4-.5 1.8-.9s.6-.9.6-1.5c0-.8-.4-1.4-1-1.8z"/>
+        </svg>
+      )
+    default:
+      return <Wallet className={className} />
+  }
+}
+
 const BLOCKCHAINS = [
   { id: 'btc', name: 'Bitcoin', symbol: '₿', color: 'bg-[#f7931a]', path: "m/84'/0'/0'/0/0" },
   { id: 'eth', name: 'Ethereum', symbol: 'Ξ', color: 'bg-[#627eea]', path: "m/44'/60'/0'/0/0" },
@@ -543,8 +604,8 @@ export default function AiCryptoDashboard() {
                               )}
                             >
                               <div className="flex items-center gap-2">
-                                <div className={cn("w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold text-white shadow-xl", chain.color)}>
-                                  {chain.symbol}
+                                <div className={cn("w-6 h-6 rounded flex items-center justify-center text-white shadow-xl", chain.color)}>
+                                  <CryptoIcon id={chain.id} className="w-4 h-4" />
                                 </div>
                                 <span className={cn("text-[10px] font-bold tracking-tighter uppercase", isActive ? "text-white" : "text-gray-500")}>
                                   {chain.name}
