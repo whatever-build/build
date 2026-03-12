@@ -1,8 +1,11 @@
 
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { 
   Cpu, 
   ShieldCheck, 
@@ -17,77 +20,52 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
 import { useToast } from '@/hooks/use-toast'
-import { db } from '@/firebase/config'
-import { doc, getDoc } from 'firebase/firestore'
+import { authenticateUser } from './actions'
+
+const loginSchema = z.object({
+  username: z.string().min(2, { message: "Username must be at least 2 characters." }),
+  licenseKey: z.string().length(12, { message: "License key must be exactly 12 characters." }).regex(/^[a-zA-Z0-9]+$/, { message: "Alphanumeric characters only." }),
+})
+
+type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const [username, setUsername] = useState('')
-  const [licenseKey, setLicenseKey] = useState('')
 
-  useEffect(() => {
-    // Check if already logged in
-    const auth = localStorage.getItem('ai_crypto_auth_token')
-    if (auth === 'authorized_session_v4') {
-      router.push('/')
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: '',
+      licenseKey: '',
     }
-  }, [router])
+  })
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Clean inputs
-    const cleanUsername = username.trim()
-    // Convert to uppercase and keep only alphanumeric characters for the database lookup
-    const cleanLicense = licenseKey.trim().toUpperCase().replace(/[^A-Z0-9]/g, '')
-
-    if (!cleanUsername || !cleanLicense) {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "Please provide a valid Username and License Key."
-      })
-      return
-    }
-
+  const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true)
 
     try {
-      // 1. Verify License Key in Firestore
-      // We look for the document ID matching the cleaned license string
-      const licenseRef = doc(db, 'licenses', cleanLicense);
-      const licenseSnap = await getDoc(licenseRef);
+      const result = await authenticateUser(values)
 
-      if (!licenseSnap.exists()) {
-        throw new Error("Credential mismatch. License key not found in central registry.");
+      if (result.success) {
+        toast({
+          title: "Handshake Verified",
+          description: `Neural link established for ${values.username}. Welcome, Operator.`
+        })
+        router.push('/dashboard')
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Authentication Failed",
+          description: result.message
+        })
       }
-
-      const licenseData = licenseSnap.data();
-      
-      if (licenseData.status !== 'active') {
-        throw new Error("This license is currently suspended or inactive.");
-      }
-
-      // 2. Simulate Neural Handshake for visual immersion
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // 3. Authorize Session
-      localStorage.setItem('ai_crypto_auth_token', 'authorized_session_v4')
-      localStorage.setItem('ai_crypto_username', cleanUsername)
-      
-      toast({
-        title: "Handshake Verified",
-        description: `Neural link established for ${cleanUsername}. Welcome, Operator.`
-      })
-      
-      router.push('/')
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
-        title: "Authentication Failed",
-        description: error.message || "Could not verify credentials. Check your network connection."
+        title: "Connection Timed Out",
+        description: "The neural uplink could not be reached."
       })
     } finally {
       setIsLoading(false)
@@ -96,7 +74,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#050507]">
-      {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] animate-pulse" />
@@ -115,20 +92,20 @@ export default function LoginPage() {
         </div>
 
         <SnakeBorderCard processing={isLoading} className="shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-white/5 bg-[#0a0a0f]/80 backdrop-blur-3xl rounded-3xl">
-          <form onSubmit={handleLogin} className="p-8 space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Username</label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-primary transition-colors" />
                   <Input 
+                    {...register('username')}
                     type="text" 
                     placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
                     className="bg-black/40 border-white/5 h-12 pl-12 rounded-xl focus:border-primary/50 transition-all text-white font-code"
                   />
                 </div>
+                {errors.username && <p className="text-[9px] text-red-500 font-bold uppercase pl-1">{errors.username.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -136,13 +113,13 @@ export default function LoginPage() {
                 <div className="relative group">
                   <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within:text-primary transition-colors" />
                   <Input 
+                    {...register('licenseKey')}
                     type="text" 
                     placeholder="12-CHARACTER-KEY"
-                    value={licenseKey}
-                    onChange={(e) => setLicenseKey(e.target.value)}
                     className="bg-black/40 border-white/5 h-12 pl-12 rounded-xl focus:border-primary/50 transition-all text-white font-code uppercase"
                   />
                 </div>
+                {errors.licenseKey && <p className="text-[9px] text-red-500 font-bold uppercase pl-1">{errors.licenseKey.message}</p>}
               </div>
             </div>
 
