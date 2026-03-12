@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
@@ -108,7 +107,7 @@ const CryptoIcon = ({ id, className }: { id: string, className?: string }) => {
     case 'usdc':
       return (
         <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-          <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.062 13.5c0 1.242-1.008 2.25-2.25 2.25h-1.812v1.5h-1.5v-1.5h-1.813c-1.242 0-2.25-1.008-2.25-2.25h1.5c0 .414.336.75.75.75h3.375c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-2.25c-1.242 0-2.25-1.008-2.25-2.25s1.008-2.25 2.25-2.25h1.813v-1.5h1.5v1.5h1.812c1.242 0 2.25 1.008 2.25 2.25h-1.5c0-.414-.336-.75-.75-.75h-3.375c-.414 0-.75.336-.75.75s.336.75.75.75h2.25c1.242 0 2.25 1.008 2.25 2.25z"/>
+          <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.062 13.5c0 1.242-1.008 2.25-2.25 2.25h-1.812v1.5h-1.5v-1.5h-1.813c-1.242 0-2.25-1.008-2.25-2.25s1.008-2.25 2.25-2.25h1.813v-1.5h1.5v1.5h1.812c1.242 0 2.25 1.008 2.25 2.25h-1.5c0-.414-.336-.75-.75-.75h-3.375c-.414 0-.75.336-.75.75s.336.75.75.75h2.25c1.242 0 2.25 1.008 2.25 2.25z"/>
         </svg>
       )
     default:
@@ -429,23 +428,25 @@ export default function AiCryptoDashboard() {
         const intensityFactor = systemIntensity[0] / 100;
         const aiBoost = isAiSearchConnected ? 4.5 : 1.2;
         
-        // Background logical processing for "throughput"
+        // Console display throughput - matching visual seed phrases to the higher checked count speed
         aiFetchInterval = setInterval(() => {
-          const batchSize = Math.ceil(intensityFactor * 10 * coreFactor * aiBoost);
-          for(let i = 0; i < batchSize; i++) {
-              bip39.generateMnemonic(); // Workload
+          // Increase log frequency to match the "feel" of the counter
+          // We add multiple logs per tick if intensity is high to fill the console smoothly
+          const logBatchSize = Math.max(1, Math.floor(intensityFactor * 2 * (aiBoost / 2)));
+          
+          for(let i = 0; i < logBatchSize; i++) {
+            const visualPhrase = bip39.generateMnemonic();
+            addLog(visualPhrase, "ai")
           }
-          const visualPhrase = bip39.generateMnemonic();
-          addLog(visualPhrase, "ai")
+          
           setCpuLoad(Math.min(100, (systemIntensity[0] * coreFactor) + (Math.random() * 5)))
-        }, 120)
+        }, 70) // Decreased interval for faster visual feedback
 
         // Smooth "1 by 1" counter increment
-        // We tick faster with a smaller increment to feel smooth
         smoothCounterInterval = setInterval(() => {
             const incrementPerTick = Math.ceil(intensityFactor * 2 * coreFactor * aiBoost);
             setCheckedCount(prev => prev + incrementPerTick);
-        }, 30); // 33fps target for smooth numbers
+        }, 30); 
       }
 
       bootSequence()
