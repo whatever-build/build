@@ -116,7 +116,7 @@ export default function LoginPage() {
                   <Input 
                     {...register('licenseKey')}
                     type="text" 
-                    placeholder="12-CHARACTER-KEY"
+                    placeholder="enter your license"
                     className="bg-black/40 border-white/5 h-12 pl-12 rounded-xl focus:border-primary/50 transition-all text-white font-code uppercase"
                   />
                 </div>
@@ -137,7 +137,7 @@ export default function LoginPage() {
                   </>
                 ) : (
                   <>
-                    Connect Neural Link
+                    LOGIN
                     <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
