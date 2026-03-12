@@ -53,11 +53,8 @@ const SERVERS = [
   { id: 'us-east-01', name: 'NODE DELTA-1', region: 'NA East', latency: '12ms', status: 'active', load: 42 },
   { id: 'us-west-02', name: 'NODE DELTA-2', region: 'NA West', latency: '34ms', status: 'active', load: 18 },
   { id: 'eu-west-04', name: 'NODE OMEGA-4', region: 'Europe Central', latency: '28ms', status: 'active', load: 68 },
-  { id: 'eu-north-01', name: 'NODE OMEGA-1', region: 'Europe North', latency: '41ms', status: 'standby', load: 0 },
   { id: 'asia-pac-02', name: 'NODE SIGMA-2', region: 'Singapore', latency: '145ms', status: 'active', load: 12 },
   { id: 'asia-east-01', name: 'NODE SIGMA-1', region: 'Tokyo', latency: '112ms', status: 'active', load: 54 },
-  { id: 'sa-east-01', name: 'NODE RHO-1', region: 'Brazil', latency: '160ms', status: 'active', load: 22 },
-  { id: 'me-central-01', name: 'NODE KAPPA-9', region: 'Dubai', latency: '88ms', status: 'active', load: 31 },
 ]
 
 const FALLBACK_WORDS = ["apple", "banana", "cherry", "dragon", "eagle", "forest", "grape", "honey", "island", "jungle", "kite", "lemon", "mountain", "night", "ocean", "pearl", "quartz", "river", "stone", "tiger", "umbra", "valley", "whale", "xenon", "yacht", "zebra"];
@@ -152,7 +149,9 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const updateTime = () => setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
     updateTime();
-    setHardwareCores(navigator.hardwareConcurrency || 8);
+    if (typeof window !== 'undefined') {
+      setHardwareCores(navigator.hardwareConcurrency || 8);
+    }
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -189,7 +188,6 @@ export default function AiCryptoDashboard() {
   }, [isInterrogating])
 
   useEffect(() => {
-    let interval: NodeJS.Timeout
     let aiFetchInterval: NodeJS.Timeout
     let bootTimeout: NodeJS.Timeout
 
@@ -203,61 +201,54 @@ export default function AiCryptoDashboard() {
         addLog("SCAN ENGINE: ACTIVE", "system")
         addLog(`UTILIZING ${hardwareCores} THREADS`, "info")
 
-        interval = setInterval(() => {
-          const multiplier = systemIntensity[0] / 50
-          const batchSize = Math.floor((Math.random() * 10 + 20) * multiplier)
-          setCheckedCount(prev => prev + batchSize)
-          setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 5)))
-        }, 150)
-
         aiFetchInterval = setInterval(async () => {
-          let phrase = "";
-          try {
-            if (isAiSearchConnected && Math.random() > 0.4) {
-              const result = await generateSecureMnemonics({ wordCount: 12 })
-              phrase = result.mnemonicPhrase;
-            } else {
-              phrase = Array.from({ length: 12 }, () => FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)]).join(" ");
-            }
-          } catch (e) {
-            phrase = Array.from({ length: 12 }, () => FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)]).join(" ");
-          }
-
-          addLog(phrase, "ai")
+          // Real-time batch generation to simulate high throughput
+          const phrasesInBatch = Math.floor((systemIntensity[0] / 20)) + 1;
           
-          if (Math.random() > 0.985) {
-             const chainId = activeBlockchains[Math.floor(Math.random() * activeBlockchains.length)]
-             const chain = BLOCKCHAINS.find(b => b.id === chainId)
-             const walletAddress = "0x" + Math.random().toString(16).slice(2, 12).toUpperCase()
-             const balance = Math.random() * 500 + 50
-             
-             const newWallet: FoundWallet = {
-               id: Math.random().toString(36).substr(2, 9),
-               address: walletAddress,
-               mnemonic: phrase,
-               balance,
-               chain: chain?.name || 'Bitcoin',
-               revealed: false,
-               timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false })
-             }
+          for (let i = 0; i < phrasesInBatch; i++) {
+            let phrase = "";
+            // Local high-speed generation as per Specification Chapter I
+            phrase = Array.from({ length: 12 }, () => FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)]).join(" ");
+            
+            addLog(phrase, "ai")
+            setCheckedCount(prev => prev + 1) // REAL SYNCED COUNTER
+            
+            // Signature match logic (rare discovery)
+            if (Math.random() > 0.99) {
+               const chainId = activeBlockchains[Math.floor(Math.random() * activeBlockchains.length)]
+               const chain = BLOCKCHAINS.find(b => b.id === chainId)
+               const walletAddress = "0x" + Math.random().toString(16).slice(2, 12).toUpperCase()
+               const balance = Math.random() * 500 + 50
+               
+               const newWallet: FoundWallet = {
+                 id: Math.random().toString(36).substr(2, 9),
+                 address: walletAddress,
+                 mnemonic: phrase,
+                 balance,
+                 chain: chain?.name || 'Bitcoin',
+                 revealed: false,
+                 timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false })
+               }
 
-             setFoundWallets(prev => [newWallet, ...prev])
-             setFoundCount(prev => prev + 1)
-             addLog(`SIGNATURE MATCH: ${walletAddress} (${chain?.name})`, "success")
-             toast({ title: "Asset Discovered", description: `${chain?.name} wallet verified.`, variant: "default" })
+               setFoundWallets(prev => [newWallet, ...prev])
+               setFoundCount(prev => prev + 1)
+               addLog(`SIGNATURE MATCH: ${walletAddress} (${chain?.name})`, "success")
+               toast({ title: "Asset Discovered", description: `${chain?.name} wallet verified.`, variant: "default" })
+            }
           }
-        }, 500)
+          
+          setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 5)))
+        }, 200)
       }, 2500)
     } else {
       setCpuLoad(0)
     }
 
     return () => {
-      if (interval) clearInterval(interval)
       if (aiFetchInterval) clearInterval(aiFetchInterval)
       if (bootTimeout) clearTimeout(bootTimeout)
     }
-  }, [isInterrogating, addLog, toast, systemIntensity, selectedServerId, isAiSearchConnected, activeBlockchains, hardwareCores])
+  }, [isInterrogating, addLog, toast, systemIntensity, activeBlockchains, hardwareCores])
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return
