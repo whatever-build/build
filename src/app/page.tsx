@@ -1,6 +1,8 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Cpu, 
   Activity, 
@@ -31,7 +33,9 @@ import {
   Palette,
   Unplug,
   Layers,
-  RotateCcw
+  RotateCcw,
+  LogOut,
+  Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -99,6 +103,7 @@ type TabType = 'dashboard' | 'withdraw' | 'server' | 'settings';
 
 export default function AiCryptoDashboard() {
   const { toast } = useToast()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [serverLogs, setServerLogs] = useState<string[]>([])
@@ -123,9 +128,30 @@ export default function AiCryptoDashboard() {
   const [isAiSearchConnected, setIsAiSearchConnected] = useState(false)
   const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
   const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
+
+  // Security Check
+  useEffect(() => {
+    const auth = localStorage.getItem('ai_crypto_auth_token')
+    if (auth !== 'authorized_session_v4') {
+      router.push('/login')
+    } else {
+      setIsCheckingAuth(false)
+    }
+  }, [router])
+
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem('ai_crypto_auth_token')
+    toast({
+      title: "Neural Core Severed",
+      description: "Operator session terminated."
+    })
+    router.push('/login')
+  }
 
   // Initialize Buffer
   useEffect(() => {
@@ -255,7 +281,6 @@ export default function AiCryptoDashboard() {
     if (typeof window !== 'undefined') {
       const cores = navigator.hardwareConcurrency || 8;
       setHardwareCores(cores);
-      // Only set allocated cores if it wasn't loaded from session
       if (allocatedCores[0] === 4 && !localStorage.getItem(SESSION_STORAGE_KEY)) {
         setAllocatedCores([Math.floor(cores / 2)]);
       }
@@ -395,6 +420,17 @@ export default function AiCryptoDashboard() {
 
   const selectedServer = SERVERS.find(s => s.id === selectedServerId)
 
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#050507]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          <p className="text-[10px] text-primary/60 font-code tracking-[0.3em] uppercase">Validating Session...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full bg-[#050507] overflow-hidden text-foreground font-body select-none relative">
@@ -471,10 +507,14 @@ export default function AiCryptoDashboard() {
           </SidebarContent>
 
           <SidebarFooter className="p-4 border-t border-white/5">
-            <div className="flex items-center justify-between px-2">
-               <span className="text-[8px] font-bold text-gray-600 uppercase tracking-widest">Build 4.0.0 Pro</span>
-               <Lock className="w-3 h-3 text-gray-700" />
-            </div>
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="w-full justify-start text-gray-500 hover:text-red-500 hover:bg-red-500/10 h-10 px-4"
+            >
+              <LogOut className="w-4 h-4 mr-3" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Terminate</span>
+            </Button>
           </SidebarFooter>
         </Sidebar>
 
