@@ -84,7 +84,6 @@ export default function AiCryptoDashboard() {
     })
   }, [])
 
-  // System Time Handler
   useEffect(() => {
     const updateTime = () => {
       setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
@@ -100,7 +99,6 @@ export default function AiCryptoDashboard() {
     }
   }, [logs])
 
-  // Session Timer
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
     if (isInterrogating) {
@@ -180,6 +178,7 @@ export default function AiCryptoDashboard() {
       return
     }
     setIsInterrogating(true)
+    addLog("INITIALIZING SEARCH PROTOCOL", "system")
   }
 
   const stopInterrogation = () => {
@@ -378,7 +377,7 @@ export default function AiCryptoDashboard() {
                     <div className="flex items-center justify-between mb-4 shrink-0">
                       <div className="flex items-center gap-3">
                         <SearchCode className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Neural Scan Stream</h3>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Scan Console</h3>
                       </div>
                       <div className="flex gap-4">
                          <div className="text-[10px] font-code text-primary/60 uppercase">Vectors Checked: {checkedCount.toLocaleString()}</div>
@@ -452,26 +451,10 @@ export default function AiCryptoDashboard() {
                     <div className="glass-panel p-6 rounded-2xl border-primary/20 bg-primary/5">
                       <div className="flex items-center gap-3 mb-4">
                         <TrendingUp className="w-5 h-5 text-primary" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Earnings Today</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Earnings Session</h4>
                       </div>
                       <p className="text-4xl font-black font-code text-white">${(foundCount * 145.22).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       <p className="text-[10px] text-green-500 mt-2">Calculated from {foundCount} session matches</p>
-                    </div>
-                    <div className="glass-panel p-6 rounded-2xl border-white/5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <BarChart3 className="w-5 h-5 text-gray-400" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">30 Day Trend</h4>
-                      </div>
-                      <p className="text-4xl font-black font-code text-white">${(foundCount * 145.22).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-[10px] text-gray-500 mt-2">Total session earnings</p>
-                    </div>
-                    <div className="glass-panel p-6 rounded-2xl border-white/5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Globe className="w-5 h-5 text-gray-400" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Lifetime Total</h4>
-                      </div>
-                      <p className="text-4xl font-black font-code text-white">${(foundCount * 145.22).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-[10px] text-gray-500 mt-2">Session record summary</p>
                     </div>
                   </div>
 
@@ -495,7 +478,7 @@ export default function AiCryptoDashboard() {
                       )) : (
                         <div className="h-full flex flex-col items-center justify-center opacity-20">
                           <History className="w-12 h-12 mb-4" />
-                          <p className="text-xs uppercase tracking-widest">No Active Assets</p>
+                          <p className="text-xs uppercase tracking-widest">No Active Assets Found In This Session</p>
                         </div>
                       )}
                     </div>
