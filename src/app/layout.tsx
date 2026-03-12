@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'NeuroWallet AI - Digital Asset Recovery',
+  title: 'Ai Crypto - Digital Asset Recovery',
   description: 'High-performance cryptographic engine and digital asset recovery platform.',
 };
 

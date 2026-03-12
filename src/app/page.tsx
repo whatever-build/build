@@ -346,7 +346,7 @@ export default function AiCryptoDashboard() {
                 <Cpu className="w-6 h-6 text-black" />
               </div>
               <div>
-                <h1 className="text-sm font-black tracking-tight uppercase leading-none text-white">NeuroWallet AI</h1>
+                <h1 className="text-sm font-black tracking-tight uppercase leading-none text-white">Ai Crypto</h1>
                 <p className="text-[10px] text-primary/70 font-code mt-1 tracking-widest uppercase">v4.0.0 Elite</p>
               </div>
             </div>
