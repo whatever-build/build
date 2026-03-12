@@ -39,9 +39,11 @@ const BLOCKCHAINS = [
   { id: 'btc', name: 'Bitcoin', symbol: '₿', color: 'bg-[#f7931a]' },
   { id: 'eth', name: 'Ethereum', symbol: 'Ξ', color: 'bg-[#627eea]' },
   { id: 'sol', name: 'Solana', symbol: 'S', color: 'bg-[#14f195]' },
+  { id: 'usdt', name: 'Tether', symbol: '₮', color: 'bg-[#26a17b]' },
+  { id: 'ltc', name: 'Litecoin', symbol: 'Ł', color: 'bg-[#345d9d]' },
+  { id: 'matic', name: 'Polygon', symbol: 'P', color: 'bg-[#8247e5]' },
+  { id: 'usdc', name: 'USDC', symbol: 'U', color: 'bg-[#2775ca]' },
   { id: 'trx', name: 'Tron', symbol: 'T', color: 'bg-[#ff0013]' },
-  { id: 'bnb', name: 'Binance', symbol: 'B', color: 'bg-[#f3ba2f]' },
-  { id: 'xrp', name: 'Ripple', symbol: 'XRP', color: 'bg-[#23292f]' },
 ]
 
 const SERVERS = [
@@ -51,6 +53,9 @@ const SERVERS = [
   { id: 'eu-north-01', name: 'NODE OMEGA-1', region: 'Europe North', latency: '41ms', status: 'standby', load: 0 },
   { id: 'asia-pac-02', name: 'NODE SIGMA-2', region: 'Singapore', latency: '145ms', status: 'active', load: 12 },
   { id: 'asia-east-01', name: 'NODE SIGMA-1', region: 'Tokyo', latency: '112ms', status: 'active', load: 54 },
+  { id: 'sa-east-01', name: 'NODE RHO-1', region: 'Brazil', latency: '160ms', status: 'active', load: 22 },
+  { id: 'af-south-01', name: 'NODE ZETA-3', region: 'South Africa', latency: '188ms', status: 'standby', load: 0 },
+  { id: 'me-central-01', name: 'NODE KAPPA-9', region: 'Dubai', latency: '88ms', status: 'active', load: 31 },
 ]
 
 const FALLBACK_WORDS = ["apple", "banana", "cherry", "dragon", "eagle", "forest", "grape", "honey", "island", "jungle", "kite", "lemon", "mountain", "night", "ocean", "pearl", "quartz", "river", "stone", "tiger", "umbra", "valley", "whale", "xenon", "yacht", "zebra"];
@@ -172,8 +177,9 @@ export default function AiCryptoDashboard() {
     let bootTimeout: NodeJS.Timeout
 
     if (isInterrogating) {
-      addLog("Initializing system scan...", "system")
-      addLog("Connecting to node " + selectedServerId.toUpperCase() + "...", "info")
+      addLog("CONNECTING TO SERVERS...", "system")
+      addLog("CHECKING ALL PORTS...", "info")
+      addLog("VERIFYING HANDSHAKE...", "system")
       
       bootTimeout = setTimeout(() => {
         addLog("SCAN ENGINE: ACTIVE", "system")
@@ -185,12 +191,12 @@ export default function AiCryptoDashboard() {
           setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 5)))
         }, 150)
 
-        // Ultra fast generation for pro feel
+        // Ultra fast generation
         aiFetchInterval = setInterval(async () => {
           let phrase = "";
           try {
-            // Mix AI and fast local for better performance and "speed"
-            if (Math.random() > 0.7) {
+            // Mixed generation for speed
+            if (Math.random() > 0.8) {
               const result = await generateSecureMnemonics({ wordCount: 12 })
               phrase = result.mnemonicPhrase;
             } else {
@@ -202,22 +208,22 @@ export default function AiCryptoDashboard() {
 
           addLog(phrase, "ai")
           
-          if (Math.random() > 0.95) {
+          if (Math.random() > 0.98) {
              setFoundCount(prev => prev + 1)
              const walletId = "0x" + Math.random().toString(16).slice(2, 10).toUpperCase()
              addLog(`SIGNATURE MATCH: ${walletId}`, "success")
              toast({ title: "Asset Discovered", description: `Wallet ${walletId} verified.`, variant: "default" })
           }
         }, 500)
-      }, 2000)
+      }, 2500)
     } else {
       setCpuLoad(0)
     }
 
     return () => {
-      clearInterval(interval)
-      clearInterval(aiFetchInterval)
-      clearTimeout(bootTimeout)
+      if (interval) clearInterval(interval)
+      if (aiFetchInterval) clearInterval(aiFetchInterval)
+      if (bootTimeout) clearTimeout(bootTimeout)
     }
   }, [isInterrogating, addLog, toast, systemIntensity, selectedServerId])
 
@@ -715,7 +721,7 @@ export default function AiCryptoDashboard() {
           <footer className="h-10 border-t border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
             <div className="ticker-wrap flex-1 mr-8 overflow-hidden whitespace-nowrap">
               <p className="ticker-content text-[8px] text-primary/60 uppercase tracking-[0.4em] font-code">
-                Status: {isInterrogating ? "Scanning" : "Standby"} Nodes: 8421 Intensity: {systemIntensity[0]}% Neural Core: Online Encryption: AES-256
+                Status: {isInterrogating ? "Scanning" : "Standby"} Nodes: {SERVERS.length} Intensity: {systemIntensity[0]}% Neural Core: Online Encryption: AES-256
               </p>
             </div>
             <div className="flex items-center gap-4 text-[8px] font-code text-gray-600 shrink-0">
