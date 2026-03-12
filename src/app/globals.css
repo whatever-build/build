@@ -1,29 +1,30 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 279 80% 61%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 232 60% 40%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
-  --radius: 0.5rem;
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 263 90% 68%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 232 60% 40%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 263 90% 68%;
+    --radius: 0.5rem;
+  }
 }
 
 @layer base {
@@ -31,25 +32,49 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#050505] text-foreground font-body overflow-x-hidden;
+    @apply bg-[#050505] text-foreground font-body antialiased selection:bg-primary/30;
   }
 }
 
 @layer utilities {
   .terminal-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   .terminal-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
   .terminal-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(173, 79, 230, 0.2);
     border-radius: 10px;
   }
   .terminal-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    scrollbar-color: rgba(173, 79, 230, 0.2) transparent;
   }
+
+  /* Snake Border Animation */
+  .snake-border-container {
+    @apply relative overflow-hidden rounded-xl bg-[#0a0a0a] border border-white/5;
+  }
+
+  .snake-border-animation {
+    @apply absolute inset-[-1000%] animate-[spin_4s_linear_infinite] opacity-0 transition-opacity duration-500;
+    background: conic-gradient(from 90deg at 50% 50%, transparent 0%, #AD4FE6 25%, transparent 50%);
+  }
+
+  .group:hover .snake-border-animation,
+  .active-processing .snake-border-animation {
+    @apply opacity-100;
+  }
+
+  .snake-border-content {
+    @apply relative m-[1px] rounded-xl bg-[#0d0d0d] z-10;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .font-code {
