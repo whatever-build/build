@@ -25,7 +25,8 @@ import {
   Share2,
   Eye,
   EyeOff,
-  Trash2
+  Trash2,
+  AlertTriangle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -50,15 +51,15 @@ const BLOCKCHAINS = [
 ]
 
 const SERVERS = [
-  { id: 'node-alpha-01', name: 'NORTH AMERICA EAST', region: 'Virginia, USA', latency: '12ms', status: 'active', load: 42 },
-  { id: 'node-omega-04', name: 'EUROPE CENTRAL', region: 'Frankfurt, Germany', latency: '28ms', status: 'active', load: 68 },
-  { id: 'node-sigma-02', name: 'ASIA SOUTHEAST', region: 'Singapore', latency: '145ms', status: 'active', load: 12 },
-  { id: 'node-sigma-01', name: 'ASIA NORTHEAST', region: 'Tokyo, Japan', latency: '112ms', status: 'active', load: 54 },
-  { id: 'node-delta-03', name: 'SOUTH AMERICA', region: 'São Paulo, Brazil', latency: '168ms', status: 'active', load: 22 },
-  { id: 'node-zeta-01', name: 'AFRICA SOUTH', region: 'Johannesburg, SA', latency: '112ms', status: 'active', load: 15 },
-  { id: 'node-kappa-05', name: 'MIDDLE EAST', region: 'Dubai, UAE', latency: '85ms', status: 'active', load: 38 },
-  { id: 'node-nexus-02', name: 'OCEANIA', region: 'Sydney, Australia', latency: '190ms', status: 'active', load: 29 },
-  { id: 'node-arctic-01', name: 'ARCTIC NORTH', region: 'Reykjavik, Iceland', latency: '45ms', status: 'active', load: 8 },
+  { id: 'node-na-east', name: 'NORTH AMERICA EAST', region: 'Virginia, USA', latency: '12ms', status: 'active', load: 42 },
+  { id: 'node-eu-central', name: 'EUROPE CENTRAL', region: 'Frankfurt, Germany', latency: '28ms', status: 'active', load: 68 },
+  { id: 'node-asia-se', name: 'ASIA SOUTHEAST', region: 'Singapore', latency: '145ms', status: 'active', load: 12 },
+  { id: 'node-asia-ne', name: 'ASIA NORTHEAST', region: 'Tokyo, Japan', latency: '112ms', status: 'active', load: 54 },
+  { id: 'node-sa-east', name: 'SOUTH AMERICA', region: 'São Paulo, Brazil', latency: '168ms', status: 'active', load: 22 },
+  { id: 'node-af-south', name: 'AFRICA SOUTH', region: 'Johannesburg, SA', latency: '112ms', status: 'active', load: 15 },
+  { id: 'node-me-east', name: 'MIDDLE EAST', region: 'Dubai, UAE', latency: '85ms', status: 'active', load: 38 },
+  { id: 'node-oc-sydney', name: 'OCEANIA', region: 'Sydney, Australia', latency: '190ms', status: 'active', load: 29 },
+  { id: 'node-arctic-north', name: 'ARCTIC NORTH', region: 'Reykjavik, Iceland', latency: '45ms', status: 'active', load: 8 },
 ]
 
 interface FoundWallet {
@@ -89,13 +90,13 @@ export default function AiCryptoDashboard() {
   const [checkedCount, setCheckedCount] = useState(0)
   const [foundCount, setFoundCount] = useState(0)
   const [foundWallets, setFoundWallets] = useState<FoundWallet[]>([])
-  const [activeBlockchains, setActiveBlockchains] = useState<string[]>(BLOCKCHAINS.map(b => b.id))
+  const [activeBlockchains, setActiveBlockchains] = useState<string[]>(BLOCKCHAINS.slice(0, 2).map(b => b.id))
   const [cpuLoad, setCpuLoad] = useState(0)
   const [systemIntensity, setSystemIntensity] = useState([85])
   const [sessionSeconds, setSessionSeconds] = useState(0)
   const [systemTime, setSystemTime] = useState<string | null>(null)
   const [hardwareCores, setHardwareCores] = useState<number>(0)
-  const [selectedServerId, setSelectedServerId] = useState('node-alpha-01')
+  const [selectedServerId, setSelectedServerId] = useState('node-na-east')
   const [activeProtocols, setActiveProtocols] = useState<string[]>(['autonomous', 'mesh-relay'])
   
   // Memory Management States
@@ -125,7 +126,7 @@ export default function AiCryptoDashboard() {
         timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
         type
       }
-      return [newEntry, ...prev].slice(0, 50)
+      return [newEntry, ...prev].slice(0, 100)
     })
   }, [])
 
@@ -185,7 +186,7 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const interval = setInterval(() => {
       const msgs = [
-        "Pinging cluster node SYDNEY-HUB",
+        "Pinging cluster node HUB-TX-01",
         "Synchronizing local ledger hash",
         "Refreshing peer network",
         "Heartbeat received from ASIA-NORTHEAST",
@@ -209,8 +210,6 @@ export default function AiCryptoDashboard() {
     let timerInterval: NodeJS.Timeout
     if (isInterrogating) {
       timerInterval = setInterval(() => setSessionSeconds(prev => prev + 1), 1000)
-    } else {
-      setSessionSeconds(0)
     }
     return () => clearInterval(timerInterval)
   }, [isInterrogating])
@@ -226,41 +225,40 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval)
   }, [isAutoMemoryEnabled, clearMemory])
 
-  // Core Interrogation Logic - Optimized for extreme speed and sequential smoothness
+  // Core Interrogation Logic - 1-by-1 sequential generation
   useEffect(() => {
     let aiFetchInterval: NodeJS.Timeout
-    let bootTimeout: NodeJS.Timeout
 
     if (isInterrogating) {
-      // Professional boot sequence
-      setLogs([])
-      addLog("CONNECTING TO SERVERS...", "system")
-      
       const bootSequence = async () => {
-        await new Promise(resolve => setTimeout(resolve, 400));
-        addLog("CHECKING PORTS AND HANDSHAKES...", "info")
-        await new Promise(resolve => setTimeout(resolve, 400));
-        addLog("CHECKING CONFIGURATIONS...", "info")
-        await new Promise(resolve => setTimeout(resolve, 400));
-        addLog("CHECKING PROXY...", "info")
-        await new Promise(resolve => setTimeout(resolve, 400));
+        setLogs([])
+        setSessionSeconds(0)
+        setCheckedCount(0)
         
-        const aiStatusMsg = isAiSearchConnected ? "AI SEARCH: CONNECTED" : "AI SEARCH: NOT CONNECTED";
+        addLog("ESTABLISHING SECURE HANDSHAKE...", "system")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        addLog("CHECKING PORTS AND TLS DESCRIPTORS...", "info")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        addLog("RESOLVING PROXY TUNNEL...", "info")
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        const aiStatusMsg = isAiSearchConnected ? "AI SEARCH: LINKED [HEURISTIC MODE]" : "AI SEARCH: NOT CONNECTED [BRUTE MODE]";
         addLog(aiStatusMsg, isAiSearchConnected ? "success" : "warning")
+        await new Promise(resolve => setTimeout(resolve, 500))
         
-        await new Promise(resolve => setTimeout(resolve, 500));
-        addLog("SCAN ENGINE: ACTIVE", "system")
-        addLog(`UTILIZING ${hardwareCores || 8} THREADS`, "info")
+        addLog("CRYPTOGRAPHIC ENGINE: INITIALIZED", "system")
+        addLog(`WORKER THREADS: ${hardwareCores || 8}`, "info")
 
-        // Start high-velocity generation
-        const intervalTime = Math.max(1, 80 - (systemIntensity[0] * 0.75));
+        // Smooth sequential generation loop
+        const intervalTime = Math.max(1, 100 - (systemIntensity[0] * 0.95));
         
         aiFetchInterval = setInterval(() => {
-          // Generate actual BIP39 mnemonic
           const phrase = bip39.generateMnemonic();
           addLog(phrase, "ai")
           setCheckedCount(prev => prev + 1)
-          setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 3)))
+          setCpuLoad(Math.min(100, systemIntensity[0] + (Math.random() * 2)))
         }, intervalTime)
       }
 
@@ -271,7 +269,6 @@ export default function AiCryptoDashboard() {
 
     return () => {
       if (aiFetchInterval) clearInterval(aiFetchInterval)
-      if (bootTimeout) clearTimeout(bootTimeout)
     }
   }, [isInterrogating, addLog, systemIntensity, hardwareCores, isAiSearchConnected])
 
@@ -284,7 +281,11 @@ export default function AiCryptoDashboard() {
 
   const startInterrogation = () => {
     if (activeBlockchains.length === 0) {
-      toast({ variant: "destructive", title: "Config Error", description: "Select at least one blockchain." })
+      toast({ 
+        variant: "destructive", 
+        title: "Configuration Error", 
+        description: "Please select at least one blockchain network before initiating interrogation." 
+      })
       return
     }
     setIsInterrogating(true)
@@ -292,7 +293,11 @@ export default function AiCryptoDashboard() {
 
   const stopInterrogation = () => {
     setIsInterrogating(false)
-    addLog("Interrogation protocol stopped", "error")
+    addLog("INTERROGATION PROTOCOL ABORTED BY OPERATOR", "error")
+    toast({
+      title: "Interrogation Stopped",
+      description: "Cryptographic engine has been safely powered down."
+    })
   }
 
   const toggleProtocol = (id: string) => {
@@ -324,8 +329,8 @@ export default function AiCryptoDashboard() {
                 <Cpu className="w-6 h-6 text-black" />
               </div>
               <div>
-                <h1 className="text-sm font-black tracking-tight uppercase leading-none text-white">AI Crypto v4.0</h1>
-                <p className="text-[10px] text-primary/70 font-code mt-1 tracking-widest uppercase">Premium Recovery</p>
+                <h1 className="text-sm font-black tracking-tight uppercase leading-none text-white">NeuroWallet AI</h1>
+                <p className="text-[10px] text-primary/70 font-code mt-1 tracking-widest uppercase">v4.0.0 Elite</p>
               </div>
             </div>
           </SidebarHeader>
@@ -361,7 +366,7 @@ export default function AiCryptoDashboard() {
               <SidebarGroupContent className="space-y-6 px-1">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[10px] font-code">
-                    <span className="text-gray-500 uppercase">System Load</span>
+                    <span className="text-gray-500 uppercase">Engine Load</span>
                     <span className="text-primary">{cpuLoad.toFixed(1)}%</span>
                   </div>
                   <Progress value={cpuLoad} className="h-1 bg-white/5" />
@@ -414,7 +419,7 @@ export default function AiCryptoDashboard() {
                     <section className="space-y-4 shrink-0">
                       <div className="flex items-center justify-between">
                         <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Blockchains</h2>
-                        <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} Active</span>
+                        <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} Selected</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         {BLOCKCHAINS.map((chain) => {
@@ -426,7 +431,7 @@ export default function AiCryptoDashboard() {
                               className={cn(
                                 "relative p-3 rounded-lg border cursor-pointer transition-all duration-300 glass-panel",
                                 isActive ? "border-primary/40 shadow-[0_0_20px_rgba(173,79,230,0.1)]" : "opacity-30 grayscale",
-                                isInterrogating && "cursor-not-allowed"
+                                isInterrogating && "cursor-not-allowed pointer-events-none"
                               )}
                             >
                               <div className="flex items-center gap-2">
@@ -471,7 +476,7 @@ export default function AiCryptoDashboard() {
                         </div>
                       </div>
                       <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mt-6">
-                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">Active Server: {selectedServer?.name}</span>
+                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">Active Node: {selectedServer?.name}</span>
                       </div>
                     </div>
                   </div>
@@ -480,7 +485,7 @@ export default function AiCryptoDashboard() {
                     <div className="flex items-center justify-between mb-4 shrink-0">
                       <div className="flex items-center gap-3">
                         <SearchCode className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Scan Console</h3>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">Interrogation Console</h3>
                       </div>
                     </div>
                     
@@ -489,7 +494,7 @@ export default function AiCryptoDashboard() {
                         <div ref={scrollRef} className="flex-1 overflow-y-auto terminal-scrollbar space-y-2 z-10 flex flex-col-reverse">
                           {logs.length === 0 && !isInterrogating && (
                             <div className="h-full flex items-center justify-center text-gray-700 uppercase tracking-widest font-bold">
-                              System Standby
+                              Interrogator Ready
                             </div>
                           )}
                           {logs.map((log) => (
@@ -515,24 +520,24 @@ export default function AiCryptoDashboard() {
                   <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                     <div className="flex items-center gap-2 mb-1 shrink-0">
                       <Radio className="w-4 h-4 text-primary" />
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">AI Search</h3>
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">AI Neural Engine</h3>
                     </div>
                     <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden">
                        {!isAiSearchConnected ? (
                          <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
                            <Globe className={cn("w-12 h-12 mb-4", isAiSearchConnecting ? "text-primary animate-pulse" : "text-gray-800")} />
                            <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2">
-                             {isAiSearchConnecting ? "Negotiating tunnel" : "AI Search Standby"}
+                             {isAiSearchConnecting ? "Negotiating Uplink" : "AI Search Standby"}
                            </h4>
                            <p className="text-[10px] text-gray-600 uppercase mb-6 leading-relaxed">
-                             Connection required for AI neural uplink.
+                             Connection required for advanced heuristic discovery.
                            </p>
                            <Button 
                              onClick={connectAiSearch} 
                              disabled={isAiSearchConnecting}
                              className="w-full bg-primary/10 border border-primary/20 text-primary font-black text-[10px] uppercase hover:bg-primary/20 transition-all h-10"
                            >
-                             {isAiSearchConnecting ? "Connecting..." : "Connect AI Search"}
+                             {isAiSearchConnecting ? "Connecting..." : "Connect Neural Engine"}
                            </Button>
                            
                            {aiSearchLogs.length > 0 && (
@@ -553,7 +558,7 @@ export default function AiCryptoDashboard() {
                                 <span className="text-[10px] font-black uppercase text-green-500 tracking-widest">Connected</span>
                               </div>
                               <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Neural Uplink</span>
+                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Neural Link</span>
                                 <Wifi className="w-4 h-4 text-primary animate-pulse" />
                               </div>
                             </div>
@@ -565,22 +570,19 @@ export default function AiCryptoDashboard() {
                                   <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-20" />
                                 )}
                               </div>
-                              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-8">
-                                {isInterrogating ? "Broadcasting packets" : "Neural tunnel ready"}
-                              </p>
                               
                               <div className="w-full p-5 bg-black/40 border border-primary/20 rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.4)]">
                                 <div className="space-y-3 text-left">
                                   <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Heuristic Filtering</span>
+                                    <span className="text-[9px] font-code text-primary/60 uppercase">Heuristic Filter</span>
                                     <span className="text-[9px] font-code text-primary font-bold">ACTIVE</span>
                                   </div>
                                   <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Entropy Injection</span>
+                                    <span className="text-[9px] font-code text-primary/60 uppercase">Deep Path Scan</span>
                                     <span className="text-[9px] font-code text-primary font-bold">ENABLED</span>
                                   </div>
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Mesh Priority</span>
+                                    <span className="text-[9px] font-code text-primary/60 uppercase">Neural Priority</span>
                                     <span className="text-[9px] font-code text-primary font-bold">HIGH</span>
                                   </div>
                                 </div>
@@ -599,37 +601,34 @@ export default function AiCryptoDashboard() {
                     <div className="glass-panel p-6 rounded-2xl border-primary/20 bg-primary/5">
                       <div className="flex items-center gap-3 mb-4">
                         <Zap className="w-5 h-5 text-primary" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Current Session</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Session Yield</h4>
                       </div>
                       <p className="text-4xl font-black font-code text-white">${foundWallets.reduce((acc, w) => acc + w.balance, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-[10px] text-green-500 mt-2">{foundCount} Wallets discovered</p>
+                      <p className="text-[10px] text-green-500 mt-2">{foundCount} Assets Identified</p>
                     </div>
                     
                     <div className="glass-panel p-6 rounded-2xl border-white/5 bg-white/[0.02]">
                       <div className="flex items-center gap-3 mb-4">
                         <ShieldCheck className="w-5 h-5 text-gray-400" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Lifetime Verified</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Verified Reserves</h4>
                       </div>
                       <p className="text-4xl font-black font-code text-white/40">$0.00</p>
-                      <p className="text-[10px] text-gray-600 mt-2">Historical data requires license key</p>
+                      <p className="text-[10px] text-gray-600 mt-2">Requires Pro license for history</p>
                     </div>
 
                     <div className="glass-panel p-6 rounded-2xl border-white/5 bg-white/[0.02]">
                       <div className="flex items-center gap-3 mb-4">
                         <Wallet className="w-5 h-5 text-gray-400" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ledger Status</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Digital Ledger</h4>
                       </div>
                       <p className="text-4xl font-black font-code text-white/40">{foundCount}</p>
-                      <p className="text-[10px] text-gray-600 mt-2">Verified assets in local buffer</p>
+                      <p className="text-[10px] text-gray-600 mt-2">Active buffer count</p>
                     </div>
                   </div>
 
                   <div className="flex-1 glass-panel rounded-2xl p-8 flex flex-col overflow-hidden">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-sm font-black uppercase tracking-[0.2em]">Discovered Assets Hub</h3>
-                      <div className="flex items-center gap-4 text-[10px] font-code text-primary/60">
-                        <span>{foundCount} ASSETS IN LOCAL BUFFER</span>
-                      </div>
+                      <h3 className="text-sm font-black uppercase tracking-[0.2em]">Discovered Assets Ledger</h3>
                     </div>
                     <div className="flex-1 overflow-y-auto terminal-scrollbar space-y-4">
                       {foundWallets.length > 0 ? foundWallets.map((wallet) => (
@@ -641,7 +640,7 @@ export default function AiCryptoDashboard() {
                               </div>
                               <div>
                                 <p className="text-[11px] font-bold text-white uppercase tracking-wider">{wallet.address}</p>
-                                <p className="text-[10px] text-gray-500 uppercase tracking-tighter">{wallet.chain} • Verified at {wallet.timestamp}</p>
+                                <p className="text-[10px] text-gray-500 uppercase tracking-tighter">{wallet.chain} • SECURE LOG AT {wallet.timestamp}</p>
                               </div>
                             </div>
                             <div className="text-right">
@@ -652,25 +651,21 @@ export default function AiCryptoDashboard() {
                                 onClick={() => toggleReveal(wallet.id)}
                                 className="text-[9px] h-auto p-0 text-primary uppercase font-bold hover:bg-transparent"
                               >
-                                {wallet.revealed ? <div className="flex items-center gap-1"><EyeOff className="w-3 h-3"/> Hide Key</div> : <div className="flex items-center gap-1"><Eye className="w-3 h-3"/> Reveal Key</div>}
+                                {wallet.revealed ? <div className="flex items-center gap-1"><EyeOff className="w-3 h-3"/> Hide Key</div> : <div className="flex items-center gap-1"><Eye className="w-3 h-3"/> Reveal Secure Key</div>}
                               </Button>
                             </div>
                           </div>
                           {wallet.revealed && (
                             <div className="p-4 rounded-lg bg-black/40 border border-primary/20 animate-in slide-in-from-top-2 duration-300">
-                              <p className="text-[10px] font-bold text-primary uppercase mb-2">BIP39 Mnemonic Phrase:</p>
+                              <p className="text-[10px] font-bold text-primary uppercase mb-2">BIP39 SECURE MNEMONIC:</p>
                               <p className="text-xs font-code text-white leading-relaxed tracking-wider select-text">{wallet.mnemonic}</p>
-                              <div className="mt-3 flex gap-2">
-                                <Button size="sm" className="h-7 text-[8px] uppercase font-bold bg-primary/20 text-primary border border-primary/20 hover:bg-primary/30">Copy Mnemonic</Button>
-                                <Button size="sm" variant="outline" className="h-7 text-[8px] uppercase font-bold border-white/10 text-gray-400">Export as .txt</Button>
-                              </div>
                             </div>
                           )}
                         </div>
                       )) : (
                         <div className="h-full flex flex-col items-center justify-center opacity-20 py-20">
                           <History className="w-16 h-16 mb-4" />
-                          <p className="text-xs uppercase tracking-[0.3em] font-black">No wallets found in active session</p>
+                          <p className="text-xs uppercase tracking-[0.3em] font-black">No assets identified in current session</p>
                         </div>
                       )}
                     </div>
@@ -682,18 +677,19 @@ export default function AiCryptoDashboard() {
                 <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-right-4 duration-500 overflow-hidden">
                   <div className="flex flex-col gap-4 overflow-y-auto terminal-scrollbar pr-2">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-black uppercase tracking-[0.2em]">Active Interrogation Nodes</h3>
-                      <span className="text-[10px] font-code text-primary/60">{SERVERS.length} Clusters online</span>
+                      <h3 className="text-sm font-black uppercase tracking-[0.2em]">Global Cluster Map</h3>
+                      <span className="text-[10px] font-code text-primary/60">{SERVERS.length} Clusters Online</span>
                     </div>
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
                       return (
                         <div 
                           key={server.id} 
-                          onClick={() => setSelectedServerId(server.id)}
+                          onClick={() => !isInterrogating && setSelectedServerId(server.id)}
                           className={cn(
-                            "glass-panel p-5 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden",
-                            isSelected ? "border-primary/40 bg-primary/5" : "border-white/5 hover:border-white/20"
+                            "glass-panel p-5 rounded-2xl border transition-all group relative overflow-hidden",
+                            isSelected ? "border-primary/40 bg-primary/5" : "border-white/5 hover:border-white/20",
+                            isInterrogating ? "cursor-not-allowed" : "cursor-pointer"
                           )}
                         >
                           <div className="flex items-center justify-between relative z-10">
@@ -726,7 +722,7 @@ export default function AiCryptoDashboard() {
                     <div className="glass-panel rounded-2xl p-6 border-white/5 flex flex-col h-1/2">
                       <div className="flex items-center gap-3 mb-6">
                         <Terminal className="w-4 h-4 text-primary" />
-                        <h3 className="text-sm font-black uppercase tracking-[0.2em]">Command Console</h3>
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em]">Cluster Feedback</h3>
                       </div>
                       <div className="flex-1 bg-black/40 rounded-xl p-4 font-code text-[10px] overflow-hidden">
                         <div ref={serverLogRef} className="h-full overflow-y-auto terminal-scrollbar space-y-1 flex flex-col">
@@ -741,11 +737,10 @@ export default function AiCryptoDashboard() {
 
                     <div className="glass-panel rounded-2xl p-8 border-white/5 flex flex-col flex-1 justify-center items-center text-center">
                        <Globe className="w-16 h-16 text-primary/10 mb-6" />
-                       <h4 className="text-xs font-black uppercase tracking-widest text-white mb-2">Linked Node: {selectedServer?.name}</h4>
+                       <h4 className="text-xs font-black uppercase tracking-widest text-white mb-2">Endpoint: {selectedServer?.name}</h4>
                        <p className="text-[10px] text-gray-500 uppercase leading-relaxed max-w-xs">
-                         Traffic routed via {selectedServer?.region} utilizing 256-bit AES cryptographic shielding.
+                         All cryptographic packets are routed via {selectedServer?.region} utilizing AES-256 standard encryption.
                        </p>
-                       <Button variant="outline" className="mt-8 h-10 px-8 text-[10px] uppercase font-black border-primary/20 text-primary hover:bg-primary/10">Cycle Endpoint</Button>
                     </div>
                   </div>
                 </div>
@@ -753,7 +748,7 @@ export default function AiCryptoDashboard() {
 
               {activeTab === 'settings' && (
                 <div className="max-w-3xl mx-auto w-full glass-panel rounded-2xl p-10 border-white/5 animate-in zoom-in-95 duration-500">
-                  <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">System Settings</h3>
+                  <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">System Configurations</h3>
                   
                   <div className="space-y-10">
                     <div className="space-y-4">
@@ -770,17 +765,17 @@ export default function AiCryptoDashboard() {
                         className="cursor-pointer"
                       />
                       <p className="text-[10px] text-gray-500 uppercase leading-relaxed">
-                        Adjusts cryptographic throughput. Detected cores: {hardwareCores || 8}.
+                        Detected Threads: {hardwareCores || 8}. High intensity increases PPS throughput but may impact system responsiveness.
                       </p>
                     </div>
 
                     <div className="space-y-6 pt-4">
-                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Memory Management</h4>
+                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Memory & Buffer Protocol</h4>
                       <div className="grid grid-cols-1 gap-4">
                          <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
                             <div className="space-y-1">
-                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Auto-Purge Buffers (5 min)</p>
-                              <p className="text-[9px] text-gray-600 uppercase">Automatically clear terminal logs to sustain PPS throughput.</p>
+                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Auto-Purge (5 Minutes)</p>
+                              <p className="text-[9px] text-gray-600 uppercase">Clear terminal history automatically to prevent memory leaks.</p>
                             </div>
                             <Switch 
                               checked={isAutoMemoryEnabled}
@@ -789,8 +784,8 @@ export default function AiCryptoDashboard() {
                          </div>
                          <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
                             <div className="space-y-1">
-                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Manual System Purge</p>
-                              <p className="text-[9px] text-gray-600 uppercase">Last purge: {lastPurgeTime || "Never"}</p>
+                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Manual Cache Flush</p>
+                              <p className="text-[9px] text-gray-600 uppercase">Last executed: {lastPurgeTime || "None"}</p>
                             </div>
                             <Button 
                               variant="outline" 
@@ -798,33 +793,9 @@ export default function AiCryptoDashboard() {
                               onClick={clearMemory}
                               className="h-8 text-[9px] uppercase font-bold border-primary/20 text-primary hover:bg-primary/10"
                             >
-                              Purge Now
+                              Flush Now
                             </Button>
                          </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6 pt-4">
-                      <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Advanced Protocols</h4>
-                      <div className="grid grid-cols-1 gap-4">
-                         {[
-                           { id: 'autonomous', title: "Autonomous Scaling", desc: "Auto adjustment based on detected load." },
-                           { id: 'deep-packet', title: "Deep Packet Interrogation", desc: "Scan hidden derivation paths (BIP44/49/84)." },
-                           { id: 'mesh-relay', title: "Mesh Relay Integration", desc: "Enable global P2P node networking." },
-                           { id: 'heuristic-injection', title: "Heuristic Entropy Injection", desc: "Inject probability-based seed variations." }
-                         ].map((opt) => (
-                           <div key={opt.id} className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
-                              <div className="space-y-1">
-                                <p className="text-[11px] font-bold text-white uppercase tracking-wider">{opt.title}</p>
-                                <p className="text-[9px] text-gray-600 uppercase">{opt.desc}</p>
-                              </div>
-                              <Switch 
-                                checked={activeProtocols.includes(opt.id)}
-                                onCheckedChange={() => toggleProtocol(opt.id)}
-                                disabled={isInterrogating}
-                              />
-                           </div>
-                         ))}
                       </div>
                     </div>
                   </div>
@@ -833,16 +804,30 @@ export default function AiCryptoDashboard() {
 
               {activeTab === 'dashboard' && (
                 <div className="flex gap-4 items-center justify-center pt-8 border-t border-white/5 pb-4 shrink-0">
-                  <Button onClick={stopInterrogation} disabled={!isInterrogating} variant="outline" className="bg-red-500/5 border-red-500/20 hover:bg-red-500/10 text-red-500/80 h-14 px-12 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all">
-                    <Power className="w-4 h-4 mr-3" /> STOP SCAN
-                  </Button>
-                  <Button onClick={startInterrogation} disabled={isInterrogating} className={cn("h-14 px-20 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_30px_rgba(173,79,230,0.3)] hover:opacity-90")}>
-                    {isInterrogating ? (
-                      <div className="flex items-center gap-3"><RefreshCcw className="w-4 h-4 animate-spin" /> INTERROGATING...</div>
-                    ) : (
-                      <div className="flex items-center gap-3"><Zap className="w-4 h-4" /> START SCAN</div>
-                    )}
-                  </Button>
+                  {isInterrogating ? (
+                    <Button 
+                      onClick={stopInterrogation} 
+                      variant="outline" 
+                      className="bg-red-500/10 border-red-500/40 hover:bg-red-500/20 text-red-500 h-14 px-12 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all"
+                    >
+                      <Power className="w-4 h-4 mr-3" /> STOP ENGINE
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={startInterrogation} 
+                      disabled={activeBlockchains.length === 0}
+                      className={cn(
+                        "h-14 px-20 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_30px_rgba(173,79,230,0.3)] hover:opacity-90 disabled:opacity-30"
+                      )}
+                    >
+                      <Zap className="w-4 h-4 mr-3" /> START INTERROGATION
+                    </Button>
+                  )}
+                  {activeBlockchains.length === 0 && !isInterrogating && (
+                    <div className="flex items-center gap-2 text-[10px] text-yellow-500 font-bold uppercase animate-pulse">
+                      <AlertTriangle className="w-3 h-3" /> Select Blockchains to Proceed
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -851,7 +836,7 @@ export default function AiCryptoDashboard() {
           <footer className="h-10 border-t border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
             <div className="ticker-wrap flex-1 mr-8 overflow-hidden whitespace-nowrap">
               <p className="ticker-content text-[8px] text-primary/60 uppercase tracking-[0.4em] font-code">
-                Status: {isInterrogating ? "Interrogating" : "Standby"} Nodes: {SERVERS.length} Intensity: {systemIntensity[0]}% Cores: {hardwareCores || 8} Encryption: AES-256 BIP39-Active
+                Status: {isInterrogating ? "INTERROGATING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: BIP39-Elite • Encryption: AES-256 Verified
               </p>
             </div>
             <div className="flex items-center gap-4 text-[8px] font-code text-gray-600 shrink-0">
