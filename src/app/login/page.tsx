@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  Lock, 
   Cpu, 
   ShieldCheck, 
   ChevronRight, 
@@ -38,11 +37,14 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!username || !licenseKey) {
+    const cleanUsername = username.trim()
+    const cleanLicense = licenseKey.trim()
+
+    if (!cleanUsername || !cleanLicense) {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Please provide valid username and license key."
+        description: "Please provide a valid Username and License Key."
       })
       return
     }
@@ -50,12 +52,12 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // 1. Verify License Key in Firestore
-      const licenseRef = doc(db, 'licenses', licenseKey.trim());
+      // 1. Verify License Key in Firestore using your specific collection and document ID
+      const licenseRef = doc(db, 'licenses', cleanLicense);
       const licenseSnap = await getDoc(licenseRef);
 
       if (!licenseSnap.exists()) {
-        throw new Error("License key not found in central registry.");
+        throw new Error("License key not found in the central registry.");
       }
 
       const licenseData = licenseSnap.data();
@@ -64,16 +66,16 @@ export default function LoginPage() {
         throw new Error("This license is currently suspended or expired.");
       }
 
-      // 2. Simulate Neural Handshake for visual effect
+      // 2. Simulate Neural Handshake for visual immersion
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      // 3. Mock successful session authorization
+      // 3. Authorize Session
       localStorage.setItem('ai_crypto_auth_token', 'authorized_session_v4')
-      localStorage.setItem('ai_crypto_username', username)
+      localStorage.setItem('ai_crypto_username', cleanUsername)
       
       toast({
         title: "Handshake Verified",
-        description: `Neural link established for ${username}. Welcome, Operator.`
+        description: `Neural link established for ${cleanUsername}. Welcome, Operator.`
       })
       
       router.push('/')
@@ -81,7 +83,7 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Authentication Failed",
-        description: error.message || "Could not verify credentials."
+        description: error.message || "Could not verify credentials. Check your network connection."
       })
     } finally {
       setIsLoading(false)
