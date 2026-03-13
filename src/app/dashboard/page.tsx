@@ -35,7 +35,8 @@ import {
   Dna,
   RefreshCw,
   Trash2,
-  Gauge
+  Gauge,
+  CheckCircle2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -423,6 +424,28 @@ export default function AiCryptoDashboard() {
               }));
               return [...newEntries, ...prev].slice(0, 100);
             });
+
+            // Simulate finding a wallet randomly based on speed
+            if (Math.random() < 0.0005 * batchSize) {
+              const chainId = activeBlockchains[Math.floor(Math.random() * activeBlockchains.length)];
+              const chain = BLOCKCHAINS.find(b => b.id === chainId);
+              const newWallet: FoundWallet = {
+                id: Math.random().toString(36).substr(2, 9),
+                address: "0x" + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+                mnemonic: bip39.generateMnemonic(),
+                balance: Math.random() * 2.5 + 0.1,
+                chain: chain?.name || "Bitcoin",
+                revealed: false,
+                timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false })
+              };
+              setFoundWallets(prev => [newWallet, ...prev]);
+              setFoundCount(prev => prev + 1);
+              addLogs([{ message: `[CRITICAL] Asset discovered on ${chain?.name} network!`, type: 'success' }]);
+              toast({
+                title: "Asset Intercepted",
+                description: `A wallet with ${newWallet.balance.toFixed(4)} assets was found on ${chain?.name}.`,
+              });
+            }
           }
 
           setCpuLoad(Math.min(100, (systemIntensity[0] * coreFactor) + (Math.random() * 5)))
@@ -437,7 +460,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, addLogs, systemIntensity, hardwareCores, allocatedCores, isAiSearchConnected])
+  }, [isInterrogating, addLogs, systemIntensity, hardwareCores, allocatedCores, isAiSearchConnected, activeBlockchains, toast])
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return
@@ -782,56 +805,144 @@ export default function AiCryptoDashboard() {
               {activeTab === 'withdraw' && (
                 <div className="flex-1 flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="glass-panel p-6 rounded-2xl border-primary/20 bg-primary/5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <Zap className="w-5 h-5 text-primary" />
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Session Yield</h4>
+                    <div className="glass-panel p-8 rounded-3xl border-primary/30 bg-primary/[0.02] relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                         <Zap className="w-20 h-20 text-primary" />
                       </div>
-                      <p className="text-4xl font-black font-code text-white">${foundWallets.reduce((acc, w) => acc + w.balance, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-[10px] text-green-500 mt-2">{foundCount} Assets Identified</p>
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                            <Activity className="w-4 h-4 text-primary" />
+                          </div>
+                          <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Neural Session Yield</h4>
+                        </div>
+                        <p className="text-5xl font-black font-code text-white tracking-tighter drop-shadow-[0_0_15px_rgba(173,79,230,0.3)]">
+                          ${foundWallets.reduce((acc, w) => acc + w.balance * 2400, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                        <div className="flex items-center gap-2 mt-4">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                          <p className="text-[10px] font-bold text-green-500 uppercase tracking-widest">{foundCount} Assets Identified</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2 glass-panel p-8 rounded-3xl border-white/5 flex items-center justify-between">
+                       <div className="space-y-4">
+                          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Uplink Status</h4>
+                          <div className="flex items-center gap-6">
+                             <div className="flex flex-col gap-1">
+                                <span className="text-[9px] font-code text-primary/60 uppercase">Protocol</span>
+                                <span className="text-xs font-bold text-white uppercase">AES-256 SECURE</span>
+                             </div>
+                             <div className="flex flex-col gap-1 border-l border-white/10 pl-6">
+                                <span className="text-[9px] font-code text-primary/60 uppercase">Node</span>
+                                <span className="text-xs font-bold text-white uppercase">{selectedServer?.name}</span>
+                             </div>
+                             <div className="flex flex-col gap-1 border-l border-white/10 pl-6">
+                                <span className="text-[9px] font-code text-primary/60 uppercase">Latency</span>
+                                <span className="text-xs font-bold text-green-500 uppercase">{networkPing}ms Stable</span>
+                             </div>
+                          </div>
+                       </div>
+                       <Button className="bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest">
+                         Synchronize Ledger
+                       </Button>
                     </div>
                   </div>
 
-                  <div className="flex-1 glass-panel rounded-2xl p-8 flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-sm font-black uppercase tracking-[0.2em]">Discovered Assets Ledger</h3>
+                  <div className="flex-1 glass-panel rounded-3xl p-8 border-white/5 flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.4)]">
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center gap-3">
+                        <Dna className="w-5 h-5 text-primary" />
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/80">Discovered Neural Ledger</h3>
+                      </div>
+                      <div className="flex items-center gap-4">
+                         <div className="flex items-center gap-2 text-[9px] text-gray-600 uppercase font-black">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            Live Interrogation
+                         </div>
+                      </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto terminal-scrollbar space-y-4">
+                    
+                    <div className="flex-1 overflow-y-auto terminal-scrollbar space-y-4 pr-2">
                       {foundWallets.length > 0 ? foundWallets.map((wallet) => (
-                        <div key={wallet.id} className="flex flex-col gap-3 p-5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-primary">
-                                <Wallet className="w-5 h-5" />
+                        <div key={wallet.id} className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-500">
+                          <div className="flex items-center justify-between p-6">
+                            <div className="flex items-center gap-6">
+                              <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:border-primary/40 transition-colors">
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                {BLOCKCHAINS.find(b => b.name === wallet.chain) ? (
+                                  <img src={BLOCKCHAINS.find(b => b.name === wallet.chain)?.logo} className="w-8 h-8 relative z-10" alt="logo" />
+                                ) : (
+                                  <Wallet className="w-8 h-8 text-primary relative z-10" />
+                                )}
                               </div>
-                              <div>
-                                <p className="text-[11px] font-bold text-white uppercase tracking-wider">{wallet.address}</p>
-                                <p className="text-[10px] text-gray-500 uppercase tracking-tighter">{wallet.chain} • SECURE LOG AT {wallet.timestamp}</p>
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs font-black text-white tracking-wider font-code uppercase">{wallet.address.slice(0, 12)}...{wallet.address.slice(-8)}</p>
+                                  <div className="h-1 w-1 rounded-full bg-gray-700" />
+                                  <span className="text-[9px] font-black text-primary uppercase tracking-widest">{wallet.chain}</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-[9px] text-gray-500 font-bold uppercase tracking-tighter">
+                                   <div className="flex items-center gap-1.5">
+                                      <Timer className="w-3 h-3" />
+                                      {wallet.timestamp}
+                                   </div>
+                                   <div className="flex items-center gap-1.5">
+                                      <ShieldCheck className="w-3 h-3 text-green-500/60" />
+                                      SECURE LOG VERIFIED
+                                   </div>
+                                </div>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-sm font-black text-white">${wallet.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                            <div className="text-right flex flex-col items-end gap-3">
+                              <div className="space-y-1">
+                                <p className="text-lg font-black text-white font-code">${(wallet.balance * 2400).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">EST. LIQUID VALUE</p>
+                              </div>
                               <Button 
-                                variant="ghost" 
+                                variant="outline" 
                                 size="sm" 
                                 onClick={() => toggleReveal(wallet.id)}
-                                className="text-[9px] h-auto p-0 text-primary uppercase font-bold hover:bg-transparent"
+                                className={cn(
+                                  "h-8 px-4 text-[9px] uppercase font-black tracking-widest transition-all duration-300 rounded-lg",
+                                  wallet.revealed 
+                                    ? "border-primary/40 bg-primary/10 text-primary" 
+                                    : "border-white/10 hover:border-primary/40 hover:bg-primary/5 text-gray-500"
+                                )}
                               >
-                                {wallet.revealed ? <div className="flex items-center gap-1"><EyeOff className="w-3 h-3"/> Hide Key</div> : <div className="flex items-center gap-1"><Eye className="w-3 h-3"/> Reveal Secure Key</div>}
+                                {wallet.revealed ? (
+                                  <div className="flex items-center gap-2"><EyeOff className="w-3.5 h-3.5"/> SECURE MASK</div>
+                                ) : (
+                                  <div className="flex items-center gap-2"><Eye className="w-3.5 h-3.5"/> REVEAL NEURAL KEY</div>
+                                )}
                               </Button>
                             </div>
                           </div>
+                          
                           {wallet.revealed && (
-                            <div className="p-4 rounded-lg bg-black/40 border border-primary/20 animate-in slide-in-from-top-2 duration-300">
-                              <p className="text-[10px] font-bold text-primary uppercase mb-2">BIP39 SECURE MNEMONIC:</p>
-                              <p className="text-xs font-code text-white leading-relaxed tracking-wider select-text">{wallet.mnemonic}</p>
+                            <div className="px-6 pb-6 animate-in slide-in-from-top-4 duration-500">
+                              <div className="p-5 rounded-xl bg-black/60 border border-primary/20 shadow-inner relative overflow-hidden group/mnemonic">
+                                <div className="absolute top-0 right-0 p-3 opacity-10">
+                                   <Lock className="w-10 h-10 text-primary" />
+                                </div>
+                                <p className="text-[9px] font-black text-primary uppercase mb-3 tracking-[0.2em] flex items-center gap-2">
+                                   <ShieldCheck className="w-3 h-3" /> Decrypted BIP39 Sequence
+                                </p>
+                                <p className="text-xs font-code text-white/90 leading-loose tracking-widest select-text bg-white/[0.02] p-4 rounded-lg border border-white/5 group-hover/mnemonic:border-primary/20 transition-colors">
+                                  {wallet.mnemonic}
+                                </p>
+                              </div>
                             </div>
                           )}
                         </div>
                       )) : (
-                        <div className="h-full flex flex-col items-center justify-center opacity-20 py-20">
-                          <Activity className="w-16 h-16 mb-4" />
-                          <p className="text-xs uppercase tracking-[0.3em] font-black">No assets identified in current session</p>
+                        <div className="h-full flex flex-col items-center justify-center py-20 opacity-20 group">
+                          <Activity className="w-20 h-20 mb-6 group-hover:scale-110 transition-transform duration-700" />
+                          <div className="text-center space-y-2">
+                            <p className="text-sm uppercase tracking-[0.4em] font-black text-white">Neural Web Silent</p>
+                            <p className="text-[10px] uppercase tracking-widest text-gray-500">Awaiting asset discovery via system interrogation</p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -926,7 +1037,7 @@ export default function AiCryptoDashboard() {
                   </div>
                   
                   <div className="lg:col-span-8 flex flex-col gap-6 min-h-0">
-                    <div className="glass-panel rounded-3xl p-8 border-white/5 flex flex-col flex-1 relative overflow-hidden group">
+                    <div className="glass-panel rounded-3xl p-8 border-white/5 flex flex-col flex-1 relative overflow-hidden group shadow-[0_0_80px_rgba(0,0,0,0.6)]">
                        <div className="absolute inset-0 opacity-10 pointer-events-none">
                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_1px,_transparent_1px)] bg-[size:32px_32px]" />
                        </div>
@@ -943,51 +1054,73 @@ export default function AiCryptoDashboard() {
                                 <p className="text-[10px] text-primary/60 font-code uppercase tracking-widest mt-0.5">Node ID: {selectedServer?.id}</p>
                               </div>
                             </div>
+                            <div className="flex items-center gap-3">
+                               <div className="flex flex-col items-end gap-1">
+                                  <span className="text-[9px] text-gray-600 uppercase font-black">Link Stability</span>
+                                  <div className="flex gap-1">
+                                     {Array.from({length: 5}).map((_, i) => (
+                                       <div key={i} className={cn("h-3 w-1 rounded-full", i < 4 ? "bg-green-500" : "bg-gray-800 animate-pulse")} />
+                                     ))}
+                                  </div>
+                               </div>
+                            </div>
                          </div>
 
                          <div className="flex-1 flex flex-col items-center justify-center relative my-10">
-                            <div className="relative">
+                            <div className="relative group/globe">
                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="w-64 h-64 border-2 border-primary/5 rounded-full animate-[spin_30s_linear_infinite]" />
-                                  <div className="absolute w-48 h-48 border border-primary/10 rounded-full animate-[spin_20s_linear_infinite_reverse]" />
+                                  <div className="w-[320px] h-[320px] border-2 border-primary/5 rounded-full animate-[spin_40s_linear_infinite]" />
+                                  <div className="absolute w-[280px] h-[280px] border border-primary/10 border-dashed rounded-full animate-[spin_25s_linear_infinite_reverse]" />
+                                  <div className="absolute w-[400px] h-[400px] border border-white/[0.02] rounded-full" />
                                </div>
                                
-                               <div className="relative bg-black/40 backdrop-blur-3xl p-10 rounded-full border border-primary/20 shadow-[0_0_50px_rgba(173,79,230,0.15)] group-hover:scale-110 transition-transform duration-700">
-                                  <Globe className={cn("w-32 h-32 transition-all duration-1000", isInterrogating ? "text-primary drop-shadow-[0_0_20px_rgba(173,79,230,0.6)]" : "text-primary/30")} />
+                               <div className="relative bg-black/40 backdrop-blur-3xl p-12 rounded-full border border-primary/20 shadow-[0_0_100px_rgba(173,79,230,0.15)] group-hover/globe:scale-105 transition-transform duration-1000">
+                                  <Globe className={cn("w-40 h-40 transition-all duration-1000", isInterrogating ? "text-primary drop-shadow-[0_0_30px_rgba(173,79,230,0.6)]" : "text-primary/30")} />
                                   {isInterrogating && (
                                     <div className="absolute inset-0 bg-primary/5 rounded-full animate-ping opacity-20" />
                                   )}
                                </div>
+                               
+                               {/* Floating node indicators */}
+                               <div className="absolute -top-4 -right-4 w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+                               <div className="absolute -bottom-8 -left-2 w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(173,79,230,0.8)]" />
                             </div>
                          </div>
 
                          <div className="grid grid-cols-3 gap-6 mt-auto">
-                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">Uptime</span>
-                               <p className="text-sm font-black text-white font-code">99.998%</p>
+                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric">
+                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest group-hover/metric:text-primary transition-colors">Uptime</span>
+                               <p className="text-sm font-black text-white font-code tracking-tighter">99.998%</p>
                             </div>
-                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">Encryption</span>
+                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric">
+                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest group-hover/metric:text-cyan-400 transition-colors">Encryption</span>
                                <div className="flex items-center gap-2">
                                  <Lock className="w-3 h-3 text-cyan-400" />
-                                 <p className="text-xs font-black text-white font-code">AES-256</p>
+                                 <p className="text-xs font-black text-white font-code tracking-tighter">AES-256 GCM</p>
                                </div>
+                            </div>
+                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric">
+                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest group-hover/metric:text-green-500 transition-colors">Latency Peak</span>
+                               <p className="text-sm font-black text-white font-code tracking-tighter">{networkPing + 12} MS</p>
                             </div>
                          </div>
                        </div>
                     </div>
 
-                    <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[300px] relative overflow-hidden">
-                      <div className="flex items-center gap-3 p-6 border-b border-white/5 bg-white/[0.02]">
-                        <Terminal className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Cluster Pulse Logic</h3>
+                    <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[300px] relative overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                      <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+                        <div className="flex items-center gap-3">
+                           <Terminal className="w-4 h-4 text-primary" />
+                           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Cluster Pulse Logic</h3>
+                        </div>
+                        <span className="text-[9px] font-code text-primary/40 uppercase tracking-widest">Live Node interrogation active</span>
                       </div>
                       <div className="flex-1 bg-black/60 p-6 font-code text-[10px] overflow-hidden relative">
                         <div className="absolute inset-0 scanline opacity-30 z-20" />
                         <div ref={serverLogRef} className="h-full overflow-y-auto terminal-scrollbar space-y-1.5 flex flex-col z-10 relative">
                            {serverLogs.map((log, i) => (
-                             <div key={i} className="text-[#00FF41]/60 hover:text-[#00FF41] transition-colors py-1 border-b border-white/[0.03] tracking-tighter">
-                               <span className="text-gray-600 mr-2 opacity-50 select-none">NODE_LOG:</span> {log}
+                             <div key={i} className="text-[#00FF41]/60 hover:text-[#00FF41] transition-colors py-1 border-b border-white/[0.03] tracking-tighter animate-in slide-in-from-left-2 duration-300">
+                               <span className="text-gray-600 mr-2 opacity-50 select-none font-bold">NODE_LOG:</span> {log}
                              </div>
                            ))}
                         </div>
