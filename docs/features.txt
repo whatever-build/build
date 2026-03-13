@@ -1,0 +1,41 @@
+AI CRYPTO ENGINE v4.0 ELITE - SYSTEM MANIFEST
+==============================================
+
+FORENSIC INTERROGATION ENGINE
+-----------------------------
+* BIP39 Mnemonic Simulation: High-velocity generation of standard recovery phrases.
+* 1-by-1 Telemetry Link: Mathematical synchronization between the Scan Console and the "Seed Phrases Checked" counter.
+* Hardware-Accelerated Rendering: Uses requestAnimationFrame for buttery-smooth 60FPS output during 24/7 operations.
+* Pure Data Mode: Automatic suppression of system logs during active scans to ensure focused forensic monitoring.
+* Adaptive Batching: Prevents main-thread locking and UI freezing during high-intensity interrogation.
+
+SECURE SYSTEM GATEWAY (LOGIN)
+-----------------------------
+* Neural Mesh Background: Animated multi-layered radial gradient background.
+* Real-Time Latency Telemetry: Live fluctuation monitor (12ms - 45ms) showing connection health before entry.
+* Forensic Auth Handshake: Sequential log stream (Authenticating -> Verifying -> Establishing) for immersive access control.
+* AES-256 GCM Verification: Simulated encryption check during the gateway handshake.
+
+WORKSTATION PERSISTENCE & CUSTOMIZATION
+---------------------------------------
+* Session Recovery: Automatic saving and restoration of operator settings (Active Blockchains, Throughput, Typography).
+* High-Density Typography: Default 8px console font for maximum information density.
+* Persistence Protocol: Leverages localStorage to maintain cumulative "Checked" counts across browser reloads.
+
+ADVANCED TELEMETRY SIDEBAR
+--------------------------
+* Live System Monitoring: Real-time tracking of Entropy Depth (256-bit), Active Threads (32), and System Uptime.
+* Dynamic Engine Load: Visual progress indicators for neural core utilization and network latency.
+* Node Status: Real-time status indicators (Active/Standby) for the interrogation engine.
+
+INFRASTRUCTURE & COMPLIANCE
+---------------------------
+* Neural Cluster Map: Multi-region server monitoring (Virginia, Frankfurt, Singapore, Tokyo, Reykjavik).
+* Multi-Blockchain Mesh: Integrated support for 10 major networks including Bitcoin, Ethereum, Solana, and BNB Chain.
+* Enterprise Access Control: Locked AI Search module and restricted cluster selection (High-Latency Node only) for standard tier operators.
+
+AESTHETICS & INTERFACE
+----------------------
+* Luxury Snake Border: Slow 12-second linear gradient glow around primary forensic consoles.
+* Pulsing Neural Core: Hardware-accelerated globe animation in the AI Search panel for heuristic feedback.
+* Zero-Jitter Forensic Scrolling: Instant terminal positioning inside the animation frame to eliminate layout fluctuation.
