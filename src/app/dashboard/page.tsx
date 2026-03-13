@@ -79,6 +79,19 @@ const SEED_COLORS = [
   { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient' },
 ]
 
+const SYSTEM_LOGS = [
+  "[BOOT] Initializing AI Crypto Engine v4.0",
+  "[CONNECT] Syncing blockchain nodes...",
+  "[NODE] Bitcoin network connected",
+  "[NODE] Ethereum network connected",
+  "[SCAN] Running heuristic wallet discovery...",
+  "[HASH] Analyzing transaction clusters...",
+  "[AI] Neural anomaly detection active",
+  "[DATA] 742 wallet signatures processed",
+  "[SCAN] Searching for seed phrase patterns...",
+  "[RESULT] No vulnerabilities detected"
+];
+
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4';
 
 interface FoundWallet {
@@ -127,6 +140,11 @@ export default function AiCryptoDashboard() {
   const [isAiSearchConnected, setIsAiSearchConnected] = useState(false)
   const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
   const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
+
+  // AI Typing Animation State
+  const [displayedSystemLines, setDisplayedSystemLines] = useState<string[]>([])
+  const [lineIndex, setLineIndex] = useState(0)
+  const [charIndex, setCharIndex] = useState(0)
   
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
@@ -147,6 +165,41 @@ export default function AiCryptoDashboard() {
       window.Buffer = window.Buffer || Buffer;
     }
   }, []);
+
+  // AI Typing Animation Logic
+  useEffect(() => {
+    if (isInterrogating) return; // Stop typing animation when scanning starts
+
+    const timeout = setTimeout(() => {
+      setDisplayedSystemLines(prev => {
+        const copy = [...prev];
+        const currentLine = SYSTEM_LOGS[lineIndex];
+        copy[lineIndex] = currentLine.slice(0, charIndex + 1);
+        return copy;
+      });
+
+      setCharIndex(prev => prev + 1);
+
+      if (charIndex >= SYSTEM_LOGS[lineIndex].length) {
+        setCharIndex(0);
+        setLineIndex(prev => {
+          const next = prev + 1;
+          if (next >= SYSTEM_LOGS.length) {
+            // Loop with a brief delay
+            setTimeout(() => {
+                setDisplayedSystemLines([]);
+                setLineIndex(0);
+                setCharIndex(0);
+            }, 2000);
+            return prev;
+          }
+          return next;
+        });
+      }
+    }, 30);
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, lineIndex, isInterrogating]);
 
   useEffect(() => {
     const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -288,12 +341,12 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     if (scrollRef.current) {
         scrollRef.current.scrollTo({
-            top: 0,
+            top: isInterrogating ? 0 : scrollRef.current.scrollHeight,
             behavior: 'smooth'
         });
     }
     if (serverLogRef.current) serverLogRef.current.scrollTop = 0;
-  }, [logs, serverLogs]);
+  }, [logs, serverLogs, displayedSystemLines, isInterrogating]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
@@ -595,32 +648,41 @@ export default function AiCryptoDashboard() {
                     </div>
                     
                     <SnakeBorderCard processing={isInterrogating} className="flex-1 min-h-0 overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-                      <div className="h-full p-6 font-code overflow-hidden flex flex-col relative bg-black/60">
+                      <div className="h-full font-code overflow-hidden flex flex-col relative bg-black/60">
                         <div 
                           ref={scrollRef} 
-                          className="flex-1 overflow-y-auto terminal-scrollbar space-y-2 z-10 flex flex-col-reverse"
+                          className={cn(
+                            "flex-1 overflow-y-auto terminal-scrollbar p-6 space-y-2 z-10 flex flex-col",
+                            isInterrogating ? "flex-col-reverse" : "flex-col"
+                          )}
                           style={{ fontSize: `${consoleFontSize[0]}px` }}
                         >
-                          {logs.length === 0 && !isInterrogating && (
-                            <div className="h-full flex items-center justify-center text-gray-700 uppercase tracking-widest font-black text-xs">
-                              Scan Engine Ready
+                          {!isInterrogating ? (
+                            <div className="scan-console space-y-1">
+                                {displayedSystemLines.map((line, i) => (
+                                    <div key={i} className="text-[#7CFFB2] opacity-80 animate-in fade-in duration-300">
+                                        {line}
+                                    </div>
+                                ))}
+                                <div className="text-[#7CFFB2] w-1 h-4 bg-[#7CFFB2] animate-pulse inline-block ml-1" />
                             </div>
+                          ) : (
+                            logs.map((log) => (
+                                <div key={log.id} className="terminal-line flex gap-4 leading-normal animate-in fade-in slide-in-from-bottom-2 duration-700 ease-out">
+                                  <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
+                                  <span className={cn(
+                                    "break-all uppercase tracking-tight",
+                                    log.type === 'success' ? 'text-green-400 font-bold' :
+                                    log.type === 'warning' ? 'text-yellow-400' :
+                                    log.type === 'error' ? 'text-red-400' : 
+                                    log.type === 'system' ? 'text-cyan-400 font-medium' :
+                                    log.type === 'ai' ? cn(seedPhraseColor, "font-medium") : 'text-gray-500'
+                                  )}>
+                                    {log.message}
+                                  </span>
+                                </div>
+                              ))
                           )}
-                          {logs.map((log) => (
-                            <div key={log.id} className="terminal-line flex gap-4 leading-normal animate-in fade-in slide-in-from-bottom-2 duration-700 ease-out">
-                              <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
-                              <span className={cn(
-                                "break-all uppercase tracking-tight",
-                                log.type === 'success' ? 'text-green-400 font-bold' :
-                                log.type === 'warning' ? 'text-yellow-400' :
-                                log.type === 'error' ? 'text-red-400' : 
-                                log.type === 'system' ? 'text-cyan-400 font-medium' :
-                                log.type === 'ai' ? cn(seedPhraseColor, "font-medium") : 'text-gray-500'
-                              )}>
-                                {log.message}
-                              </span>
-                            </div>
-                          ))}
                         </div>
                       </div>
                     </SnakeBorderCard>

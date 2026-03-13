@@ -165,6 +165,13 @@
     background-size: 100% 2px;
     pointer-events: none;
   }
+
+  .scan-console {
+    font-family: 'Source Code Pro', monospace;
+    color: #7CFFB2;
+    background: transparent;
+    line-height: 1.6;
+  }
 }
 
 @keyframes spin {
