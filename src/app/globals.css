@@ -124,11 +124,6 @@
     color: #8df7b1;
   }
 
-  /* Inherit color from customization settings */
-  .seed {
-    /* No hardcoded color here - controlled by Tailwind classes in JS */
-  }
-
   /* TICKER STYLING */
   .ticker-wrap {
     @apply overflow-hidden whitespace-nowrap;

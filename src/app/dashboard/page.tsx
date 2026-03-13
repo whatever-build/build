@@ -84,25 +84,31 @@ const SEED_COLORS = [
   { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient font-bold' },
 ]
 
-const SYSTEM_LOGS = [
+const BOOT_LOGS = [
   "[BOOT] Initializing AI Crypto Engine v4.0",
-  "[CONNECT] Syncing blockchain nodes...",
+  "[SYS] Verifying system modules...",
+  "[SYS] Memory allocation successful",
+  "[SECURITY] AES-256 encryption verified",
+  "[NETWORK] Checking node connectivity...",
   "[NODE] Bitcoin network connected",
   "[NODE] Ethereum network connected",
-  "[SCAN] Running heuristic wallet discovery...",
-  "[HASH] Analyzing transaction clusters...",
-  "[AI] Neural anomaly detection active",
-  "[DATA] 742 wallet signatures processed",
-  "[SCAN] Searching for seed phrase patterns...",
-  "[RESULT] No vulnerabilities detected"
-];
-
-const INTERROGATION_SYSTEM_MESSAGES = [
-  "[SCAN] Blockchain node synced",
-  "[AI] Pattern recognition active",
-  "[NODE] Querying network latency",
-  "[HASH] Transaction cluster analyzed",
-  "[AI SEARCH] ENCRYPTED UPLINK VERIFIED"
+  "[NODE] BNB Chain node active",
+  "[NODE] Solana cluster synced",
+  "[NODE] Tron node operational",
+  "[NODE] XRP ledger connected",
+  "[NODE] Litecoin node synced",
+  "[NODE] Polygon RPC active",
+  "[NODE] Tether token network ready",
+  "[NODE] USDC token network ready",
+  "[AI] Loading heuristic analysis engine...",
+  "[AI] Pattern recognition module active",
+  "[AI] Entropy scanner ready",
+  "[AI SEARCH] Checking connection status...",
+  "[AI SEARCH] Connection established",
+  "[NETWORK] Measuring node latency...",
+  "[NETWORK] Latency stable: 22ms",
+  "[SYSTEM] Initialization complete",
+  "[SYSTEM] Awaiting scan command"
 ];
 
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4';
@@ -123,6 +129,7 @@ export default function AiCryptoDashboard() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [serverLogs, setServerLogs] = useState<string[]>([])
   const [isInterrogating, setIsInterrogating] = useState(false)
+  const [isBooting, setIsBooting] = useState(true)
   const [checkedCount, setCheckedCount] = useState(0)
   const [displayCount, setDisplayCount] = useState(0)
   const [activeBlockchains, setActiveBlockchains] = useState<string[]>([])
@@ -142,11 +149,6 @@ export default function AiCryptoDashboard() {
   const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
   const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
 
-  // AI Typing Animation State (Standby)
-  const [displayedSystemLines, setDisplayedSystemLines] = useState<string[]>([])
-  const [lineIndex, setLineIndex] = useState(0)
-  const [charIndex, setCharIndex] = useState(0)
-  
   // Real-time Buffer for Ultra-smooth Interrogation
   const logBuffer = useRef<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -215,6 +217,28 @@ export default function AiCryptoDashboard() {
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
   }, [checkedCount, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, selectedServerId]);
 
+  // System Boot Sequence
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < BOOT_LOGS.length) {
+        const entry: LogEntry = {
+          id: `boot-${i}`,
+          message: BOOT_LOGS[i],
+          timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+          type: 'system'
+        };
+        setLogs(prev => [...prev, entry]);
+        i++;
+      } else {
+        clearInterval(interval);
+        setIsBooting(false);
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Sequential Counter Logic with Adaptive Sync (High-end Cybersecurity Style)
   useEffect(() => {
     if (displayCount >= checkedCount) return;
@@ -230,53 +254,22 @@ export default function AiCryptoDashboard() {
     return () => clearTimeout(timeout);
   }, [checkedCount, displayCount]);
 
-  // AI Typing Animation Logic (Standby Mode)
-  useEffect(() => {
-    if (isInterrogating) return;
-
-    const timeout = setTimeout(() => {
-      setDisplayedSystemLines(prev => {
-        const copy = [...prev];
-        const currentLine = SYSTEM_LOGS[lineIndex];
-        if (!currentLine) return prev;
-        copy[lineIndex] = currentLine.slice(0, charIndex + 1);
-        return copy;
-      });
-
-      setCharIndex(prev => prev + 1);
-
-      if (charIndex >= (SYSTEM_LOGS[lineIndex]?.length || 0)) {
-        setCharIndex(0);
-        setLineIndex(prev => {
-          const next = prev + 1;
-          if (next >= SYSTEM_LOGS.length) {
-            setTimeout(() => {
-                setDisplayedSystemLines([]);
-                setLineIndex(0);
-                setCharIndex(0);
-            }, 3000);
-            return prev;
-          }
-          return next;
-        });
-      }
-    }, 30);
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, lineIndex, isInterrogating]);
-
   // Ultra-Smooth Log Flush Protocol (Hardware Accelerated 1-by-1)
   useEffect(() => {
-    if (!isInterrogating) return;
-
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        // Take 1 entry per frame to ensure 1-by-1 smoothness as requested
-        const entry = logBuffer.current.shift();
-        if (entry) {
-          setLogs(prev => [entry, ...prev].slice(0, 100));
-          // Counter increments exactly when a new phrase log is rendered
-          if (entry.type === 'ai') setCheckedCount(prev => prev + 1);
+        // Render up to 10 entries per frame if needed to keep up, but usually 1-by-1 for smoothness
+        const entriesToFlush = Math.min(logBuffer.current.length, 1);
+        for (let i = 0; i < entriesToFlush; i++) {
+          const entry = logBuffer.current.shift();
+          if (entry) {
+            setLogs(prev => {
+              const newLogs = [entry, ...prev].slice(0, 100);
+              return newLogs;
+            });
+            // Telemetry increment exactly when mnemonic renders
+            if (entry.type === 'ai') setCheckedCount(prev => prev + 1);
+          }
         }
       }
       requestAnimationFrame(flushLogs);
@@ -284,7 +277,7 @@ export default function AiCryptoDashboard() {
 
     const animationId = requestAnimationFrame(flushLogs);
     return () => cancelAnimationFrame(animationId);
-  }, [isInterrogating]);
+  }, []);
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -383,13 +376,12 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, [addServerLog]);
 
-  // Terminal Auto-Scroll
+  // Terminal Auto-Scroll (Instant for high velocity)
   useEffect(() => {
     if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-    if (serverLogRef.current) serverLogRef.current.scrollTop = 0;
-  }, [logs, serverLogs, displayedSystemLines, isInterrogating]);
+  }, [logs]);
 
   // Session Clock
   useEffect(() => {
@@ -403,33 +395,17 @@ export default function AiCryptoDashboard() {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating) {
-      const bootSequence = async () => {
-        setLogs([])
-        logBuffer.current = []
-        
-        addLogsToBuffer([{message: "ESTABLISHING SECURE HANDSHAKE...", type: "system"}])
-        addLogsToBuffer([{message: `AI SEARCH: ${isAiSearchConnected ? 'LINKED' : 'STANDBY'}`, type: "info"}])
-        addLogsToBuffer([{message: "CRYPTOGRAPHIC ENGINE INITIALIZED", type: "system"}])
-        
-        const intensity = systemIntensity[0] / 100;
-        const coreFactor = allocatedCores[0] / hardwareCores;
-        // Higher density throughput while maintaining smoothness
-        const tickDelay = Math.max(5, 150 - (145 * intensity * coreFactor));
+      const intensity = systemIntensity[0] / 100;
+      const coreFactor = allocatedCores[0] / hardwareCores;
+      // Precision tick delay modulated by system intensity
+      const tickDelay = Math.max(5, 150 - (145 * intensity * coreFactor));
 
-        interrogationInterval = setInterval(() => {
-          const newMnemonic = bip39.generateMnemonic();
-          
-          if (Math.random() > 0.98) {
-            const sysMsg = INTERROGATION_SYSTEM_MESSAGES[Math.floor(Math.random() * INTERROGATION_SYSTEM_MESSAGES.length)];
-            addLogsToBuffer([{message: sysMsg, type: "system"}]);
-          }
-
-          addLogsToBuffer([{message: newMnemonic, type: "ai"}]);
-          setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / hardwareCores)) + (Math.random() * 5)));
-        }, tickDelay);
-      }
-
-      bootSequence()
+      interrogationInterval = setInterval(() => {
+        const newMnemonic = bip39.generateMnemonic();
+        // Pure data mode: only mnemonics in the feed
+        addLogsToBuffer([{message: newMnemonic, type: "ai"}]);
+        setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / hardwareCores)) + (Math.random() * 5)));
+      }, tickDelay);
     } else {
       setCpuLoad(0)
     }
@@ -437,7 +413,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, addLogsToBuffer, systemIntensity, hardwareCores, allocatedCores, isAiSearchConnected]);
+  }, [isInterrogating, addLogsToBuffer, systemIntensity, hardwareCores, allocatedCores]);
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return
@@ -622,44 +598,33 @@ export default function AiCryptoDashboard() {
                           )}
                           style={{ fontSize: `${consoleFontSize[0]}px` }}
                         >
-                          {!isInterrogating ? (
-                            <div className="space-y-1">
-                                {displayedSystemLines.map((line, i) => (
-                                    <div key={i} className="console-line text-[#7CFFB2] opacity-80 font-code">
-                                        {line}
-                                    </div>
-                                ))}
-                                <div className="text-[#7CFFB2] w-1 h-4 bg-[#7CFFB2] animate-pulse inline-block ml-1" />
-                            </div>
-                          ) : (
-                            [...logs].reverse().map((log) => (
-                                <div key={log.id} className="console-line">
-                                  {log.type === 'ai' ? (
-                                    <div className="flex items-center gap-1">
-                                      <span className="balance">Balance: 0</span>
-                                      <span className="text-gray-600 px-1">|</span>
-                                      <span className="text-[#dcdcdc] shrink-0">Wallet check:</span>
-                                      <span className={cn("transition-colors duration-300 ml-1", seedPhraseColor)}>
-                                        {log.message}
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <div className="flex gap-4">
-                                      <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
-                                      <span className={cn(
-                                        "uppercase tracking-tight",
-                                        log.type === 'success' ? 'text-green-400 font-bold' :
-                                        log.type === 'warning' ? 'text-yellow-400' :
-                                        log.type === 'error' ? 'text-red-400' : 
-                                        log.type === 'system' ? 'text-primary font-bold' : 'text-gray-500'
-                                      )}>
-                                        {log.message}
-                                      </span>
-                                    </div>
-                                  )}
+                          {[...logs].reverse().map((log) => (
+                            <div key={log.id} className="console-line">
+                              {log.type === 'ai' ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="balance">Balance: 0</span>
+                                  <span className="text-gray-600 px-1">|</span>
+                                  <span className="text-[#dcdcdc] shrink-0">Wallet check:</span>
+                                  <span className={cn("transition-colors duration-300 ml-1", seedPhraseColor)}>
+                                    {log.message}
+                                  </span>
                                 </div>
-                              ))
-                          )}
+                              ) : (
+                                <div className="flex gap-4">
+                                  <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
+                                  <span className={cn(
+                                    "uppercase tracking-tight",
+                                    log.type === 'success' ? 'text-green-400 font-bold' :
+                                    log.type === 'warning' ? 'text-yellow-400' :
+                                    log.type === 'error' ? 'text-red-400' : 
+                                    log.type === 'system' ? 'text-[#8df7b1] font-bold' : 'text-gray-500'
+                                  )}>
+                                    {log.message}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -673,7 +638,10 @@ export default function AiCryptoDashboard() {
                     <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden">
                        {!isAiSearchConnected ? (
                          <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-                           <Globe className={cn("w-12 h-12 mb-4", isAiSearchConnecting ? "text-primary animate-pulse" : "text-gray-800")} />
+                           <div className="relative mb-6 group">
+                             <Globe className={cn("w-16 h-16 transition-all duration-700", isAiSearchConnecting ? "text-primary animate-pulse drop-shadow-[0_0_20px_rgba(173,79,230,0.5)]" : "text-gray-800")} />
+                             {isAiSearchConnecting && <div className="absolute inset-0 rounded-full pulse-ring border border-primary/40" />}
+                           </div>
                            <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2">
                              {isAiSearchConnecting ? "Negotiating Uplink" : "AI Search Standby"}
                            </h4>
@@ -682,7 +650,7 @@ export default function AiCryptoDashboard() {
                              disabled={isAiSearchConnecting}
                              className="w-full bg-primary/10 border border-primary/20 text-primary font-black text-[10px] uppercase hover:bg-primary/20 transition-all h-10 mt-6"
                            >
-                             {isAiSearchConnecting ? "Connecting..." : "Connect AI Search"}
+                             {isAiSearchConnecting ? "Connecting..." : "Enable AI Search"}
                            </Button>
                            {aiSearchLogs.length > 0 && (
                              <div className="mt-6 w-full text-left font-code text-[9px] space-y-1 border-t border-white/5 pt-4">
@@ -695,28 +663,70 @@ export default function AiCryptoDashboard() {
                            )}
                          </div>
                        ) : (
-                         <div className="flex flex-col h-full space-y-6">
-                            <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-                              <div className="relative mb-6">
-                                <Share2 className={cn("w-20 h-20 transition-all duration-700", isInterrogating ? "text-primary animate-pulse drop-shadow-[0_0_15px_rgba(173,79,230,0.5)]" : "text-primary/20")} />
-                                {isInterrogating && <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-20" />}
+                         <div className="flex flex-col h-full space-y-4">
+                            <div className="flex flex-col items-center text-center p-2 mb-4">
+                              <div className="relative mb-4">
+                                <Share2 className={cn("w-12 h-12 transition-all duration-700 text-primary", isInterrogating && "animate-pulse drop-shadow-[0_0_15px_rgba(173,79,230,0.5)]")} />
+                                <div className="absolute inset-0 rounded-full pulse-ring border border-primary/20" />
                               </div>
-                              <div className="w-full p-5 bg-black/40 border border-primary/20 rounded-xl">
-                                <div className="space-y-3 text-left">
-                                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Heuristic Filter</span>
-                                    <span className="text-[9px] font-code text-primary font-bold">ACTIVE</span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-code text-primary/60 uppercase">Entropy Boost</span>
-                                    <span className="text-[9px] font-code text-primary font-bold">MAXED</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <Button onClick={disconnectAiSearch} disabled={isInterrogating} variant="outline" className="w-full mt-6 border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/10 font-black text-[10px] uppercase transition-all h-8">
-                                <Unplug className="w-3 h-3 mr-2" /> Disconnect AI Search
-                              </Button>
+                              <span className="text-[10px] font-black text-primary uppercase tracking-widest">Neural Link Established</span>
                             </div>
+
+                            <div className="space-y-4 flex-1 overflow-y-auto pr-1 terminal-scrollbar">
+                               <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
+                                  <h5 className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 pb-2">AI Search Status</h5>
+                                  <div className="space-y-2">
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Connection</span>
+                                        <span className="text-[9px] font-bold text-green-500 uppercase">Connected</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Heuristic Filter</span>
+                                        <span className="text-[9px] font-bold text-primary uppercase">Active</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Entropy Boost</span>
+                                        <span className="text-[9px] font-bold text-primary uppercase">Maxed</span>
+                                     </div>
+                                  </div>
+                               </div>
+
+                               <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
+                                  <h5 className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 pb-2">System Analysis</h5>
+                                  <div className="space-y-2">
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Active Nodes</span>
+                                        <span className="text-[9px] font-bold text-white">12</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Latency</span>
+                                        <span className="text-[9px] font-bold text-green-500 uppercase">{networkPing}ms Stable</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Scan Threads</span>
+                                        <span className="text-[9px] font-bold text-white uppercase">32 Active</span>
+                                     </div>
+                                  </div>
+                               </div>
+
+                               <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
+                                  <h5 className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 pb-2">AI Processing</h5>
+                                  <div className="space-y-2">
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Pattern Engine</span>
+                                        <span className="text-[9px] font-bold text-primary uppercase">Running</span>
+                                     </div>
+                                     <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-code text-gray-400">Entropy Scanner</span>
+                                        <span className="text-[9px] font-bold text-primary uppercase">Active</span>
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+
+                            <Button onClick={disconnectAiSearch} disabled={isInterrogating} variant="outline" className="w-full mt-auto border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/10 font-black text-[10px] uppercase transition-all h-8">
+                               <Unplug className="w-3 h-3 mr-2" /> Disconnect
+                            </Button>
                          </div>
                        )}
                     </div>
@@ -1080,13 +1090,18 @@ export default function AiCryptoDashboard() {
                       <Power className="w-4 h-4 mr-3" /> STOP SCAN
                     </Button>
                   ) : (
-                    <Button onClick={startInterrogation} disabled={activeBlockchains.length === 0} className={cn("h-14 px-20 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_30px_rgba(173,79,230,0.3)] hover:opacity-90 disabled:opacity-30")}>
+                    <Button onClick={startInterrogation} disabled={activeBlockchains.length === 0 || isBooting} className={cn("h-14 px-20 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_30px_rgba(173,79,230,0.3)] hover:opacity-90 disabled:opacity-30")}>
                       <Zap className="w-4 h-4 mr-3" /> START SCAN
                     </Button>
                   )}
-                  {activeBlockchains.length === 0 && !isInterrogating && (
+                  {activeBlockchains.length === 0 && !isInterrogating && !isBooting && (
                     <div className="flex items-center gap-2 text-[10px] text-yellow-500 font-bold uppercase animate-pulse">
                       <AlertTriangle className="w-3 h-3" /> Select Blockchains to Proceed
+                    </div>
+                  )}
+                  {isBooting && (
+                    <div className="flex items-center gap-2 text-[10px] text-primary font-bold uppercase animate-pulse">
+                      <RefreshCw className="w-3 h-3 animate-spin" /> System Initializing...
                     </div>
                   )}
                 </div>
@@ -1097,7 +1112,7 @@ export default function AiCryptoDashboard() {
           <footer className="h-10 border-t border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
             <div className="ticker-wrap flex-1 mr-8 overflow-hidden whitespace-nowrap">
               <p className="ticker-content text-[8px] text-primary/60 uppercase tracking-[0.4em] font-code">
-                Status: {isInterrogating ? "SCANNING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: BIP39-Elite • Encryption: AES-256 Verified
+                Status: {isInterrogating ? "SCANNING" : isBooting ? "INITIALIZING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: BIP39-Elite • Encryption: AES-256 Verified
               </p>
             </div>
           </footer>
