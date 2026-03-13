@@ -72,32 +72,64 @@
     @apply bg-[#0f0f16]/75 backdrop-blur-md border border-white/[0.06] shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
   }
 
-  .glow-border-primary {
-    @apply border-primary/20 shadow-[0_0_15px_rgba(173,79,230,0.1)];
+  /* PREMIUM SCAN WRAPPER - SLOW LUXURY SNAKE BORDER */
+  .scan-wrapper {
+    position: relative;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary)),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: borderFlow 12s linear infinite;
   }
 
-  .glow-text-primary {
-    @apply text-primary drop-shadow-[0_0_8px_rgba(173,79,230,0.5)];
+  @keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
   }
 
-  .snake-border-container {
-    @apply relative overflow-hidden rounded-xl bg-[#0f0f16]/40 border border-white/5;
+  /* HIGH-END SCAN CONSOLE */
+  .scan-console {
+    @apply font-code leading-relaxed;
+    font-size: 13px;
+    background: #07070b;
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    color: #dcdcdc;
+    border-radius: 10px;
   }
 
-  .snake-border-animation {
-    @apply absolute inset-[-1000%] animate-[spin_60s_linear_infinite] opacity-0 transition-opacity duration-500;
-    background: conic-gradient(from 90deg at 50% 50%, transparent 0%, #AD4FE6 25%, transparent 50%);
+  .console-line {
+    opacity: 0;
+    transform: translateY(4px);
+    animation: lineFade .18s ease forwards;
+    word-break: break-word;
+    display: block;
+    white-space: normal;
   }
 
-  .group:hover .snake-border-animation,
-  .active-processing .snake-border-animation {
-    @apply opacity-100;
+  @keyframes lineFade {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .snake-border-content {
-    @apply relative m-[1px] rounded-xl bg-[#0f0f16]/90 z-10 backdrop-blur-md;
+  .balance {
+    color: #8df7b1;
   }
 
+  /* Inherit color from customization settings */
+  .seed {
+    /* No hardcoded color here - controlled by Tailwind classes in JS */
+  }
+
+  /* TICKER STYLING */
   .ticker-wrap {
     @apply overflow-hidden whitespace-nowrap;
   }
@@ -139,33 +171,16 @@
   }
 
   .blockchain-card:hover {
-    border-color: #7c6cff;
+    border-color: hsl(var(--primary));
     background: #161625;
-    box-shadow: 0 0 12px rgba(124, 108, 255, 0.35);
+    box-shadow: 0 0 12px rgba(173, 79, 230, 0.35);
     transform: translateY(-2px);
   }
 
   .blockchain-card.active {
-    border-color: #7c6cff;
+    border-color: hsl(var(--primary));
     background: rgba(35, 25, 60, 0.6);
-    box-shadow: 0 0 20px rgba(124, 108, 255, 0.4);
-  }
-
-  .terminal-line {
-    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .seed-entry {
-    opacity: 0;
-    transform: translateY(6px);
-    animation: seedFade 0.4s ease forwards;
-  }
-
-  @keyframes seedFade {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    box-shadow: 0 0 20px rgba(173, 79, 230, 0.4);
   }
 
   .seed-counter {
@@ -173,7 +188,7 @@
     font-weight: 600;
     letter-spacing: 1px;
     color: #ffffff;
-    text-shadow: 0 0 10px rgba(124, 108, 255, 0.5);
+    text-shadow: 0 0 10px rgba(173, 79, 230, 0.5);
   }
 
   .scanline {
@@ -184,32 +199,6 @@
     );
     background-size: 100% 2px;
     pointer-events: none;
-  }
-
-  /* PREMIUM SCAN CONSOLE */
-  .scan-console {
-    font-family: "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.7;
-    color: #e6e6e6;
-    background: #0b0b0f;
-    padding: 20px;
-    overflow-y: auto;
-  }
-
-  .console-line {
-    display: block;
-    word-break: break-word;
-    white-space: normal;
-  }
-
-  .balance {
-    color: #8df7b1;
-  }
-
-  /* Customization Hook: Color removed to allow Tailwind selection */
-  .seed {
-    /* Inherit from customization */
   }
 }
 
