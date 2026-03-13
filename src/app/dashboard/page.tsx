@@ -379,7 +379,7 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     if (scrollRef.current) {
         scrollRef.current.scrollTo({
-            top: isInterrogating ? 0 : scrollRef.current.scrollHeight,
+            top: 0,
             behavior: 'smooth'
         });
     }
@@ -418,20 +418,17 @@ export default function AiCryptoDashboard() {
         
         addLogs([{message: "CRYPTOGRAPHIC ENGINE: INITIALIZED", type: "system"}])
         
-        // Calculate dynamic interval based on speed settings
-        // Base delay is 150ms (slow), Max speed delay is 5ms (blazing)
         const intensity = systemIntensity[0] / 100;
         const aiBoost = isAiSearchConnected ? 2 : 1;
         const coreFactor = allocatedCores[0] / hardwareCores;
-        
-        // Final tick delay: faster if intensity is high, boost is on, and more cores are used
         const tickDelay = Math.max(5, 150 - (145 * intensity * coreFactor * (aiBoost / 2)));
 
         interrogationInterval = setInterval(() => {
           const newMnemonic = bip39.generateMnemonic();
           const newLog = {
             id: Math.random().toString(36).substr(2, 9),
-            message: `[SCAN] PHRASE CANDIDATE FOUND > ${newMnemonic}`,
+            // Updated format as requested: Balance: 0 | Wallet check: {full phrase}
+            message: `Balance: 0 | Wallet check: ${newMnemonic}`,
             timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
             type: 'ai' as const
           };
@@ -680,13 +677,13 @@ export default function AiCryptoDashboard() {
                         <div 
                           ref={scrollRef} 
                           className={cn(
-                            "flex-1 overflow-y-auto terminal-scrollbar p-6 space-y-2 z-10 flex flex-col",
+                            "flex-1 overflow-y-auto terminal-scrollbar p-6 space-y-2 z-10 flex flex-col scan-console",
                             isInterrogating ? "flex-col-reverse" : "flex-col"
                           )}
                           style={{ fontSize: `${consoleFontSize[0]}px` }}
                         >
                           {!isInterrogating ? (
-                            <div className="scan-console space-y-1">
+                            <div className="space-y-1">
                                 {displayedSystemLines.map((line, i) => (
                                     <div key={i} className="text-[#7CFFB2] opacity-80 animate-in fade-in duration-300">
                                         {line}
@@ -697,20 +694,27 @@ export default function AiCryptoDashboard() {
                           ) : (
                             logs.map((log) => (
                                 <div key={log.id} className={cn(
-                                  "terminal-line flex gap-4 leading-normal seed-entry",
+                                  "terminal-line flex gap-4 leading-[1.7] seed-entry console-line",
                                   log.type === 'ai' ? 'mb-2' : ''
                                 )}>
                                   <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
-                                  <span className={cn(
-                                    "break-all uppercase tracking-tight",
-                                    log.type === 'success' ? 'text-green-400 font-bold' :
-                                    log.type === 'warning' ? 'text-yellow-400' :
-                                    log.type === 'error' ? 'text-red-400' : 
-                                    log.type === 'system' ? 'text-cyan-400 font-medium' :
-                                    log.type === 'ai' ? cn(seedPhraseColor, "font-medium") : 'text-gray-500'
-                                  )}>
-                                    {log.message}
-                                  </span>
+                                  {log.type === 'ai' ? (
+                                    <div className="flex-1 font-code">
+                                      <span className="balance">Balance: 0</span>
+                                      <span className="text-gray-500"> | </span>
+                                      <span className="seed">{log.message.split(' | ')[1]}</span>
+                                    </div>
+                                  ) : (
+                                    <span className={cn(
+                                      "break-words whitespace-normal uppercase tracking-tight",
+                                      log.type === 'success' ? 'text-green-400 font-bold' :
+                                      log.type === 'warning' ? 'text-yellow-400' :
+                                      log.type === 'error' ? 'text-red-400' : 
+                                      log.type === 'system' ? 'text-cyan-400 font-medium' : 'text-gray-500'
+                                    )}>
+                                      {log.message}
+                                    </span>
+                                  )}
                                 </div>
                               ))
                           )}

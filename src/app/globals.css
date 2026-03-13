@@ -187,11 +187,29 @@
     pointer-events: none;
   }
 
+  /* PREMIUM SCAN CONSOLE */
   .scan-console {
-    font-family: 'Source Code Pro', monospace;
-    color: #7CFFB2;
-    background: transparent;
-    line-height: 1.6;
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #e6e6e6;
+    background: #0b0b0f;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .console-line {
+    display: block;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .balance {
+    color: #8df7b1;
+  }
+
+  .seed {
+    color: #dcdcdc;
   }
 }
 
