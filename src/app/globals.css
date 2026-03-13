@@ -86,7 +86,7 @@
   }
 
   .snake-border-animation {
-    @apply absolute inset-[-1000%] animate-[spin_30s_linear_infinite] opacity-0 transition-opacity duration-500;
+    @apply absolute inset-[-1000%] animate-[spin_60s_linear_infinite] opacity-0 transition-opacity duration-500;
     background: conic-gradient(from 90deg at 50% 50%, transparent 0%, #AD4FE6 25%, transparent 50%);
   }
 
