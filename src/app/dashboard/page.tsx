@@ -32,7 +32,10 @@ import {
   Signal,
   Network,
   Server as ServerIcon,
-  Dna
+  Dna,
+  RefreshCw,
+  Trash2,
+  Gauge
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SnakeBorderCard } from '@/components/ui/snake-border-card'
@@ -168,7 +171,7 @@ export default function AiCryptoDashboard() {
 
   // AI Typing Animation Logic
   useEffect(() => {
-    if (isInterrogating) return; // Stop typing animation when scanning starts
+    if (isInterrogating) return;
 
     const timeout = setTimeout(() => {
       setDisplayedSystemLines(prev => {
@@ -185,7 +188,6 @@ export default function AiCryptoDashboard() {
         setLineIndex(prev => {
           const next = prev + 1;
           if (next >= SYSTEM_LOGS.length) {
-            // Loop with a brief delay
             setTimeout(() => {
                 setDisplayedSystemLines([]);
                 setLineIndex(0);
@@ -252,6 +254,16 @@ export default function AiCryptoDashboard() {
       description: "All saved progress and configurations have been purged."
     });
   }, [toast, hardwareCores]);
+
+  const handleMemoryFlush = () => {
+    setLogs([]);
+    setServerLogs([]);
+    toast({
+      title: "Memory Flushed",
+      description: "Neural cache cleared. Client performance optimized.",
+      variant: "default"
+    });
+  };
   
   const addLogs = useCallback((messages: {message: string, type: LogEntry['type']}[]) => {
     setLogs(prev => {
@@ -261,7 +273,7 @@ export default function AiCryptoDashboard() {
         timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
         type: m.type
       }));
-      return [...newEntries, ...prev].slice(0, 50) 
+      return [...newEntries, ...prev].slice(0, 100) 
     })
   }, [])
 
@@ -409,7 +421,7 @@ export default function AiCryptoDashboard() {
                 timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
                 type: m.type
               }));
-              return [...newEntries, ...prev].slice(0, 50);
+              return [...newEntries, ...prev].slice(0, 100);
             });
           }
 
@@ -988,15 +1000,15 @@ export default function AiCryptoDashboard() {
               {activeTab === 'settings' && (
                 <div className="max-w-4xl mx-auto w-full flex flex-col gap-8 animate-in zoom-in-95 duration-500 pb-20">
                   <div className="glass-panel rounded-2xl p-10 border-white/5">
-                    <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">Engine Protocols</h3>
+                    <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">Performance Management</h3>
                     <div className="space-y-12">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-primary" />
-                            <label className="text-sm font-bold text-white uppercase tracking-widest">Processing Intensity</label>
+                            <Gauge className="w-4 h-4 text-primary" />
+                            <label className="text-sm font-bold text-white uppercase tracking-widest">Scan Throughput (Hz)</label>
                           </div>
-                          <span className="text-xs font-code text-primary">{systemIntensity[0]}%</span>
+                          <span className="text-xs font-code text-primary">{systemIntensity[0]}% Velocity</span>
                         </div>
                         <Slider 
                           value={systemIntensity} 
@@ -1006,15 +1018,16 @@ export default function AiCryptoDashboard() {
                           disabled={isInterrogating}
                           className="cursor-pointer"
                         />
+                        <p className="text-[9px] text-gray-500 uppercase tracking-widest">Directly modulates the engine's processing frequency and interrogation speed.</p>
                       </div>
 
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Layers className="w-4 h-4 text-primary" />
-                            <label className="text-sm font-bold text-white uppercase tracking-widest">Core Allocation</label>
+                            <label className="text-sm font-bold text-white uppercase tracking-widest">Neural Core Allocation</label>
                           </div>
-                          <span className="text-xs font-code text-primary">{allocatedCores[0]} / {hardwareCores} Cores</span>
+                          <span className="text-xs font-code text-primary">{allocatedCores[0]} / {hardwareCores} Logic Cores</span>
                         </div>
                         <Slider 
                           value={allocatedCores} 
@@ -1027,21 +1040,43 @@ export default function AiCryptoDashboard() {
                         />
                       </div>
 
-                      <div className="space-y-6 pt-4 border-t border-white/5">
-                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Memory & Session Protocol</h4>
+                      <div className="space-y-6 pt-8 border-t border-white/5">
+                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">System Optimization</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
-                              <div className="space-y-1">
-                                <p className="text-[11px] font-bold text-white uppercase tracking-wider">Reset Workstation</p>
+                           <div className="flex flex-col gap-3 p-5 rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors group">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Trash2 className="w-4 h-4 text-primary group-hover:animate-bounce" />
+                                  <p className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Memory Flush</p>
+                                </div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={handleMemoryFlush}
+                                  className="h-8 text-[9px] uppercase font-bold border-primary/20 text-primary hover:bg-primary/10"
+                                >
+                                  Flush Memory
+                                </Button>
                               </div>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={clearSession}
-                                className="h-8 text-[9px] uppercase font-bold border-red-500/20 text-red-500 hover:bg-red-500/10"
-                              >
-                                <RotateCcw className="w-3 h-3 mr-2" /> Reset
-                              </Button>
+                              <p className="text-[9px] text-gray-600 uppercase leading-relaxed">Clears terminal logs and server activity history to reclaim client memory and prevent UI lag.</p>
+                           </div>
+
+                           <div className="flex flex-col gap-3 p-5 rounded-2xl border border-red-500/10 bg-red-500/[0.01] hover:bg-red-500/[0.03] transition-colors group">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <RotateCcw className="w-4 h-4 text-red-500" />
+                                  <p className="text-[11px] font-bold text-white uppercase tracking-wider">Reset Workstation</p>
+                                </div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={clearSession}
+                                  className="h-8 text-[9px] uppercase font-bold border-red-500/20 text-red-500 hover:bg-red-500/10"
+                                >
+                                  Hard Reset
+                                </Button>
+                              </div>
+                              <p className="text-[9px] text-gray-600 uppercase leading-relaxed">Purges all session stats, found wallets, and engine configurations. Cannot be undone.</p>
                            </div>
                         </div>
                       </div>
