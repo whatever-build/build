@@ -130,7 +130,6 @@ export default function AiCryptoDashboard() {
   const [serverLogs, setServerLogs] = useState<string[]>([])
   const [isInterrogating, setIsInterrogating] = useState(false)
   const [isBooting, setIsBooting] = useState(true)
-  const [checkedCount, setCheckedCount] = useState(0)
   const [displayCount, setDisplayCount] = useState(0)
   const [activeBlockchains, setActiveBlockchains] = useState<string[]>([])
   const [cpuLoad, setCpuLoad] = useState(0)
@@ -154,7 +153,7 @@ export default function AiCryptoDashboard() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
 
-  // Handlers for Interrogation State
+  // Command Protocols
   const startInterrogation = useCallback(() => {
     if (activeBlockchains.length === 0) {
       toast({
@@ -187,9 +186,8 @@ export default function AiCryptoDashboard() {
     if (savedSession) {
       try {
         const data = JSON.parse(savedSession);
-        if (data.checkedCount !== undefined) {
-          setCheckedCount(data.checkedCount);
-          setDisplayCount(data.checkedCount);
+        if (data.displayCount !== undefined) {
+          setDisplayCount(data.displayCount);
         }
         if (data.activeBlockchains) setActiveBlockchains(data.activeBlockchains);
         if (data.systemIntensity) setSystemIntensity(data.systemIntensity);
@@ -206,7 +204,7 @@ export default function AiCryptoDashboard() {
   // Session Persistence
   useEffect(() => {
     const sessionData = {
-      checkedCount,
+      displayCount,
       activeBlockchains,
       systemIntensity,
       allocatedCores,
@@ -215,7 +213,7 @@ export default function AiCryptoDashboard() {
       selectedServerId
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
-  }, [checkedCount, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, selectedServerId]);
+  }, [displayCount, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, selectedServerId]);
 
   // System Boot Sequence
   useEffect(() => {
@@ -228,7 +226,7 @@ export default function AiCryptoDashboard() {
           timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
           type: 'system'
         };
-        setLogs(prev => [...prev, entry]);
+        setLogs(prev => [entry, ...prev].slice(0, 100));
         i++;
       } else {
         clearInterval(interval);
@@ -239,36 +237,28 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Sequential Counter Logic with Adaptive Sync (High-end Cybersecurity Style)
-  useEffect(() => {
-    if (displayCount >= checkedCount) return;
-
-    const gap = checkedCount - displayCount;
-    // Sequential count with adaptive burst for perfect 1-by-1 sync
-    const step = gap > 1000 ? Math.ceil(gap / 10) : gap > 100 ? Math.ceil(gap / 4) : 1; 
-    
-    const timeout = setTimeout(() => {
-      setDisplayCount(prev => Math.min(checkedCount, prev + step));
-    }, 16); // 60FPS precision
-
-    return () => clearTimeout(timeout);
-  }, [checkedCount, displayCount]);
-
-  // Ultra-Smooth Log Flush Protocol (Hardware Accelerated 1-by-1)
+  // Ultra-Smooth Log Flush & Counter Synchronization Protocol
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        // Render up to 10 entries per frame if needed to keep up, but usually 1-by-1 for smoothness
-        const entriesToFlush = Math.min(logBuffer.current.length, 1);
+        // High-velocity batching to keep up with intensity while maintaining visual rhythm
+        const entriesToFlush = Math.min(logBuffer.current.length, 5);
+        
+        const newEntries: LogEntry[] = [];
+        let aiIncrement = 0;
+
         for (let i = 0; i < entriesToFlush; i++) {
           const entry = logBuffer.current.shift();
           if (entry) {
-            setLogs(prev => {
-              const newLogs = [entry, ...prev].slice(0, 100);
-              return newLogs;
-            });
-            // Telemetry increment exactly when mnemonic renders
-            if (entry.type === 'ai') setCheckedCount(prev => prev + 1);
+            newEntries.push(entry);
+            if (entry.type === 'ai') aiIncrement++;
+          }
+        }
+
+        if (newEntries.length > 0) {
+          setLogs(prev => [...newEntries.reverse(), ...prev].slice(0, 100));
+          if (aiIncrement > 0) {
+            setDisplayCount(prev => prev + aiIncrement);
           }
         }
       }
@@ -281,7 +271,6 @@ export default function AiCryptoDashboard() {
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(SESSION_STORAGE_KEY);
-    setCheckedCount(0);
     setDisplayCount(0);
     setActiveBlockchains([]);
     setSystemIntensity([85]);
@@ -321,7 +310,7 @@ export default function AiCryptoDashboard() {
     ].slice(0, 50));
   }, [])
 
-  const connectAiSearch = async () => {
+  const connectAiSearch = useCallback(async () => {
     if (isAiSearchConnecting || isAiSearchConnected) return
     setIsAiSearchConnecting(true)
     setAiSearchLogs([])
@@ -341,7 +330,7 @@ export default function AiCryptoDashboard() {
     setIsAiSearchConnecting(false)
     setIsAiSearchConnected(true)
     toast({ title: "AI Search Linked", description: "Heuristic discovery mode enabled." })
-  }
+  }, [isAiSearchConnecting, isAiSearchConnected, toast]);
 
   const disconnectAiSearch = () => {
     setIsAiSearchConnected(false)
@@ -376,7 +365,7 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, [addServerLog]);
 
-  // Terminal Auto-Scroll (Instant for high velocity)
+  // Terminal Auto-Scroll (Instant for stable high-velocity monitoring)
   useEffect(() => {
     if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -390,19 +379,17 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(timerInterval)
   }, [isInterrogating])
 
-  // Sequential Neural Engine (Forensic 1-by-1 Flow)
+  // Sequential Neural Engine (Forensic Push Protocol)
   useEffect(() => {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating) {
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / hardwareCores;
-      // Precision tick delay modulated by system intensity
       const tickDelay = Math.max(5, 150 - (145 * intensity * coreFactor));
 
       interrogationInterval = setInterval(() => {
         const newMnemonic = bip39.generateMnemonic();
-        // Pure data mode: only mnemonics in the feed
         addLogsToBuffer([{message: newMnemonic, type: "ai"}]);
         setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / hardwareCores)) + (Math.random() * 5)));
       }, tickDelay);
@@ -598,27 +585,21 @@ export default function AiCryptoDashboard() {
                           )}
                           style={{ fontSize: `${consoleFontSize[0]}px` }}
                         >
-                          {[...logs].reverse().map((log) => (
+                          {logs.map((log) => (
                             <div key={log.id} className="console-line">
                               {log.type === 'ai' ? (
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 font-code">
                                   <span className="balance">Balance: 0</span>
-                                  <span className="text-gray-600 px-1">|</span>
+                                  <span className="text-gray-600 px-1 opacity-50">|</span>
                                   <span className="text-[#dcdcdc] shrink-0">Wallet check:</span>
                                   <span className={cn("transition-colors duration-300 ml-1", seedPhraseColor)}>
                                     {log.message}
                                   </span>
                                 </div>
                               ) : (
-                                <div className="flex gap-4">
+                                <div className="flex gap-4 font-code text-[#8df7b1]">
                                   <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
-                                  <span className={cn(
-                                    "uppercase tracking-tight",
-                                    log.type === 'success' ? 'text-green-400 font-bold' :
-                                    log.type === 'warning' ? 'text-yellow-400' :
-                                    log.type === 'error' ? 'text-red-400' : 
-                                    log.type === 'system' ? 'text-[#8df7b1] font-bold' : 'text-gray-500'
-                                  )}>
+                                  <span className="uppercase tracking-tight font-bold">
                                     {log.message}
                                   </span>
                                 </div>
