@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
@@ -400,8 +401,7 @@ export default function AiCryptoDashboard() {
   }, [isAutoMemoryEnabled, clearMemory])
 
   useEffect(() => {
-    let aiFetchInterval: NodeJS.Timeout
-    let smoothCounterInterval: NodeJS.Timeout
+    let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating) {
       const bootSequence = async () => {
@@ -428,25 +428,42 @@ export default function AiCryptoDashboard() {
         const intensityFactor = systemIntensity[0] / 100;
         const aiBoost = isAiSearchConnected ? 4.5 : 1.2;
         
-        // Console display throughput - matching visual seed phrases to the higher checked count speed
-        aiFetchInterval = setInterval(() => {
-          // Increase log frequency to match the "feel" of the counter
-          // We add multiple logs per tick if intensity is high to fill the console smoothly
-          const logBatchSize = Math.max(1, Math.floor(intensityFactor * 2 * (aiBoost / 2)));
-          
-          for(let i = 0; i < logBatchSize; i++) {
-            const visualPhrase = bip39.generateMnemonic();
-            addLog(visualPhrase, "ai")
-          }
-          
-          setCpuLoad(Math.min(100, (systemIntensity[0] * coreFactor) + (Math.random() * 5)))
-        }, 70) // Decreased interval for faster visual feedback
+        // Use a fractional accumulator to sync counter with logs 1:1 even at high speeds
+        let logAccumulator = 0;
 
-        // Smooth "1 by 1" counter increment
-        smoothCounterInterval = setInterval(() => {
-            const incrementPerTick = Math.ceil(intensityFactor * 2 * coreFactor * aiBoost);
-            setCheckedCount(prev => prev + incrementPerTick);
-        }, 30); 
+        interrogationInterval = setInterval(() => {
+          // Calculate throughput based on intensity and cores
+          // Target: Smooth "1 by 1" feel but supercharged speed
+          const logsPerTick = intensityFactor * 2.5 * coreFactor * aiBoost;
+          logAccumulator += logsPerTick;
+
+          const logsToGenerate = Math.floor(logAccumulator);
+          
+          if (logsToGenerate >= 1) {
+            logAccumulator -= logsToGenerate;
+            
+            // Generate mnemonics for this tick
+            const newMnemonicBatch: string[] = [];
+            for(let i = 0; i < logsToGenerate; i++) {
+              newMnemonicBatch.push(bip39.generateMnemonic());
+            }
+
+            // Sync: Update counter and logs together
+            setCheckedCount(prev => prev + logsToGenerate);
+            
+            setLogs(prev => {
+              const newEntries = newMnemonicBatch.map(mnemonic => ({
+                id: Math.random().toString(36).substr(2, 9),
+                message: mnemonic,
+                timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+                type: 'ai' as LogEntry['type']
+              }));
+              return [...newEntries, ...prev].slice(0, 50);
+            });
+          }
+
+          setCpuLoad(Math.min(100, (systemIntensity[0] * coreFactor) + (Math.random() * 5)))
+        }, 16); // High-frequency 60fps update loop for ultra-smoothness
       }
 
       bootSequence()
@@ -455,8 +472,7 @@ export default function AiCryptoDashboard() {
     }
 
     return () => {
-      if (aiFetchInterval) clearInterval(aiFetchInterval)
-      if (smoothCounterInterval) clearInterval(smoothCounterInterval)
+      if (interrogationInterval) clearInterval(interrogationInterval)
     }
   }, [isInterrogating, addLog, systemIntensity, hardwareCores, allocatedCores, isAiSearchConnected])
 
@@ -558,7 +574,7 @@ export default function AiCryptoDashboard() {
               </SidebarMenu>
             </SidebarGroup>
 
-            <SidebarGroup className="mt-8">
+            <SidebarGroup>
               <SidebarGroupLabel className="text-white/30 text-[9px] uppercase tracking-[0.2em] mb-2">Telemetry</SidebarGroupLabel>
               <SidebarGroupContent className="space-y-6 px-1">
                 <div className="space-y-2">
