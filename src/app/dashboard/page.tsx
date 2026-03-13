@@ -81,7 +81,7 @@ const SEED_COLORS = [
   { name: 'Matrix Green', class: 'text-[#7CFFB2]' },
   { name: 'Cyber Cyan', class: 'text-cyan-400' },
   { name: 'Gold Amber', class: 'text-amber-400' },
-  { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient' },
+  { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient font-bold' },
 ]
 
 const SYSTEM_LOGS = [
@@ -152,6 +152,23 @@ export default function AiCryptoDashboard() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
 
+  // Handlers for Interrogation State
+  const startInterrogation = useCallback(() => {
+    if (activeBlockchains.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Selection Required",
+        description: "Please select at least one blockchain to begin the interrogation."
+      })
+      return
+    }
+    setIsInterrogating(true)
+  }, [activeBlockchains, toast])
+
+  const stopInterrogation = useCallback(() => {
+    setIsInterrogating(false)
+  }, [])
+
   const handleLogout = async () => {
     await logout();
     localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -162,36 +179,48 @@ export default function AiCryptoDashboard() {
     router.push('/login')
   }
 
-  // Interrogation Control Protocols
-  const startInterrogation = () => {
-    if (activeBlockchains.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Selection Required",
-        description: "Please select at least one blockchain to begin the interrogation."
-      })
-      return
-    }
-    setIsInterrogating(true)
-  }
-
-  const stopInterrogation = () => {
-    setIsInterrogating(false)
-  }
-
+  // Session Restoration
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const { Buffer } = require('buffer');
-      window.Buffer = window.Buffer || Buffer;
+    const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (savedSession) {
+      try {
+        const data = JSON.parse(savedSession);
+        if (data.checkedCount !== undefined) {
+          setCheckedCount(data.checkedCount);
+          setDisplayCount(data.checkedCount);
+        }
+        if (data.activeBlockchains) setActiveBlockchains(data.activeBlockchains);
+        if (data.systemIntensity) setSystemIntensity(data.systemIntensity);
+        if (data.allocatedCores) setAllocatedCores(data.allocatedCores);
+        if (data.seedPhraseColor) setSeedPhraseColor(data.seedPhraseColor);
+        if (data.consoleFontSize) setConsoleFontSize(data.consoleFontSize);
+        if (data.selectedServerId) setSelectedServerId(data.selectedServerId);
+      } catch (e) {
+        console.error("Failed to restore session", e);
+      }
     }
   }, []);
 
-  // Professional Sequential Counter Logic with Adaptive Sync
+  // Session Persistence
+  useEffect(() => {
+    const sessionData = {
+      checkedCount,
+      activeBlockchains,
+      systemIntensity,
+      allocatedCores,
+      seedPhraseColor,
+      consoleFontSize,
+      selectedServerId
+    };
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
+  }, [checkedCount, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, selectedServerId]);
+
+  // Sequential Counter Logic with Adaptive Sync (High-end Cybersecurity Style)
   useEffect(() => {
     if (displayCount >= checkedCount) return;
 
     const gap = checkedCount - displayCount;
-    // Sequential count with adaptive burst for background tab sync
+    // Sequential count with adaptive burst for perfect 1-by-1 sync
     const step = gap > 1000 ? Math.ceil(gap / 10) : gap > 100 ? Math.ceil(gap / 4) : 1; 
     
     const timeout = setTimeout(() => {
@@ -236,16 +265,19 @@ export default function AiCryptoDashboard() {
     return () => clearTimeout(timeout);
   }, [charIndex, lineIndex, isInterrogating]);
 
-  // Ultra-Smooth Log Flush Protocol (Hardware Accelerated)
+  // Ultra-Smooth Log Flush Protocol (Hardware Accelerated 1-by-1)
   useEffect(() => {
     if (!isInterrogating) return;
 
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        const batchSize = Math.min(logBuffer.current.length, 5);
-        const batch = logBuffer.current.splice(0, batchSize);
-        
-        setLogs(prev => [...batch, ...prev].slice(0, 200)); 
+        // Take 1 entry per frame to ensure 1-by-1 smoothness as requested
+        const entry = logBuffer.current.shift();
+        if (entry) {
+          setLogs(prev => [entry, ...prev].slice(0, 200));
+          // Counter increments exactly when a new phrase log is rendered
+          if (entry.type === 'ai') setCheckedCount(prev => prev + 1);
+        }
       }
       requestAnimationFrame(flushLogs);
     };
@@ -253,42 +285,6 @@ export default function AiCryptoDashboard() {
     const animationId = requestAnimationFrame(flushLogs);
     return () => cancelAnimationFrame(animationId);
   }, [isInterrogating]);
-
-  // Session Restoration
-  useEffect(() => {
-    const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (savedSession) {
-      try {
-        const data = JSON.parse(savedSession);
-        if (data.checkedCount !== undefined) {
-          setCheckedCount(data.checkedCount);
-          setDisplayCount(data.checkedCount);
-        }
-        if (data.activeBlockchains) setActiveBlockchains(data.activeBlockchains);
-        if (data.systemIntensity) setSystemIntensity(data.systemIntensity);
-        if (data.allocatedCores) setAllocatedCores(data.allocatedCores);
-        if (data.seedPhraseColor) setSeedPhraseColor(data.seedPhraseColor);
-        if (data.consoleFontSize) setConsoleFontSize(data.consoleFontSize);
-        if (data.selectedServerId) setSelectedServerId(data.selectedServerId);
-      } catch (e) {
-        console.error("Failed to restore session", e);
-      }
-    }
-  }, []);
-
-  // Session Persistence
-  useEffect(() => {
-    const sessionData = {
-      checkedCount,
-      activeBlockchains,
-      systemIntensity,
-      allocatedCores,
-      seedPhraseColor,
-      consoleFontSize,
-      selectedServerId
-    };
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData));
-  }, [checkedCount, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, selectedServerId]);
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -402,14 +398,13 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(timerInterval)
   }, [isInterrogating])
 
-  // Sequential Neural Engine (1-by-1 Forensic Flow)
+  // Sequential Neural Engine (Forensic 1-by-1 Flow)
   useEffect(() => {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating) {
       const bootSequence = async () => {
         setLogs([])
-        setSessionSeconds(0)
         logBuffer.current = []
         
         addLogsToBuffer([{message: "ESTABLISHING SECURE HANDSHAKE...", type: "system"}])
@@ -418,7 +413,7 @@ export default function AiCryptoDashboard() {
         
         const intensity = systemIntensity[0] / 100;
         const coreFactor = allocatedCores[0] / hardwareCores;
-        const tickDelay = Math.max(8, 150 - (142 * intensity * coreFactor));
+        const tickDelay = Math.max(10, 200 - (190 * intensity * coreFactor));
 
         interrogationInterval = setInterval(() => {
           const newMnemonic = bip39.generateMnemonic();
@@ -429,7 +424,6 @@ export default function AiCryptoDashboard() {
           }
 
           addLogsToBuffer([{message: newMnemonic, type: "ai"}]);
-          setCheckedCount(prev => prev + 1);
           setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / hardwareCores)) + (Math.random() * 5)));
         }, tickDelay);
       }
