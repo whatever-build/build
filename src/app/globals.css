@@ -107,6 +107,65 @@
     @apply inline-block;
     animation: ticker 30s linear infinite;
   }
+
+  /* PREMIUM BLOCKCHAIN STYLING */
+  .blockchain-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .blockchain-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(15, 15, 25, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .blockchain-card img {
+    width: 26px;
+    height: 26px;
+    filter: drop-shadow(0 0 6px rgba(79, 172, 254, 0.35));
+  }
+
+  .blockchain-card span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #e6e6e6;
+    letter-spacing: 0.3px;
+  }
+
+  .blockchain-card:hover {
+    border-color: #7c6cff;
+    background: rgba(20, 20, 35, 0.9);
+    box-shadow: 0 0 14px rgba(124, 108, 255, 0.35);
+    transform: translateY(-2px);
+  }
+
+  .blockchain-card.active {
+    border-color: #7c6cff;
+    background: rgba(35, 25, 60, 0.6);
+    box-shadow: 0 0 20px rgba(124, 108, 255, 0.4);
+  }
+
+  .terminal-line {
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .scanline {
+    background: linear-gradient(
+      to bottom,
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 2px;
+    pointer-events: none;
+  }
 }
 
 @keyframes spin {
@@ -117,6 +176,16 @@
 @keyframes ticker {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.2; }
+  100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+.pulse-ring {
+  animation: pulse-ring 4s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
 }
 
 .font-code {
