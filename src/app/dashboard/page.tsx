@@ -304,28 +304,14 @@ export default function AiCryptoDashboard() {
     });
   }, [toast, hardwareCores]);
 
-  // AI Search Link Protocol
+  // AI Search Link Protocol - LOCKED
   const connectAiSearch = useCallback(async () => {
-    if (isAiSearchConnecting || isAiSearchConnected) return
-    setIsAiSearchConnecting(true)
-    setAiSearchLogs([])
-    
-    const steps = [
-      "Establishing Tor circuit...",
-      "Resolving proxy tunnel...",
-      "Neural mesh handshake...",
-      "Tunnel verified. AES-256 secure."
-    ]
-
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400))
-      setAiSearchLogs(prev => [...prev, steps[i]])
-    }
-    
-    setIsAiSearchConnecting(false)
-    setIsAiSearchConnected(true)
-    toast({ title: "AI Search Linked", description: "Heuristic discovery mode enabled." })
-  }, [isAiSearchConnecting, isAiSearchConnected, toast]);
+    toast({
+      variant: "destructive",
+      title: "Access Denied",
+      description: "Neural heuristic uplink requires Enterprise Tier license. No access."
+    })
+  }, [toast]);
 
   const disconnectAiSearch = () => {
     setIsAiSearchConnected(false)
@@ -644,6 +630,7 @@ export default function AiCryptoDashboard() {
                              disabled={isAiSearchConnecting}
                              className="w-full bg-primary/10 border border-primary/20 text-primary font-black text-[10px] uppercase hover:bg-primary/20 transition-all h-10 mt-6"
                            >
+                             <Lock className="w-3 h-3 mr-2" />
                              {isAiSearchConnecting ? "Connecting..." : "Enable AI Search"}
                            </Button>
                            {aiSearchLogs.length > 0 && (
@@ -803,8 +790,18 @@ export default function AiCryptoDashboard() {
                     
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
+                      const isLocked = server.id !== 'node-asia-se';
                       return (
-                        <div key={server.id} onClick={() => !isInterrogating && setSelectedServerId(server.id)} className={cn("relative overflow-hidden p-5 rounded-2xl border transition-all duration-500", isSelected ? "bg-primary/[0.08] border-primary/50" : "glass-panel border-white/5 hover:border-white/20", isInterrogating ? "cursor-not-allowed opacity-50" : "cursor-pointer")}>
+                        <div 
+                          key={server.id} 
+                          onClick={() => !isInterrogating && !isLocked && setSelectedServerId(server.id)} 
+                          className={cn(
+                            "relative overflow-hidden p-5 rounded-2xl border transition-all duration-500", 
+                            isSelected ? "bg-primary/[0.08] border-primary/50" : "glass-panel border-white/5 hover:border-white/20", 
+                            (isInterrogating || isLocked) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                          )}
+                        >
+                          {isLocked && <Lock className="absolute top-3 right-3 w-3 h-3 text-red-500/60" />}
                           <div className="flex flex-col gap-4 relative z-10">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
