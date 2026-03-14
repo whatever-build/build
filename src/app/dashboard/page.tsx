@@ -156,7 +156,6 @@ export default function AiCryptoDashboard() {
   const logBuffer = useRef<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
-  const latencyNoiseRef = useRef<number>(0);
 
   const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
 
@@ -384,32 +383,20 @@ export default function AiCryptoDashboard() {
     })
   }
 
-  // Organic Latency Logic: Synchronized to server and simulated network conditions
   useEffect(() => {
     const updateTimeAndPing = () => {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
         
         setNetworkPing(prev => {
             if (!isOnline) return 0;
-            
-            // Extract numeric base latency from server string (e.g., "145ms" -> 145)
             const baseLatencyStr = selectedServer?.latency || "145ms";
             const baseLatency = parseInt(baseLatencyStr);
-            
-            // Dynamic Smoothing: When switching servers, the distance between prev and base is large.
-            // We use a less aggressive smoothing factor during switches to avoid "stuck" values.
             const distance = Math.abs(prev - baseLatency);
             const smoothingFactor = distance > 20 ? 0.8 : 0.96;
-            
-            // Impactful drift: Randomly walk target between ±8% of base
             const driftRange = Math.max(1.8, baseLatency * 0.08);
             const targetDrift = (Math.random() * driftRange * 2) - driftRange;
             const target = baseLatency + targetDrift;
-            
-            // Weighted smoothing for "slowly slowly" effect
-            // We calculate using floating point to avoid precision loss at low values (like 3ms)
             const smoothedValue = (prev * smoothingFactor) + (target * (1 - smoothingFactor));
-            
             return smoothedValue;
         });
     }
@@ -439,7 +426,20 @@ export default function AiCryptoDashboard() {
     if (isInterrogating && isOnline) {
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / hardwareCores;
-      const tickDelay = Math.max(5, 120 - (115 * intensity * coreFactor));
+      
+      // Calculate server performance boost (10-20%)
+      const latencyVal = parseInt(selectedServer?.latency || "150");
+      const loadVal = selectedServer?.load || 50;
+      
+      // Boost up to 10% for low latency (approaching 0ms)
+      const latBoost = Math.max(0, 0.1 * (1 - (latencyVal / 200))); 
+      // Boost up to 10% for low load (approaching 0%)
+      const loadBoost = Math.max(0, 0.1 * (1 - (loadVal / 100)));
+      const totalBoost = 1 + latBoost + loadBoost; // Range ~1.0 to 1.2
+      
+      const baseDelay = Math.max(5, 120 - (115 * intensity * coreFactor));
+      // Increase speed by decreasing the delay
+      const boostedTickDelay = baseDelay / totalBoost;
 
       interrogationInterval = setInterval(() => {
         const mnemonic = bip39.generateMnemonic();
@@ -451,7 +451,7 @@ export default function AiCryptoDashboard() {
         };
         logBuffer.current.push(entry);
         setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / hardwareCores)) + (Math.random() * 5)));
-      }, tickDelay);
+      }, boostedTickDelay);
     } else {
       setCpuLoad(0)
     }
@@ -459,7 +459,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, hardwareCores, allocatedCores]);
+  }, [isInterrogating, isOnline, systemIntensity, hardwareCores, allocatedCores, selectedServer]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
