@@ -163,9 +163,6 @@ export default function AiCryptoDashboard() {
     eth: new ethers.JsonRpcProvider("https://cloudflare-eth.com"),
     bnb: new ethers.JsonRpcProvider("https://bsc-dataseed.binance.org/"),
     matic: new ethers.JsonRpcProvider("https://polygon-rpc.com"),
-    btc_api: "https://blockstream.info/api",
-    sol_api: "https://api.mainnet-beta.solana.com",
-    ltc_api: "https://sochain.com/api/v2/get_address_balance/LTC/",
   }), []);
 
   const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
@@ -381,28 +378,16 @@ export default function AiCryptoDashboard() {
     })
   }
 
-  // Impactful "Slowly Slowly" Latency Drift Protocol
   useEffect(() => {
     const updateTimeAndPing = () => {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
-        
         setNetworkPing(prev => {
             if (!isOnline) return 0;
             const baseLatency = parseInt(selectedServer?.latency || "12ms");
-            
-            // Sinusoidal Network Pressure Layer
-            const time = Date.now() / 3000;
-            const pressure = Math.sin(time) * 3 + (Math.random() * 1.5);
-            const target = baseLatency + pressure;
-            
-            // High-Precision Smoothing (96% weight) for professional drift
-            const smoothing = 0.96;
-            const result = (prev * smoothing) + (target * (1 - smoothing));
-            
-            return Math.max(1.5, result);
+            const target = baseLatency + (Math.random() * 5 - 2.5);
+            return (prev * 0.9) + (target * 0.1); // Smooth drift
         });
     }
-    
     updateTimeAndPing();
     const interval = setInterval(updateTimeAndPing, 1000);
     return () => clearInterval(interval);
@@ -417,80 +402,55 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, [isOnline]);
 
-  // Main Interrogation Core - Multi-Chain Interrogation Logic
+  // Main Interrogation Core - Live Multi-Chain Logic
   useEffect(() => {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating && isOnline) {
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / 8;
-      
-      const latencyVal = networkPing;
-      const loadVal = selectedServer?.load || 50;
-      
-      // Server-Linked Performance Booster (10-20% gain)
-      const latBoost = Math.max(0, 0.1 * (1 - (latencyVal / 200))); 
-      const loadBoost = Math.max(0, 0.1 * (1 - (loadVal / 100)));
-      const totalBoost = 1 + latBoost + loadBoost; 
-      
-      const baseDelay = Math.max(8, 150 - (140 * intensity * coreFactor));
-      const tickDelay = baseDelay / totalBoost;
+      const baseDelay = Math.max(10, 200 - (190 * intensity * coreFactor));
 
       interrogationInterval = setInterval(async () => {
+        // 1. Generate Mnemonic
         const mnemonic = bip39.generateMnemonic();
         
-        // Multi-Chain Forensic Interrogation Handshake
-        const performMultiChainCheck = async () => {
+        // 2. Perform Live Multi-Chain Balance Handshake
+        const performLiveCheck = async () => {
           try {
-            // Derivation Layer
+            // Standard BIP44 Derivation for Ethereum-compatible chains
             const wallet = ethers.Wallet.fromPhrase(mnemonic);
             
-            // Neural Batching - Rotate through chains to avoid 429 server severance
-            const chainsToCheck = activeBlockchains;
-            const primaryChain = chainsToCheck[0] || 'eth';
-
-            // Real-time EVM Handshake (ETH, BNB, MATIC, USDT, USDC)
-            if (['eth', 'bnb', 'matic', 'usdt', 'usdc'].includes(primaryChain)) {
-                const provider = primaryChain === 'bnb' ? providers.bnb : primaryChain === 'matic' ? providers.matic : providers.eth;
-                
-                // Adaptive Node Throttling for premium servers
-                if (['node-premium-01', 'node-premium-02'].includes(selectedServerId) || Math.random() > 0.985) {
-                    const balance = await provider.getBalance(wallet.address);
-                    
-                    if (balance > 0n) {
-                      const successEntry: LogEntry = {
-                          id: Math.random().toString(36).substr(2, 9),
-                          message: `[SUCCESS] ASSET DISCOVERED (${ethers.formatEther(balance)} ${primaryChain.toUpperCase()}): ${mnemonic}`,
-                          timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-                          type: "success"
-                      };
-                      logBuffer.current.push(successEntry);
-                      setFoundWallets(prev => prev + 1);
-                      toast({
-                          title: "Forensic Discovery",
-                          description: "Positive balance detected in neural ledger.",
-                      });
-                    }
-                }
-            } else {
-                // Heuristic Interrogation for BTC, SOL, TRX, XRP, LTC
-                if (Math.random() > 0.999999) { // Probabilistic Discovery
-                    const successEntry: LogEntry = {
-                        id: Math.random().toString(36).substr(2, 9),
-                        message: `[SUCCESS] POSITIVE BALANCE (${primaryChain.toUpperCase()}): ${mnemonic}`,
-                        timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-                        type: "success"
-                    };
-                    logBuffer.current.push(successEntry);
-                    setFoundWallets(prev => prev + 1);
-                }
+            // Randomly select one of the active EVM chains to check
+            const evmChains = activeBlockchains.filter(b => ['eth', 'bnb', 'matic', 'usdt', 'usdc'].includes(b));
+            if (evmChains.length > 0) {
+              const chainId = evmChains[Math.floor(Math.random() * evmChains.length)];
+              const provider = chainId === 'bnb' ? providers.bnb : chainId === 'matic' ? providers.matic : providers.eth;
+              
+              const balance = await provider.getBalance(wallet.address);
+              
+              if (balance > 0n) {
+                const successEntry: LogEntry = {
+                  id: Math.random().toString(36).substr(2, 9),
+                  message: `[SUCCESS] ASSET DISCOVERED (${ethers.formatEther(balance)} ${chainId.toUpperCase()}): ${mnemonic}`,
+                  timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+                  type: "success"
+                };
+                logBuffer.current.push(successEntry);
+                setFoundWallets(prev => prev + 1);
+                toast({
+                  title: "Forensic Discovery",
+                  description: "Positive balance detected in neural ledger.",
+                });
+              }
             }
           } catch (e) {
-            // Fail silently to prevent engine throughput lock
+            // Handshake error ignored to prevent main-thread locking
           }
         };
 
-        performMultiChainCheck();
+        // Trigger balance check asynchronously
+        performLiveCheck();
 
         const entry: LogEntry = {
           id: Math.random().toString(36).substr(2, 9),
@@ -500,7 +460,7 @@ export default function AiCryptoDashboard() {
         };
         logBuffer.current.push(entry);
         setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / 8)) + (Math.random() * 3)));
-      }, tickDelay);
+      }, baseDelay);
     } else {
       setCpuLoad(0)
     }
@@ -508,7 +468,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, selectedServer, selectedServerId, providers, toast, networkPing, activeBlockchains]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, activeBlockchains, providers, toast]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
@@ -983,18 +943,16 @@ export default function AiCryptoDashboard() {
                     
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
-                      const isLocked = !['node-na-east', 'node-asia-se', 'node-premium-02'].includes(server.id);
                       return (
                         <div 
                           key={server.id} 
-                          onClick={() => isOnline && !isInterrogating && !isLocked && setSelectedServerId(server.id)} 
+                          onClick={() => isOnline && !isInterrogating && setSelectedServerId(server.id)} 
                           className={cn(
                             "relative overflow-hidden p-5 rounded-2xl border transition-all duration-500", 
                             isSelected ? "bg-primary/[0.08] border-primary/50" : "glass-panel border-white/5 hover:border-white/20", 
-                            (isInterrogating || isLocked || !isOnline) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                            (isInterrogating || !isOnline) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
                           )}
                         >
-                          {isLocked && <Lock className="absolute top-3 right-3 w-3 h-3 text-red-500/60" />}
                           <div className="flex flex-col gap-4 relative z-10">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
