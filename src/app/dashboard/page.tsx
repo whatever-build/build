@@ -906,7 +906,7 @@ export default function AiCryptoDashboard() {
                     
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
-                      const isLocked = server.id !== 'node-asia-se';
+                      const isLocked = server.id !== 'node-asia-se' && server.id !== 'node-premium-01' && server.id !== 'node-premium-02';
                       return (
                         <div 
                           key={server.id} 
@@ -1030,7 +1030,7 @@ export default function AiCryptoDashboard() {
               )}
 
               {activeTab === 'settings' && (
-                <div className="max-w-4xl mx-auto w-full flex flex-col gap-8 animate-in zoom-in-95 duration-500 pb-20">
+                <div className="max-w-4xl mx-auto w-full flex flex-col gap-8 animate-in zoom-in-95 duration-500 pb-20 overflow-y-auto terminal-scrollbar pr-2">
                   <div className="glass-panel rounded-2xl p-10 border-white/5">
                     <h3 className="text-xl font-black uppercase tracking-[0.2em] mb-8 border-b border-white/5 pb-4">Performance Management</h3>
                     <div className="space-y-12">
