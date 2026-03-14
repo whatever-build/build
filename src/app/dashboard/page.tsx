@@ -156,6 +156,7 @@ export default function AiCryptoDashboard() {
   const logBuffer = useRef<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
+  const latencyNoiseRef = useRef<number>(0);
 
   const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
 
@@ -383,6 +384,7 @@ export default function AiCryptoDashboard() {
     })
   }
 
+  // Organic Latency Logic: Synchronized to server and simulated network conditions
   useEffect(() => {
     const updateTimeAndPing = () => {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
