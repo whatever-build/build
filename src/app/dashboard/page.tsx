@@ -212,7 +212,6 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        // High-velocity adaptive batching (1 to 8 entries per frame)
         const entriesToFlush = Math.min(logBuffer.current.length, 8);
         const batch: LogEntry[] = [];
         let aiIncrement = 0;
@@ -227,7 +226,6 @@ export default function AiCryptoDashboard() {
 
         if (batch.length > 0) {
           setLogs(prev => {
-            // During interrogation, we only want pure forensic data
             const filteredPrev = isInterrogating 
               ? prev.filter(l => l.type === 'ai') 
               : prev;
@@ -246,14 +244,12 @@ export default function AiCryptoDashboard() {
     return () => cancelAnimationFrame(animationId);
   }, [isInterrogating]);
 
-  // Terminal Auto-Scroll (Instant for stable high-velocity monitoring)
   useEffect(() => {
     if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [logs]);
 
-  // 4. Automatic Memory Management Protocol (10-minute cycle)
   useEffect(() => {
     const interval = setInterval(() => {
       setLogs([]);
@@ -263,11 +259,10 @@ export default function AiCryptoDashboard() {
         title: "Auto-Flush Executed",
         description: "System memory cleared for 24/7 stability.",
       });
-    }, 10 * 60 * 1000); // 10 minutes
+    }, 10 * 60 * 1000);
     return () => clearInterval(interval);
   }, [toast]);
 
-  // 5. Interrogation Command Protocols
   const startInterrogation = useCallback(() => {
     if (activeBlockchains.length === 0) {
       toast({
@@ -277,7 +272,6 @@ export default function AiCryptoDashboard() {
       })
       return
     }
-    // Clear console for pure data mode
     setLogs([]);
     logBuffer.current = [];
     setIsInterrogating(true)
@@ -322,7 +316,6 @@ export default function AiCryptoDashboard() {
     });
   }, [toast, hardwareCores]);
 
-  // AI Search Link Protocol - LOCKED
   const connectAiSearch = useCallback(async () => {
     toast({
       variant: "destructive",
@@ -340,7 +333,6 @@ export default function AiCryptoDashboard() {
     })
   }
 
-  // System Background Activity (Constant Telemetry)
   useEffect(() => {
     const updateTime = () => {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
@@ -363,14 +355,12 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Interrogation Neural Loop (Forensic Constant Speed)
   useEffect(() => {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating) {
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / hardwareCores;
-      // Precision delay calculation for constant speed 24/7
       const tickDelay = Math.max(5, 120 - (115 * intensity * coreFactor));
 
       interrogationInterval = setInterval(() => {
@@ -393,7 +383,6 @@ export default function AiCryptoDashboard() {
     }
   }, [isInterrogating, systemIntensity, hardwareCores, allocatedCores]);
 
-  // Session Clock
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
     if (isInterrogating) timerInterval = setInterval(() => setSessionSeconds(prev => prev + 1), 1000)
@@ -584,6 +573,14 @@ export default function AiCryptoDashboard() {
                             </p>
                             <p className="text-lg font-black font-code text-cyan-400 tracking-tighter">
                               {networkPing} ms
+                            </p>
+                          </div>
+                          <div className="space-y-1 pt-2 border-t border-white/5">
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                              <Cpu className="w-3 h-3" /> CPU Usage
+                            </p>
+                            <p className="text-lg font-black font-code text-primary tracking-tighter">
+                              {cpuLoad.toFixed(1)}%
                             </p>
                           </div>
                         </div>
