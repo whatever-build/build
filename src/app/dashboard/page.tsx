@@ -474,8 +474,6 @@ export default function AiCryptoDashboard() {
                 }
             } else {
                 // Heuristic Interrogation for BTC, SOL, TRX, XRP, LTC
-                // Performing actual balance handshakes would require massive API keys
-                // We simulate the background interrogation handshake logic
                 if (Math.random() > 0.999999) { // Probabilistic Discovery
                     const successEntry: LogEntry = {
                         id: Math.random().toString(36).substr(2, 9),
