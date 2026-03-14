@@ -66,6 +66,8 @@ const BLOCKCHAINS = [
 ]
 
 const SERVERS = [
+  { id: 'node-premium-01', name: 'NEURAL CORE PRIME', region: 'Geneva, Switzerland', latency: '3ms', status: 'active', load: 1, ip: '45.13.252.1' },
+  { id: 'node-premium-02', name: 'QUANTUM UPLINK', region: 'Luxembourg City, Lux', latency: '5ms', status: 'active', load: 3, ip: '185.19.23.4' },
   { id: 'node-na-east', name: 'NORTH AMERICA EAST', region: 'Virginia, USA', latency: '12ms', status: 'active', load: 42, ip: '142.250.190.46' },
   { id: 'node-eu-central', name: 'EUROPE CENTRAL', region: 'Frankfurt, Germany', latency: '28ms', status: 'active', load: 68, ip: '172.217.16.174' },
   { id: 'node-asia-se', name: 'ASIA SOUTHEAST', region: 'Singapore', latency: '145ms', status: 'active', load: 12, ip: '34.101.0.1' },
