@@ -68,13 +68,13 @@ const BLOCKCHAINS = [
 ]
 
 const SERVERS = [
-  { id: 'node-premium-01', name: 'NEURAL CORE PRIME', region: 'Geneva, Switzerland', latency: '3ms', status: 'active', load: 1, ip: '45.13.252.1' },
+  { id: 'node-premium-01', name: 'NEURAL CORE PRIME', region: 'Geneva, Switzerland', latency: '3ms', status: 'locked', load: 1, ip: '45.13.252.1' },
   { id: 'node-premium-02', name: 'QUANTUM UPLINK', region: 'Luxembourg City, Lux', latency: '5ms', status: 'active', load: 3, ip: '185.19.23.4' },
   { id: 'node-na-east', name: 'NORTH AMERICA EAST', region: 'Virginia, USA', latency: '12ms', status: 'active', load: 42, ip: '142.250.190.46' },
-  { id: 'node-eu-central', name: 'EUROPE CENTRAL', region: 'Frankfurt, Germany', latency: '28ms', status: 'active', load: 68, ip: '172.217.16.174' },
+  { id: 'node-eu-central', name: 'EUROPE CENTRAL', region: 'Frankfurt, Germany', latency: '28ms', status: 'locked', load: 68, ip: '172.217.16.174' },
   { id: 'node-asia-se', name: 'ASIA SOUTHEAST', region: 'Singapore', latency: '145ms', status: 'active', load: 12, ip: '34.101.0.1' },
-  { id: 'node-asia-ne', name: 'ASIA NORTHEAST', region: 'Tokyo, Japan', latency: '112ms', status: 'active', load: 54, ip: '35.190.247.0' },
-  { id: 'node-arctic-north', name: 'ARCTIC NORTH', region: 'Reykjavik, Iceland', latency: '45ms', status: 'active', load: 8, ip: '35.200.0.0' },
+  { id: 'node-asia-ne', name: 'ASIA NORTHEAST', region: 'Tokyo, Japan', latency: '112ms', status: 'locked', load: 54, ip: '35.190.247.0' },
+  { id: 'node-arctic-north', name: 'ARCTIC NORTH', region: 'Reykjavik, Iceland', latency: '45ms', status: 'locked', load: 8, ip: '35.200.0.0' },
 ]
 
 const SEED_COLORS = [
@@ -943,14 +943,15 @@ export default function AiCryptoDashboard() {
                     
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
+                      const isLocked = server.status === 'locked';
                       return (
                         <div 
                           key={server.id} 
-                          onClick={() => isOnline && !isInterrogating && setSelectedServerId(server.id)} 
+                          onClick={() => isOnline && !isInterrogating && !isLocked && setSelectedServerId(server.id)} 
                           className={cn(
                             "relative overflow-hidden p-5 rounded-2xl border transition-all duration-500", 
                             isSelected ? "bg-primary/[0.08] border-primary/50" : "glass-panel border-white/5 hover:border-white/20", 
-                            (isInterrogating || !isOnline) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                            (isInterrogating || !isOnline || isLocked) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
                           )}
                         >
                           <div className="flex flex-col gap-4 relative z-10">
