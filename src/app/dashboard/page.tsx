@@ -394,19 +394,21 @@ export default function AiCryptoDashboard() {
             const baseLatencyStr = selectedServer?.latency || "145ms";
             const baseLatency = parseInt(baseLatencyStr);
             
-            // Impactful drift: Randomly walk target between ±5% of base
-            // Creates a range for the target to fluctuate within
-            const driftRange = Math.max(2, baseLatency * 0.05);
+            // Dynamic Smoothing: When switching servers, the distance between prev and base is large.
+            // We use a less aggressive smoothing factor during switches to avoid "stuck" values.
+            const distance = Math.abs(prev - baseLatency);
+            const smoothingFactor = distance > 20 ? 0.8 : 0.96;
+            
+            // Impactful drift: Randomly walk target between ±8% of base
+            const driftRange = Math.max(1.8, baseLatency * 0.08);
             const targetDrift = (Math.random() * driftRange * 2) - driftRange;
             const target = baseLatency + targetDrift;
             
-            // Weighted smoothing (92% historical weight) for "slowly slowly" effect
-            // Transitions over ~10-15 seconds when switching servers
-            const smoothingFactor = 0.92;
-            const smoothedValue = prev * smoothingFactor + target * (1 - smoothingFactor);
+            // Weighted smoothing for "slowly slowly" effect
+            // We calculate using floating point to avoid precision loss at low values (like 3ms)
+            const smoothedValue = (prev * smoothingFactor) + (target * (1 - smoothingFactor));
             
-            // Return floor for display, minimum of 1ms
-            return Math.max(1, Math.floor(smoothedValue));
+            return smoothedValue;
         });
     }
     
@@ -416,7 +418,6 @@ export default function AiCryptoDashboard() {
       setHardwareCores(navigator.hardwareConcurrency || 8);
     }
     
-    // Telemetry updates every 1000ms for readable fluctuation
     const interval = setInterval(updateTimeAndPing, 1000);
     return () => clearInterval(interval);
   }, [isOnline, selectedServer]);
@@ -671,7 +672,7 @@ export default function AiCryptoDashboard() {
                               <Signal className="w-3 h-3" /> Network Latency
                             </p>
                             <p className={cn("text-lg font-black font-code tracking-tighter transition-all duration-1000", isOnline ? "text-cyan-400" : "text-red-500")}>
-                              {isOnline ? `${networkPing} ms` : "0 ms"}
+                              {isOnline ? `${Math.floor(networkPing)} ms` : "0 ms"}
                             </p>
                           </div>
                           <div className="space-y-1 pt-2 border-t border-white/5">
@@ -813,7 +814,7 @@ export default function AiCryptoDashboard() {
                                      </div>
                                      <div className="flex items-center justify-between">
                                         <span className="text-[9px] font-code text-gray-400">Latency</span>
-                                        <span className="text-[9px] font-bold text-green-500 uppercase">{networkPing}ms Stable</span>
+                                        <span className="text-[9px] font-bold text-green-500 uppercase">{Math.floor(networkPing)}ms Stable</span>
                                      </div>
                                      <div className="flex items-center justify-between">
                                         <span className="text-[9px] font-code text-gray-400">Scan Threads</span>
@@ -882,7 +883,7 @@ export default function AiCryptoDashboard() {
                              <div className="flex flex-col gap-1 border-l border-white/10 pl-6">
                                 <span className="text-[9px] font-code text-primary/60 uppercase">Latency</span>
                                 <span className={cn("text-xs font-bold uppercase transition-all duration-1000", isOnline ? "text-green-500" : "text-red-500")}>
-                                  {isOnline ? `${networkPing}ms Stable` : "OFFLINE"}
+                                  {isOnline ? `${Math.floor(networkPing)}ms Stable` : "OFFLINE"}
                                 </span>
                              </div>
                           </div>
@@ -1014,7 +1015,7 @@ export default function AiCryptoDashboard() {
                             </div>
                             <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric">
                                <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">Latency Peak</span>
-                               <p className="text-sm font-black text-white font-code tracking-tighter">{isOnline ? `${networkPing + 12} MS` : "N/A"}</p>
+                               <p className="text-sm font-black text-white font-code tracking-tighter">{isOnline ? `${Math.floor(networkPing) + 12} MS` : "N/A"}</p>
                             </div>
                          </div>
                        </div>
