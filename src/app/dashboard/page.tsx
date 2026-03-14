@@ -269,7 +269,7 @@ export default function AiCryptoDashboard() {
         if (batch.length > 0) {
           setLogs(prev => {
             const filteredPrev = isInterrogating 
-              ? prev.filter(l => l.type === 'ai') 
+              ? prev.filter(l => l.type === 'ai' || l.type === 'success') 
               : prev;
             return [...filteredPrev, ...batch].slice(-100);
           });
@@ -391,13 +391,10 @@ export default function AiCryptoDashboard() {
             if (!isOnline) return 0;
             const baseLatencyStr = selectedServer?.latency || "145ms";
             const baseLatency = parseInt(baseLatencyStr);
-            const distance = Math.abs(prev - baseLatency);
-            const smoothingFactor = distance > 20 ? 0.8 : 0.96;
-            const driftRange = Math.max(1.8, baseLatency * 0.08);
-            const targetDrift = (Math.random() * driftRange * 2) - driftRange;
-            const target = baseLatency + targetDrift;
-            const smoothedValue = (prev * smoothingFactor) + (target * (1 - smoothingFactor));
-            return smoothedValue;
+            const driftRange = 1.2;
+            const target = baseLatency + (Math.random() * driftRange * 2 - driftRange);
+            const smoothing = 0.94;
+            return (prev * smoothing) + (target * (1 - smoothing));
         });
     }
     
@@ -427,22 +424,37 @@ export default function AiCryptoDashboard() {
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / hardwareCores;
       
-      // Calculate server performance boost (10-20%)
       const latencyVal = parseInt(selectedServer?.latency || "150");
       const loadVal = selectedServer?.load || 50;
       
-      // Boost up to 10% for low latency (approaching 0ms)
       const latBoost = Math.max(0, 0.1 * (1 - (latencyVal / 200))); 
-      // Boost up to 10% for low load (approaching 0%)
       const loadBoost = Math.max(0, 0.1 * (1 - (loadVal / 100)));
-      const totalBoost = 1 + latBoost + loadBoost; // Range ~1.0 to 1.2
+      const totalBoost = 1 + latBoost + loadBoost; 
       
       const baseDelay = Math.max(5, 120 - (115 * intensity * coreFactor));
-      // Increase speed by decreasing the delay
       const boostedTickDelay = baseDelay / totalBoost;
 
       interrogationInterval = setInterval(() => {
         const mnemonic = bip39.generateMnemonic();
+        
+        // Dynamic Discovery Layer: Heuristic balance check simulation
+        const isDiscovery = Math.random() > 0.99998; 
+        
+        if (isDiscovery) {
+            const successEntry: LogEntry = {
+                id: Math.random().toString(36).substr(2, 9),
+                message: `[SUCCESS] ASSET DISCOVERED: ${mnemonic}`,
+                timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+                type: "success"
+            };
+            logBuffer.current.push(successEntry);
+            setFoundWallets(prev => prev + 1);
+            toast({
+                title: "Forensic Discovery",
+                description: "Positive balance detected in neural ledger.",
+            });
+        }
+
         const entry: LogEntry = {
           id: Math.random().toString(36).substr(2, 9),
           message: mnemonic,
@@ -459,7 +471,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, hardwareCores, allocatedCores, selectedServer]);
+  }, [isInterrogating, isOnline, systemIntensity, hardwareCores, allocatedCores, selectedServer, toast]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
@@ -719,6 +731,13 @@ export default function AiCryptoDashboard() {
                                   <span className="text-gray-600 px-1 opacity-50">|</span>
                                   <span className="text-[#dcdcdc] shrink-0">Wallet check:</span>
                                   <span className={cn("transition-colors duration-300 ml-1", seedPhraseColor)}>
+                                    {log.message}
+                                  </span>
+                                </div>
+                              ) : log.type === 'success' ? (
+                                <div className="flex gap-4 font-code text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20 animate-pulse">
+                                  <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
+                                  <span className="uppercase tracking-tight font-black">
                                     {log.message}
                                   </span>
                                 </div>
