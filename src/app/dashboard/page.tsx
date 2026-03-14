@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -385,20 +386,25 @@ export default function AiCryptoDashboard() {
     })
   }
 
+  const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
+
   useEffect(() => {
     const updateTime = () => {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
         setNetworkPing(prev => {
             if (!isOnline) return 0;
+            const baseLatency = parseInt(selectedServer?.latency || "145");
             const fluctuation = Math.floor(Math.random() * 5) - 2;
-            return Math.max(12, Math.min(180, prev + fluctuation));
+            const target = baseLatency + fluctuation;
+            // Smoothly interpolate towards the target latency based on the selected server
+            return Math.max(1, Math.floor(prev * 0.8 + target * 0.2));
         });
     }
     updateTime();
     if (typeof window !== 'undefined') setHardwareCores(navigator.hardwareConcurrency || 8);
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
-  }, [isOnline]);
+  }, [isOnline, selectedServer]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -455,8 +461,6 @@ export default function AiCryptoDashboard() {
     return [h, m, s].map(v => v < 10 ? "0" + v : v).join(":");
   }
 
-  const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
-
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full bg-[#050507] overflow-hidden text-foreground font-body select-none relative">
@@ -484,19 +488,18 @@ export default function AiCryptoDashboard() {
                   { icon: Settings, label: 'Settings', id: 'settings' },
                   { icon: Info, label: 'About', id: 'about' },
                 ].map((item) => (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton 
-                      isActive={activeTab === item.id} 
-                      onClick={() => setActiveTab(item.id as TabType)}
-                      className={cn(
-                        "transition-all duration-200 h-10 px-4 rounded-lg w-full flex items-center gap-3",
-                        activeTab === item.id ? "bg-primary/10 text-primary border border-primary/20" : "text-gray-500 hover:text-white hover:bg-white/5"
-                      )}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      <span className="font-bold text-xs uppercase tracking-tighter">{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <SidebarMenuButton 
+                    key={item.id}
+                    isActive={activeTab === item.id} 
+                    onClick={() => setActiveTab(item.id as TabType)}
+                    className={cn(
+                      "transition-all duration-200 h-10 px-4 rounded-lg w-full flex items-center gap-3",
+                      activeTab === item.id ? "bg-primary/10 text-primary border border-primary/20" : "text-gray-500 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span className="font-bold text-xs uppercase tracking-tighter">{item.label}</span>
+                  </SidebarMenuButton>
                 ))}
               </SidebarMenu>
             </SidebarGroup>
