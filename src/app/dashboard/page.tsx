@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -827,7 +828,7 @@ export default function AiCryptoDashboard() {
                              disabled={isAiSearchConnecting}
                              className="w-full bg-primary/10 border border-primary/20 text-primary font-black text-[10px] uppercase hover:bg-primary/20 transition-all h-10 mt-6"
                            >
-                             <Lock className="w-3 h-3 mr-2" />
+                             <Zap className="w-3 h-3 mr-2" />
                              {isAiSearchConnecting ? "Connecting..." : "Enable AI Search"}
                            </Button>
                            {aiSearchLogs.length > 0 && (
