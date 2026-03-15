@@ -363,6 +363,14 @@ export default function AiCryptoDashboard() {
     });
   }, [toast]);
 
+  // Auto-Flush Protocol: 10 Minutes
+  useEffect(() => {
+    const autoFlushInterval = setInterval(() => {
+      handleMemoryFlush();
+    }, 600000);
+    return () => clearInterval(autoFlushInterval);
+  }, [handleMemoryFlush]);
+
   const clearSession = useCallback(() => {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     setDisplayCount(0);
