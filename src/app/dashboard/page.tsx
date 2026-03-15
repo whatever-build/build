@@ -42,7 +42,8 @@ import {
   Shield,
   History,
   WifiOff,
-  Wifi
+  Wifi,
+  BrainCircuit
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
@@ -54,6 +55,7 @@ import * as bip39 from 'bip39'
 import { ethers } from 'ethers'
 import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
 import { SessionData } from '@/lib/session'
+import { filterMnemonicsHeuristically } from '@/ai/flows/filter-mnemonics-heuristically'
 
 const BLOCKCHAINS = [
   { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
@@ -123,6 +125,12 @@ interface LogEntry {
   type: 'info' | 'success' | 'warning' | 'error' | 'ai' | 'system';
 }
 
+interface HeuristicResult {
+  mnemonic: string;
+  score: number;
+  reason: string;
+}
+
 type TabType = 'dashboard' | 'withdraw' | 'server' | 'settings' | 'about';
 
 export default function AiCryptoDashboard() {
@@ -153,12 +161,14 @@ export default function AiCryptoDashboard() {
   const [isAiSearchConnected, setIsAiSearchConnected] = useState(false)
   const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
   const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
+  const [heuristicResults, setHeuristicResults] = useState<HeuristicResult[]>([])
 
   const [session, setSession] = useState<SessionData | null>(null)
 
   const logBuffer = useRef<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
+  const lastMnemonics = useRef<string[]>([])
 
   // Multi-Chain Node Infrastructure
   const providers = useMemo(() => ({
@@ -324,7 +334,10 @@ export default function AiCryptoDashboard() {
           const entry = logBuffer.current.shift();
           if (entry) {
             batch.push(entry);
-            if (entry.type === 'ai') aiIncrement++;
+            if (entry.type === 'ai') {
+              aiIncrement++;
+              lastMnemonics.current = [entry.message, ...lastMnemonics.current].slice(0, 5);
+            }
           }
         }
 
@@ -434,11 +447,29 @@ export default function AiCryptoDashboard() {
   const disconnectAiSearch = () => {
     setIsAiSearchConnected(false)
     setAiSearchLogs([])
+    setHeuristicResults([])
     toast({
       title: "AI Search Severed",
       description: "Neural engine speed normalized."
     })
   }
+
+  // AI Heuristic Analysis Loop
+  useEffect(() => {
+    if (isAiSearchConnected && isInterrogating && isOnline) {
+      const performAnalysis = async () => {
+        if (lastMnemonics.current.length > 0) {
+          try {
+            const result = await filterMnemonicsHeuristically({ mnemonics: lastMnemonics.current });
+            setHeuristicResults(prev => [...result.prioritizedMnemonics, ...prev].slice(0, 10));
+          } catch (e) {}
+        }
+      };
+
+      const analysisInterval = setInterval(performAnalysis, 5000);
+      return () => clearInterval(analysisInterval);
+    }
+  }, [isAiSearchConnected, isInterrogating, isOnline]);
 
   useEffect(() => {
     const updateTimeAndPing = () => {
@@ -810,7 +841,7 @@ export default function AiCryptoDashboard() {
 
                   <div className="xl:col-span-1 flex flex-col gap-6 min-h-0">
                     <div className="flex items-center gap-2 mb-1 shrink-0">
-                      <SearchCode className="w-4 h-4 text-primary" />
+                      <BrainCircuit className="w-4 h-4 text-primary" />
                       <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/60">AI Search</h3>
                     </div>
                     <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden">
@@ -853,20 +884,23 @@ export default function AiCryptoDashboard() {
 
                             <div className="space-y-4 flex-1 overflow-y-auto pr-1 terminal-scrollbar">
                                <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
-                                  <h5 className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 pb-2">AI Search Status</h5>
+                                  <h5 className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 pb-2">Heuristic Analysis</h5>
                                   <div className="space-y-2">
-                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-code text-gray-400">Connection</span>
-                                        <span className="text-[9px] font-bold text-green-500 uppercase">Connected</span>
-                                     </div>
-                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-code text-gray-400">Heuristic Filter</span>
-                                        <span className="text-[9px] font-bold text-primary uppercase">Active</span>
-                                     </div>
-                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-code text-gray-400">Entropy Boost</span>
-                                        <span className="text-[9px] font-bold text-primary uppercase">Maxed</span>
-                                     </div>
+                                     {heuristicResults.length === 0 ? (
+                                        <div className="text-[9px] text-gray-500 uppercase tracking-widest font-bold text-center py-4 animate-pulse">
+                                           {isInterrogating ? "Analyzing Entropy..." : "Awaiting Interrogation"}
+                                        </div>
+                                     ) : (
+                                       heuristicResults.map((res, i) => (
+                                         <div key={i} className="space-y-1 pb-2 border-b border-white/5 last:border-0">
+                                            <div className="flex items-center justify-between">
+                                               <span className="text-[9px] font-bold text-white uppercase truncate w-24">{res.mnemonic}</span>
+                                               <span className={cn("text-[9px] font-bold uppercase", res.score > 70 ? "text-green-500" : res.score > 40 ? "text-yellow-500" : "text-primary")}>{res.score}%</span>
+                                            </div>
+                                            <p className="text-[8px] text-gray-500 font-code leading-none">{res.reason}</p>
+                                         </div>
+                                       ))
+                                     )}
                                   </div>
                                </div>
                             </div>
