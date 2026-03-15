@@ -930,7 +930,7 @@ export default function AiCryptoDashboard() {
                                </div>
                             </div>
 
-                            {/* Heuristic Stats Grid (Something else) */}
+                            {/* Heuristic Stats Grid */}
                             <div className="grid grid-cols-2 gap-3 shrink-0">
                               <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-1 transition-all hover:border-primary/20">
                                 <span className="text-[8px] text-gray-600 uppercase font-black tracking-widest">Pattern Depth</span>
@@ -950,29 +950,32 @@ export default function AiCryptoDashboard() {
                               </div>
                             </div>
 
-                            <div className="h-[200px] flex flex-col min-h-0 overflow-hidden bg-black/40 border border-white/5 rounded-xl">
-                              <div className="p-2 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
-                                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Neural Terminal</span>
-                                <div className="flex gap-1">
+                            <div className="h-[200px] flex flex-col min-h-0 overflow-hidden bg-black/60 border border-white/5 rounded-xl shadow-inner">
+                              <div className="px-3 py-2 border-b border-white/10 bg-white/[0.03] flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-2">
+                                  <Terminal className="w-3 h-3 text-primary/70" />
+                                  <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Neural Terminal</span>
+                                </div>
+                                <div className="flex gap-1.5">
                                   <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                                 </div>
                               </div>
                               <div 
                                 ref={aiTerminalScrollRef}
-                                className="flex-1 overflow-y-auto p-3 space-y-1.5 terminal-scrollbar font-code text-[9px]"
+                                className="flex-1 overflow-y-auto p-3 space-y-2 terminal-scrollbar font-code text-[9px]"
                               >
                                 {aiTerminalLogs.length === 0 ? (
-                                  <div className="text-gray-700 uppercase animate-pulse italic text-[8px]">
+                                  <div className="text-gray-700 uppercase animate-pulse italic text-[8px] tracking-widest py-4 text-center">
                                     {isInterrogating ? "CALIBRATING AI FEED..." : "AWAITING ENGINE SCAN..."}
                                   </div>
                                 ) : (
                                   aiTerminalLogs.map((log) => (
-                                    <div key={log.id} className="animate-in slide-in-from-bottom-1 duration-200 leading-tight">
-                                      <span className="text-primary/40 mr-1.5">[{log.timestamp}]</span>
+                                    <div key={log.id} className="animate-in slide-in-from-bottom-1 duration-200 leading-normal border-b border-white/[0.02] pb-1">
+                                      <span className="text-primary/30 mr-2 tabular-nums">[{log.timestamp}]</span>
                                       <span className={cn(
-                                        "text-white/80",
-                                        log.message.includes('[ALERT]') && "text-yellow-400 font-bold",
-                                        log.message.includes('[MATCH]') && "text-primary font-bold"
+                                        "text-white/70",
+                                        log.message.includes('[ALERT]') && "text-yellow-400/90 font-bold",
+                                        log.message.includes('[MATCH]') && "text-primary/90 font-black tracking-tight"
                                       )}>
                                         {log.message}
                                       </span>
@@ -982,8 +985,14 @@ export default function AiCryptoDashboard() {
                               </div>
                             </div>
 
-                            <Button onClick={disconnectAiSearch} disabled={isInterrogating} variant="outline" className="w-full shrink-0 mt-auto border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/10 font-black text-[10px] uppercase transition-all h-8">
-                               <Unplug className="w-3 h-3 mr-2" /> Disconnect
+                            <Button 
+                              onClick={disconnectAiSearch} 
+                              disabled={isInterrogating} 
+                              variant="outline" 
+                              className="w-full shrink-0 mt-auto border-red-500/30 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 font-black text-[11px] uppercase tracking-[0.1em] transition-all h-11 hover:scale-[1.02] active:scale-95 group/disc"
+                            >
+                               <Unplug className="w-4 h-4 mr-2 group-hover/disc:rotate-12 transition-transform" /> 
+                               Disconnect Link
                             </Button>
                          </div>
                        )}
