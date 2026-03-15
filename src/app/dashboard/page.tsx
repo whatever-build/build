@@ -125,10 +125,10 @@ interface LogEntry {
   type: 'info' | 'success' | 'warning' | 'error' | 'ai' | 'system';
 }
 
-interface HeuristicResult {
-  mnemonic: string;
-  score: number;
-  reason: string;
+interface AiLogEntry {
+  id: string;
+  message: string;
+  timestamp: string;
 }
 
 type TabType = 'dashboard' | 'withdraw' | 'server' | 'settings' | 'about';
@@ -161,13 +161,14 @@ export default function AiCryptoDashboard() {
   const [isAiSearchConnected, setIsAiSearchConnected] = useState(false)
   const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
   const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
-  const [heuristicResults, setHeuristicResults] = useState<HeuristicResult[]>([])
+  const [aiTerminalLogs, setAiTerminalLogs] = useState<AiLogEntry[]>([])
 
   const [session, setSession] = useState<SessionData | null>(null)
 
   const logBuffer = useRef<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null)
   const serverLogRef = useRef<HTMLDivElement>(null)
+  const aiTerminalScrollRef = useRef<HTMLDivElement>(null)
   const lastMnemonics = useRef<string[]>([])
 
   // Multi-Chain Node Infrastructure
@@ -183,6 +184,7 @@ export default function AiCryptoDashboard() {
   const handleMemoryFlush = useCallback(() => {
     setLogs([]);
     setServerLogs([]);
+    setAiTerminalLogs([]);
     logBuffer.current = [];
     toast({
       title: "Memory Flushed",
@@ -367,6 +369,12 @@ export default function AiCryptoDashboard() {
     }
   }, [logs]);
 
+  useEffect(() => {
+    if (aiTerminalScrollRef.current) {
+      aiTerminalScrollRef.current.scrollTop = aiTerminalScrollRef.current.scrollHeight;
+    }
+  }, [aiTerminalLogs]);
+
   const startInterrogation = useCallback(() => {
     if (!isOnline) {
       toast({
@@ -418,6 +426,15 @@ export default function AiCryptoDashboard() {
     });
   }, [toast]);
 
+  const addAiLog = useCallback((message: string) => {
+    const entry: AiLogEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      message,
+      timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+    };
+    setAiTerminalLogs(prev => [...prev, entry].slice(-50));
+  }, []);
+
   const connectAiSearch = useCallback(async () => {
     if (session?.aiSearchEnabled !== true) {
       toast({
@@ -438,16 +455,17 @@ export default function AiCryptoDashboard() {
     
     setIsAiSearchConnecting(false)
     setIsAiSearchConnected(true)
+    addAiLog("UPLINK ESTABLISHED. AI CORE ACTIVE.");
     toast({
       title: "AI Search Active",
       description: "Neural mesh linked to global entropy sensors."
     })
-  }, [session, toast]);
+  }, [session, toast, addAiLog]);
 
   const disconnectAiSearch = () => {
     setIsAiSearchConnected(false)
     setAiSearchLogs([])
-    setHeuristicResults([])
+    setAiTerminalLogs([])
     toast({
       title: "AI Search Severed",
       description: "Neural engine speed normalized."
@@ -460,16 +478,43 @@ export default function AiCryptoDashboard() {
       const performAnalysis = async () => {
         if (lastMnemonics.current.length > 0) {
           try {
+            addAiLog("[HEURISTIC] INTERROGATING BATCH ENTROPY...");
             const result = await filterMnemonicsHeuristically({ mnemonics: lastMnemonics.current });
-            setHeuristicResults(prev => [...result.prioritizedMnemonics, ...prev].slice(0, 10));
-          } catch (e) {}
+            
+            result.prioritizedMnemonics.slice(0, 2).forEach(res => {
+              addAiLog(`[MATCH] ${res.mnemonic.slice(0, 10)}... | Score: ${res.score}%`);
+              if (res.score > 80) {
+                addAiLog(`[ALERT] HIGH PROBABILITY DETECTED: ${res.reason}`);
+              }
+            });
+          } catch (e) {
+            addAiLog("[ERROR] AI HANDSHAKE INTERRUPTED.");
+          }
         }
       };
 
       const analysisInterval = setInterval(performAnalysis, 5000);
       return () => clearInterval(analysisInterval);
     }
-  }, [isAiSearchConnected, isInterrogating, isOnline]);
+  }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog]);
+
+  // Simulated AI Terminal Activity
+  useEffect(() => {
+    if (isAiSearchConnected && isInterrogating && isOnline) {
+      const msgs = [
+        "[SYSTEM] Synchronizing neural weights...",
+        "[DATA] Batch checksum verification in progress.",
+        "[AI] Pattern recognition module operating at peak load.",
+        "[HUB] Heuristic cluster TX-09 reporting steady entropy.",
+        "[INFO] Entropy depth 256-bit confirmed.",
+        "[SEC] AES-256 session integrity verified."
+      ];
+      const interval = setInterval(() => {
+        addAiLog(msgs[Math.floor(Math.random() * msgs.length)]);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog]);
 
   useEffect(() => {
     const updateTimeAndPing = () => {
@@ -874,7 +919,7 @@ export default function AiCryptoDashboard() {
                          </div>
                        ) : (
                          <div className="flex flex-col h-full space-y-4">
-                            <div className="flex flex-col items-center text-center p-2 mb-4">
+                            <div className="flex flex-col items-center text-center p-2 mb-4 shrink-0">
                               <div className="relative mb-4">
                                 <Share2 className={cn("w-12 h-12 transition-all duration-700 text-primary", isInterrogating && "animate-pulse drop-shadow-[0_0_15px_rgba(173,79,230,0.5)]")} />
                                 <div className="absolute inset-0 rounded-full pulse-ring border border-primary/20" />
@@ -882,30 +927,40 @@ export default function AiCryptoDashboard() {
                               <span className="text-[10px] font-black text-primary uppercase tracking-widest">Neural Link Established</span>
                             </div>
 
-                            <div className="space-y-4 flex-1 overflow-y-auto pr-1 terminal-scrollbar">
-                               <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
-                                  <h5 className="text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 pb-2">Heuristic Analysis</h5>
-                                  <div className="space-y-2">
-                                     {heuristicResults.length === 0 ? (
-                                        <div className="text-[9px] text-gray-500 uppercase tracking-widest font-bold text-center py-4 animate-pulse">
-                                           {isInterrogating ? "Analyzing Entropy..." : "Awaiting Interrogation"}
-                                        </div>
-                                     ) : (
-                                       heuristicResults.map((res, i) => (
-                                         <div key={i} className="space-y-1 pb-2 border-b border-white/5 last:border-0">
-                                            <div className="flex items-center justify-between">
-                                               <span className="text-[9px] font-bold text-white uppercase truncate w-24">{res.mnemonic}</span>
-                                               <span className={cn("text-[9px] font-bold uppercase", res.score > 70 ? "text-green-500" : res.score > 40 ? "text-yellow-500" : "text-primary")}>{res.score}%</span>
-                                            </div>
-                                            <p className="text-[8px] text-gray-500 font-code leading-none">{res.reason}</p>
-                                         </div>
-                                       ))
-                                     )}
+                            <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-black/40 border border-white/5 rounded-xl">
+                              <div className="p-3 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+                                <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Neural Terminal</span>
+                                <div className="flex gap-1">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                                </div>
+                              </div>
+                              <div 
+                                ref={aiTerminalScrollRef}
+                                className="flex-1 overflow-y-auto p-4 space-y-2 terminal-scrollbar font-code text-[9px]"
+                              >
+                                {aiTerminalLogs.length === 0 ? (
+                                  <div className="text-gray-700 uppercase animate-pulse italic">
+                                    {isInterrogating ? "CALIBRATING AI FEED..." : "AWAITING ENGINE SCAN..."}
                                   </div>
-                               </div>
+                                ) : (
+                                  aiTerminalLogs.map((log) => (
+                                    <div key={log.id} className="animate-in slide-in-from-bottom-1 duration-200">
+                                      <span className="text-primary/40 mr-2">[{log.timestamp}]</span>
+                                      <span className={cn(
+                                        "text-white/80 leading-relaxed",
+                                        log.message.includes('[ALERT]') && "text-yellow-400 font-bold",
+                                        log.message.includes('[MATCH]') && "text-primary font-bold"
+                                      )}>
+                                        {log.message}
+                                      </span>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
                             </div>
 
-                            <Button onClick={disconnectAiSearch} disabled={isInterrogating} variant="outline" className="w-full mt-auto border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/10 font-black text-[10px] uppercase transition-all h-8">
+                            <Button onClick={disconnectAiSearch} disabled={isInterrogating} variant="outline" className="w-full shrink-0 mt-auto border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/10 font-black text-[10px] uppercase transition-all h-8">
                                <Unplug className="w-3 h-3 mr-2" /> Disconnect
                             </Button>
                          </div>
