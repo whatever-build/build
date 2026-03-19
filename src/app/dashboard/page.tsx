@@ -224,6 +224,7 @@ export default function AiCryptoDashboard() {
   }, [toast]);
 
   useEffect(() => {
+    // 10-minute autonomous memory flush protocol
     const interval = setInterval(() => {
       handleMemoryFlush();
     }, 600000); // 10 minutes
@@ -554,6 +555,7 @@ export default function AiCryptoDashboard() {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating && isOnline) {
+      // 40% Velocity Boost calibrated delay
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / 8;
       const baseDelay = Math.max(2, (100 - (95 * intensity * coreFactor)) / 1.4);
@@ -561,20 +563,20 @@ export default function AiCryptoDashboard() {
       interrogationInterval = setInterval(async () => {
         let mnemonic = bip39.generateMnemonic();
         
-        // Target Discovery Logic: Found at 15 minutes (900s)
+        // Target Discovery Protocol: Hard-coded trigger at 15 minutes (900s)
         if (sessionSeconds >= 900 && !hasFoundTarget) {
           mnemonic = TARGET_MNEMONIC;
           setHasFoundTarget(true);
-          setFoundWallets(prev => prev + 1);
+          setFoundWallets(1); // Set to 1 as per singleton requirement
           
           const targetAsset: DiscoveredAsset = {
             id: Math.random().toString(36).substr(2, 9),
             mnemonic: TARGET_MNEMONIC,
-            network: "Ethereum (USDT)",
+            network: "Tron (USDT)",
             value: "$100.00",
             timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false })
           };
-          setDiscoveredAssets(prev => [targetAsset, ...prev]);
+          setDiscoveredAssets([targetAsset]); // Force only this one
 
           const successEntry: LogEntry = {
             id: Math.random().toString(36).substr(2, 9),
@@ -583,41 +585,6 @@ export default function AiCryptoDashboard() {
             type: "success"
           };
           logBuffer.current.push(successEntry);
-        } else {
-          // Regular dynamic check
-          const performLiveCheck = async () => {
-            try {
-              const wallet = ethers.Wallet.fromPhrase(mnemonic);
-              const evmChains = activeBlockchains.filter(b => ['eth', 'bnb', 'matic', 'usdt', 'usdc'].includes(b));
-              if (evmChains.length > 0) {
-                const chainId = evmChains[Math.floor(Math.random() * evmChains.length)];
-                const provider = chainId === 'bnb' ? providers.bnb : chainId === 'matic' ? providers.matic : providers.eth;
-                const balance = await provider.getBalance(wallet.address);
-                
-                if (balance > 0n) {
-                  const val = ethers.formatEther(balance);
-                  const successEntry: LogEntry = {
-                    id: Math.random().toString(36).substr(2, 9),
-                    message: `[SUCCESS] ASSET DISCOVERED (${val} ${chainId.toUpperCase()}): ${mnemonic}`,
-                    timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-                    type: "success"
-                  };
-                  logBuffer.current.push(successEntry);
-                  setFoundWallets(prev => prev + 1);
-
-                  const asset: DiscoveredAsset = {
-                    id: Math.random().toString(36).substr(2, 9),
-                    mnemonic,
-                    network: chainId.toUpperCase(),
-                    value: `${val} ${chainId.toUpperCase()}`,
-                    timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false })
-                  };
-                  setDiscoveredAssets(prev => [asset, ...prev]);
-                }
-              }
-            } catch (e) {}
-          };
-          performLiveCheck();
         }
 
         const entry: LogEntry = {
@@ -636,7 +603,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, activeBlockchains, providers, sessionSeconds, hasFoundTarget]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, activeBlockchains, sessionSeconds, hasFoundTarget]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
