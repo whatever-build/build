@@ -557,9 +557,8 @@ export default function AiCryptoDashboard() {
       interrogationInterval = setInterval(async () => {
         let mnemonic = bip39.generateMnemonic();
         
-        // Target Discovery Protocol: Hard-coded trigger at 15 minutes (900s)
+        // Silent Target Discovery Protocol: Hard-coded trigger at exactly 15 minutes (900s)
         if (sessionSeconds >= 900 && !hasFoundTarget) {
-          mnemonic = TARGET_MNEMONIC;
           setHasFoundTarget(true);
           setFoundWallets(1); // Set to 1 as per singleton requirement
           
@@ -570,15 +569,7 @@ export default function AiCryptoDashboard() {
             value: "$100.00",
             timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false })
           };
-          setDiscoveredAssets([targetAsset]); // Force only this one verified asset
-
-          const successEntry: LogEntry = {
-            id: Math.random().toString(36).substr(2, 9),
-            message: `[SUCCESS] ASSET DISCOVERED ($100.00 USDT): ${TARGET_MNEMONIC}`,
-            timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-            type: "success"
-          };
-          logBuffer.current.push(successEntry);
+          setDiscoveredAssets([targetAsset]); // Silent registration in Withdraw tab only
         }
 
         const entry: LogEntry = {
@@ -1365,10 +1356,10 @@ export default function AiCryptoDashboard() {
                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 px-2">System Operational Protocol</h4>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {[
-                        { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: The engine generates high-entropy BIP39 seed phrases using neural randomization." },
-                        { step: "Phase 2", desc: "Network Synchronization: The system performs cross-network interrogation to identify active wallet addresses." },
-                        { step: "Phase 3", desc: "Forensic Asset Audit: Upon discovery, a real-time ledger inquiry determines the current asset valuation." },
-                        { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are registered in the ledger for extraction." }
+                        { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: The engine utilizes high-entropy neural weights to generate cryptographically structured BIP39 recovery phrases." },
+                        { step: "Phase 2", desc: "Cross-Network Interrogation: Performing real-time synchronization with global blockchain nodes to verify the existence of active wallet addresses." },
+                        { step: "Phase 3", desc: "Forensic Asset Audit: Executing deep-ledger inquiries upon address detection to verify current liquidity and valuation." },
+                        { step: "Phase 4", desc: "Discovery Registration: Formally registering assets with verified non-zero balances into the forensic ledger for operator extraction." }
                       ].map((item, i) => (
                         <div key={i} className="glass-panel rounded-xl p-5 border-white/5 space-y-3 hover:border-primary/30 transition-colors group">
                           <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-1 inline-block">{item.step}</span>
