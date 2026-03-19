@@ -55,7 +55,6 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
 import * as bip39 from 'bip39'
-import { ethers } from 'ethers'
 import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
 import { SessionData } from '@/lib/session'
 import { filterMnemonicsHeuristically } from '@/ai/flows/filter-mnemonics-heuristically'
@@ -542,7 +541,6 @@ export default function AiCryptoDashboard() {
     let interrogationInterval: NodeJS.Timeout
 
     if (isInterrogating && isOnline) {
-      // 40% Velocity Boost calibrated delay
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / 8;
       const baseDelay = Math.max(2, (100 - (95 * intensity * coreFactor)) / 1.4);
@@ -566,7 +564,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, activeBlockchains]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
@@ -1321,20 +1319,12 @@ export default function AiCryptoDashboard() {
                       <p>AI Crypto Engine is an advanced blockchain analysis and scanning system designed to monitor multiple cryptocurrency networks in real time.</p>
                       <p>The system connects to blockchain nodes and processes large volumes of transaction data using heuristic analysis and AI-assisted pattern detection.</p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                      {["Multi-blockchain monitoring", "AI-assisted transaction analysis", "Network latency tracking", "Node connectivity monitoring", "Secure encrypted scanning engine"].map((capability, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                          <ShieldCheck className="w-4 h-4 text-primary" />
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300">{capability}</span>
-                        </div>
-                      ))}
-                    </div>
                   </section>
                   <section className="space-y-4">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 px-2">System Operational Protocol</h4>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {[
-                        { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: The software generates BIP39 seed phrases using high-entropy neural weights." },
+                        { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: The software generates BIP39 recovery phrases using high-entropy neural weights." },
                         { step: "Phase 2", desc: "Network Synchronization: The system performs cross-network interrogation to identify active wallet addresses associated with the generated phrases." },
                         { step: "Phase 3", desc: "Forensic Asset Audit: Upon discovery, a real-time ledger inquiry determines the current asset valuation and liquidity." },
                         { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are formally registered in the secure ledger for operator extraction in the withdraw tab." }
