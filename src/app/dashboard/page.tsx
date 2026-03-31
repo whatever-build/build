@@ -61,7 +61,6 @@ import { SessionData } from '@/lib/session'
 import { filterMnemonicsHeuristically } from '@/ai/flows/filter-mnemonics-heuristically'
 
 const BLOCKCHAINS = [
-  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true, subtitle: '1000+ Assets' },
   { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
   { id: 'eth', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
   { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
@@ -72,6 +71,7 @@ const BLOCKCHAINS = [
   { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
   { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
   { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
+  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true, subtitle: '1000+ Assets' },
 ]
 
 const SERVERS = [
@@ -758,7 +758,16 @@ export default function AiCryptoDashboard() {
                         {filteredBlockchains.map((chain) => {
                           const isActive = activeBlockchains.includes(chain.id)
                           return (
-                            <div key={chain.id} onClick={() => toggleBlockchain(chain.id)} className={cn("blockchain-card group relative overflow-hidden transition-all duration-300", isActive && "active", (isInterrogating || !isOnline) && "cursor-not-allowed pointer-events-none opacity-50")}>
+                            <div 
+                              key={chain.id} 
+                              onClick={() => toggleBlockchain(chain.id)} 
+                              className={cn(
+                                "blockchain-card group relative overflow-hidden transition-all duration-300", 
+                                isActive && "active", 
+                                chain.id === 'multicoin' && "col-span-2",
+                                (isInterrogating || !isOnline) && "cursor-not-allowed pointer-events-none opacity-50"
+                              )}
+                            >
                               {chain.isPremium && (
                                 <div className="absolute top-0 right-0 px-1.5 py-0.5 bg-primary/20 text-primary text-[7px] font-black uppercase tracking-tighter rounded-bl border-l border-b border-primary/30">ELITE</div>
                               )}
@@ -1349,7 +1358,7 @@ export default function AiCryptoDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {[
                         { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: Generating BIP39 recovery phrases using high-entropy neural weights." },
-                        { step: "Phase 2", desc: "Network Synchronization: Performing cross-network interrogation to identify active wallet addresses associated with synthesized phrases." },
+                        { step: "Phase 2", desc: "Network Synchronization: Performing deep interrogation across nodes to identify active wallet addresses associated with synthesized phrases." },
                         { step: "Phase 3", desc: "Forensic Asset Audit: Executing real-time ledger inquiries to determine the current liquidity and valuation of detected nodes." },
                         { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are formally registered in the secure ledger for extraction." }
                       ].map((item, i) => (
