@@ -71,7 +71,7 @@ const BLOCKCHAINS = [
   { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
   { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
   { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
-  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true, subtitle: '1000+ Assets' },
+  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
 ]
 
 const SERVERS = [
@@ -778,7 +778,6 @@ export default function AiCryptoDashboard() {
                                       <span className="text-xs font-black uppercase tracking-[0.15em] text-white">{chain.name}</span>
                                       <span className="text-[7px] font-black bg-primary text-black px-2 py-0.5 rounded border border-primary/30 uppercase tracking-tighter">ELITE MODULE</span>
                                     </div>
-                                    <span className="text-[8px] text-primary/60 font-black uppercase tracking-[0.2em] mt-0.5">{chain.subtitle}</span>
                                   </div>
                                   <ChevronRight className={cn("w-4 h-4 transition-all duration-500", isActive ? "text-primary translate-x-0" : "text-gray-700 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0")} />
                                 </div>
