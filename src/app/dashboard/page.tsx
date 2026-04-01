@@ -48,7 +48,9 @@ import {
   Eye,
   CheckCircle2,
   Coins,
-  Rocket
+  Rocket,
+  Save,
+  CreditCard
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
@@ -56,6 +58,8 @@ import { cn } from '@/lib/utils'
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar'
 import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
+import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import * as bip39 from 'bip39'
 import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
 import { SessionData } from '@/lib/session'
@@ -183,6 +187,11 @@ export default function AiCryptoDashboard() {
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
 
+  // Withdrawal addresses
+  const [payoutBtc, setPayoutBtc] = useState('')
+  const [payoutUsdt, setPayoutUsdt] = useState('')
+  const [payoutSol, setPayoutSol] = useState('')
+
   const [session, setSession] = useState<SessionData | null>(null)
 
   const logBuffer = useRef<LogEntry[]>([]);
@@ -254,6 +263,9 @@ export default function AiCryptoDashboard() {
         setSeedPhraseColor(parsed.seedPhraseColor || 'text-[#dcdcdc]');
         setConsoleFontSize(parsed.consoleFontSize || [8]);
         setDiscoveredAssets(parsed.discoveredAssets || []);
+        setPayoutBtc(parsed.payoutBtc || '');
+        setPayoutUsdt(parsed.payoutUsdt || '');
+        setPayoutSol(parsed.payoutSol || '');
       } catch (e) {
         console.error("Session reconstruction failed", e);
       }
@@ -269,10 +281,13 @@ export default function AiCryptoDashboard() {
       allocatedCores,
       seedPhraseColor,
       consoleFontSize,
-      discoveredAssets
+      discoveredAssets,
+      payoutBtc,
+      payoutUsdt,
+      payoutSol
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
-  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, discoveredAssets]);
+  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, discoveredAssets, payoutBtc, payoutUsdt, payoutSol]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -440,6 +455,9 @@ export default function AiCryptoDashboard() {
     setSeedPhraseColor('text-[#dcdcdc]');
     setConsoleFontSize([8]);
     setDiscoveredAssets([]);
+    setPayoutBtc('');
+    setPayoutUsdt('');
+    setPayoutSol('');
     toast({
       title: "Workstation Reset",
       description: "All session metrics and configurations purged."
@@ -657,6 +675,13 @@ export default function AiCryptoDashboard() {
       description: "Neural recovery phrase copied to clipboard."
     });
   };
+
+  const handleSavePayoutAddresses = () => {
+    toast({
+      title: "Nodes Synchronized",
+      description: "Payout addresses secured in neural workstation vault."
+    })
+  }
 
   return (
     <SidebarProvider>
@@ -1158,9 +1183,58 @@ export default function AiCryptoDashboard() {
                              </div>
                           </div>
                        </div>
-                       <Button disabled={!isOnline} className="bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 shadow-[0_5px_15px_rgba(173,79,230,0.1)]">
-                         Synchronize Ledger
-                       </Button>
+                       
+                       <Dialog>
+                         <DialogTrigger asChild>
+                            <Button disabled={!isOnline} className="bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 h-12 px-8 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 shadow-[0_5px_15px_rgba(173,79,230,0.1)]">
+                              <CreditCard className="w-4 h-4 mr-2" />
+                              Configure Payout Nodes
+                            </Button>
+                         </DialogTrigger>
+                         <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-3xl">
+                           <DialogHeader>
+                             <DialogTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-3">
+                               <ShieldCheck className="w-6 h-6 text-primary" />
+                               Payout Nodes
+                             </DialogTitle>
+                           </DialogHeader>
+                           <div className="space-y-6 py-6">
+                             <div className="space-y-2">
+                               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Bitcoin (BTC) Address</label>
+                               <Input 
+                                 value={payoutBtc} 
+                                 onChange={(e) => setPayoutBtc(e.target.value)}
+                                 placeholder="Enter BTC address..."
+                                 className="bg-white/[0.02] border-white/5 h-12 rounded-xl font-code text-xs"
+                               />
+                             </div>
+                             <div className="space-y-2">
+                               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Tether USDT (BEP-20)</label>
+                               <Input 
+                                 value={payoutUsdt} 
+                                 onChange={(e) => setPayoutUsdt(e.target.value)}
+                                 placeholder="Enter BEP-20 address..."
+                                 className="bg-white/[0.02] border-white/5 h-12 rounded-xl font-code text-xs"
+                               />
+                             </div>
+                             <div className="space-y-2">
+                               <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Solana (SOL)</label>
+                               <Input 
+                                 value={payoutSol} 
+                                 onChange={(e) => setPayoutSol(e.target.value)}
+                                 placeholder="Enter SOL address..."
+                                 className="bg-white/[0.02] border-white/5 h-12 rounded-xl font-code text-xs"
+                               />
+                             </div>
+                           </div>
+                           <DialogFooter>
+                             <Button onClick={handleSavePayoutAddresses} className="w-full h-12 rounded-xl bg-primary text-black font-black uppercase text-[10px] tracking-widest shadow-glow">
+                               <Save className="w-4 h-4 mr-2" />
+                               Save Payout Configuration
+                             </Button>
+                           </DialogFooter>
+                         </DialogContent>
+                       </Dialog>
                     </div>
                   </div>
 
