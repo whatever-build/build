@@ -179,6 +179,7 @@ export default function AiCryptoDashboard() {
   
   const [isBoosterActive, setIsBoosterActive] = useState(false)
   const [boosterTimeRemaining, setBoosterTimeRemaining] = useState(3600) // 1 Hour in seconds
+  const [boosterCount, setBoosterCount] = useState(0)
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
 
@@ -231,6 +232,7 @@ export default function AiCryptoDashboard() {
     const fetchSession = async () => {
       const sess = await getSession();
       setSession(sess as SessionData);
+      setBoosterCount(sess.boosters || 0);
     }
     fetchSession();
   }, []);
@@ -462,13 +464,22 @@ export default function AiCryptoDashboard() {
       })
       return
     }
+    if (boosterCount <= 0) {
+      toast({
+        variant: "destructive",
+        title: "Booster Depleted",
+        description: "Zero booster units detected in neural vault."
+      })
+      return
+    }
     setIsBoosterActive(true)
     setBoosterTimeRemaining(3600)
+    setBoosterCount(prev => prev - 1)
     toast({
       title: "Neural Booster Engaged",
       description: "Forensic velocity pushed to maximum depth for 1 hour."
     })
-  }, [isOnline, isInterrogating, toast])
+  }, [isOnline, isInterrogating, boosterCount, toast])
 
   useEffect(() => {
     let boosterTimer: NodeJS.Timeout
@@ -721,7 +732,7 @@ export default function AiCryptoDashboard() {
                 </div>
                 
                 <div className="pt-4 flex items-center gap-3">
-                  <div className={cn("w-2 h-2 rounded-full transition-all duration-700", isOnline ? (isInterrogating ? "bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.6)]" : "bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]") : "bg-red-500 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.6)]")} />
+                  <div className={cn("w-2 h-2 rounded-full transition-all duration-700", isOnline ? (isInterrogating ? "bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.6)]" : "bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]") : "bg-red-500 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.2)]")} />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     {!isOnline ? "Offline" : isInterrogating ? "Scanning" : "Standby"}
                   </span>
@@ -1037,9 +1048,13 @@ export default function AiCryptoDashboard() {
                             </div>
 
                             <div className="space-y-3">
+                               <div className="flex items-center justify-between px-1">
+                                 <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Available Boosters</span>
+                                 <span className="text-[10px] font-code text-primary font-bold">{boosterCount} UNITS</span>
+                               </div>
                                <Button 
                                  onClick={activateBooster}
-                                 disabled={!isInterrogating || isBoosterActive}
+                                 disabled={!isInterrogating || isBoosterActive || boosterCount <= 0}
                                  className={cn(
                                    "w-full h-10 font-black text-[10px] uppercase tracking-widest transition-all duration-500 rounded-xl border",
                                    isBoosterActive ? "bg-primary text-black border-primary shadow-glow" : "bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"

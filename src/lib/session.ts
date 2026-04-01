@@ -6,6 +6,7 @@ export interface SessionData {
   isLoggedIn: boolean;
   allowedChains?: string[];
   aiSearchEnabled?: boolean;
+  boosters?: number;
 }
 
 export const sessionOptions: IronSessionOptions = {
