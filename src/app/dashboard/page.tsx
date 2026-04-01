@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -620,7 +621,7 @@ export default function AiCryptoDashboard() {
       };
 
       const analysisInterval = setInterval(performAnalysis, isBoosterActive ? 2000 : 5000);
-      return () => clearInterval(analysisInterval);
+      return () => clearInterval(analysisAnalysisInterval);
     }
   }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog, isBoosterActive]);
 
