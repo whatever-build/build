@@ -467,7 +467,6 @@ export default function AiCryptoDashboard() {
     }
 
     if (activeBlockchains.includes('multicoin')) {
-      // Prioritize elite node for multicoin
       if (selectedServerId !== 'node-prime-exclusive' && selectedServerId !== 'quantum-uplink') {
         setSelectedServerId('node-prime-exclusive');
         toast({
@@ -621,7 +620,7 @@ export default function AiCryptoDashboard() {
       };
 
       const analysisInterval = setInterval(performAnalysis, isBoosterActive ? 2000 : 5000);
-      return () => clearInterval(analysisAnalysisInterval);
+      return () => clearInterval(analysisInterval);
     }
   }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog, isBoosterActive]);
 
@@ -679,7 +678,6 @@ export default function AiCryptoDashboard() {
       const multicoinFactor = isMulticoin ? 1.4 : 1;
       const boosterFactor = isBoosterActive ? 10 : 1;
       
-      // Server Latency Factor (Inverse speed): Lower latency = much faster speed
       const serverLatencyValue = parseFloat(selectedServer?.latency || "2.4ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
@@ -760,7 +758,7 @@ export default function AiCryptoDashboard() {
     <SidebarProvider>
       <div className="flex h-screen w-full bg-[#050507] overflow-hidden text-foreground font-body select-none relative">
         <Sidebar className="border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-2xl z-30">
-          <SidebarHeader className="p-6 border-b border-white/5">
+          <SidebarHeader className="p-6 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(173,79,230,0.5)]">
                 <Cpu className="w-6 h-6 text-black" />
@@ -772,7 +770,7 @@ export default function AiCryptoDashboard() {
             </div>
           </SidebarHeader>
           
-          <SidebarContent className="p-4">
+          <SidebarContent className="p-4 terminal-scrollbar overflow-x-hidden">
             <SidebarGroup>
               <SidebarGroupLabel className="text-white/30 text-[9px] uppercase tracking-[0.2em] mb-2">Navigation</SidebarGroupLabel>
               <SidebarMenu>
@@ -839,7 +837,7 @@ export default function AiCryptoDashboard() {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="p-4 border-t border-white/5">
+          <SidebarFooter className="p-4 border-t border-white/5 shrink-0">
             <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-gray-500 hover:text-red-500 hover:bg-red-500/10 h-10 px-4 transition-all duration-300">
               <LogOut className="w-4 h-4 mr-3" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Terminate</span>
@@ -1373,8 +1371,8 @@ export default function AiCryptoDashboard() {
 
               {activeTab === 'server' && (
                 <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in zoom-in-95 duration-700 ease-out overflow-hidden">
-                  <div className="lg:col-span-4 flex flex-col gap-4 overflow-y-auto terminal-scrollbar pr-2 pb-10">
-                    <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507] py-2 z-10">
+                  <div className="lg:col-span-4 flex flex-col gap-4 min-h-0 overflow-y-auto terminal-scrollbar pr-4 pb-10">
+                    <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507] py-2 z-20">
                       <div className="flex items-center gap-2">
                         <Network className="w-4 h-4 text-primary" />
                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Neural Cluster Map</h3>
@@ -1400,7 +1398,7 @@ export default function AiCryptoDashboard() {
                           }}
                           className={cn(
                             "relative overflow-hidden p-6 rounded-2xl border transition-all duration-700 shadow-[0_0_30px_rgba(173,79,230,0.15)]", 
-                            isSelected ? "bg-primary/[0.15] border-primary/80 scale-[1.02]" : "bg-white/[0.02] border-white/5 hover:border-primary/40",
+                            isSelected ? "bg-primary/[0.15] border-primary/80 scale-[1.01]" : "bg-white/[0.02] border-white/5 hover:border-primary/40",
                             (isInterrogating || !isOnline) ? "cursor-not-allowed" : "cursor-pointer"
                           )}
                         >
@@ -1430,11 +1428,11 @@ export default function AiCryptoDashboard() {
                             {isPrime && (
                               <div className="space-y-4 pt-4 border-t border-white/5">
                                 <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Node Features</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div className="flex flex-col gap-2.5">
                                   {server.features?.map((feature, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-[10px] font-bold text-white/80 group/feat">
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-primary transition-transform group-hover/feat:scale-110" />
-                                      <span className="tracking-tight uppercase">{feature}</span>
+                                    <div key={idx} className="flex items-start gap-2.5 text-[10px] font-bold text-white/80 group/feat">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0 transition-transform group-hover/feat:scale-110" />
+                                      <span className="tracking-tight uppercase leading-snug">{feature}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -1485,8 +1483,16 @@ export default function AiCryptoDashboard() {
                          </div>
                          <div className="flex-1 flex items-center justify-center relative my-10">
                             <div className="relative bg-black/40 backdrop-blur-3xl p-16 rounded-full border border-primary/20 shadow-[0_0_120px_rgba(173,79,230,0.2)] transition-all duration-1000 group-hover:scale-[1.02]">
-                               <Globe className={cn("w-48 h-48 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_60px_rgba(173,79,230,0.8)]" : "text-primary/30")} />
-                               {isInterrogating && isOnline && <div className="absolute inset-0 bg-primary/5 rounded-full animate-ping opacity-20" />}
+                               <div className="relative">
+                                 <Globe className={cn("w-48 h-48 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_60px_rgba(173,79,230,0.8)]" : "text-primary/30")} />
+                                 {isInterrogating && isOnline && (
+                                   <>
+                                     <div className="absolute inset-0 rounded-full border-2 border-primary/40 animate-ping opacity-40 scale-125" />
+                                     <div className="absolute inset-0 rounded-full border border-primary/20 animate-pulse opacity-20 scale-150" />
+                                     <div className="absolute -inset-8 rounded-full border border-primary/5 animate-[spin_10s_linear_infinite]" />
+                                   </>
+                                 )}
+                               </div>
                                {!isOnline && <WifiOff className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 text-red-500 animate-pulse" />}
                             </div>
                             <div className="absolute inset-0 pointer-events-none opacity-20">
@@ -1518,7 +1524,7 @@ export default function AiCryptoDashboard() {
                     </div>
 
                     <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[280px] relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
-                      <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+                      <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02] shrink-0">
                         <div className="flex items-center gap-3">
                            <Terminal className="w-4 h-4 text-primary" />
                            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Cluster Pulse Logic</h3>
