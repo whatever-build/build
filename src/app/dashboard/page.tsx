@@ -115,16 +115,6 @@ const SERVERS = [
     features: []
   },
   { 
-    id: 'europe-central', 
-    name: 'EUROPE CENTRAL', 
-    region: 'FRANKFURT, GERMANY', 
-    latency: '12.4ms', 
-    status: 'LOCKED', 
-    load: 0.3, 
-    ip: '82.165.11.4',
-    features: []
-  },
-  { 
     id: 'asia-se', 
     name: 'ASIA SOUTHEAST', 
     region: 'SINGAPORE', 
@@ -495,10 +485,10 @@ export default function AiCryptoDashboard() {
     setDisplayCount(0);
     setFoundWallets(0);
     setActiveBlockchains([]);
-    setSystemIntensity([85]);
-    setAllocatedCores([4]);
+    setSystemIntensity(85);
+    setAllocatedCores(4);
     setSeedPhraseColor('text-[#dcdcdc]');
-    setConsoleFontSize([8]);
+    setConsoleFontSize(8);
     setDiscoveredAssets([]);
     setPayoutBtc('');
     setPayoutUsdt('');
@@ -1380,32 +1370,24 @@ export default function AiCryptoDashboard() {
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
                       const isUltraLive = server.status === 'ULTRA-LIVE';
-                      const isLocked = server.status === 'LOCKED';
                       const isPrime = server.id === 'node-prime-exclusive';
                       
                       return (
                         <div 
                           key={server.id} 
                           onClick={() => {
-                            if (!isInterrogating && isOnline && !isLocked) {
+                            if (!isInterrogating && isOnline) {
                               setSelectedServerId(server.id);
                               toast({
                                 title: "Cluster Migration",
                                 description: `Neural uplink transferred to ${server.name}.`
-                              });
-                            } else if (isLocked) {
-                              toast({
-                                variant: "destructive",
-                                title: "Access Denied",
-                                description: "Tier-3 restricted cluster. High-Latency Node only."
                               });
                             }
                           }}
                           className={cn(
                             "relative mx-1 p-6 rounded-2xl border transition-all duration-700 mb-4", 
                             isSelected ? "bg-primary/[0.15] border-primary/80 scale-[1.02] shadow-[0_0_40px_rgba(173,79,230,0.25)] z-10" : "bg-white/[0.02] border-white/5 hover:border-primary/40 shadow-[0_0_20px_rgba(0,0,0,0.2)]",
-                            (isInterrogating || !isOnline || isLocked) ? "cursor-not-allowed" : "cursor-pointer",
-                            isLocked && "opacity-60 grayscale"
+                            (isInterrogating || !isOnline) ? "cursor-not-allowed" : "cursor-pointer"
                           )}
                         >
                           <div className="flex flex-col gap-6 relative z-10">
@@ -1423,7 +1405,6 @@ export default function AiCryptoDashboard() {
                                 <div className={cn(
                                   "text-[10px] font-black px-3 py-1 rounded uppercase tracking-widest border", 
                                   isUltraLive ? "bg-green-500/20 text-green-400 border-green-500/30 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.3)]" : 
-                                  isLocked ? "bg-yellow-500/20 text-yellow-500 border-yellow-500/30" :
                                   "bg-blue-500/20 text-blue-400 border-blue-500/30"
                                 )}>
                                   {server.status}
@@ -1489,41 +1470,32 @@ export default function AiCryptoDashboard() {
                             </div>
                          </div>
                          
-                         {/* ADVANCED NEURAL CORE VISUALIZATION */}
                          <div className="flex-1 flex items-center justify-center relative my-4">
                             <div className="relative flex items-center justify-center w-[400px] h-[400px]">
-                               {/* VOLUMETRIC GLOW RINGS */}
                                <div className="absolute inset-0 rounded-full bg-primary/5 blur-[100px] animate-pulse" />
                                
-                               {/* OUTER DATA RING */}
                                <div className="absolute inset-0 border border-primary/20 rounded-full animate-[spin_30s_linear_infinite]" 
                                     style={{ borderStyle: 'dashed', borderDasharray: '40 20' }} />
                                
-                               {/* MIDDLE INTERROGATION RING */}
                                <div className="absolute inset-10 border border-primary/40 rounded-full animate-[spin_20s_linear_infinite_reverse]" 
                                     style={{ borderStyle: 'dashed', borderDasharray: '10 5' }} />
 
-                               {/* NEURAL MESH STRUCTURE */}
                                <svg className="absolute w-full h-full opacity-60" viewBox="0 0 100 100">
                                  <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" className="text-primary/10" />
                                  <path d="M50 2 L50 98 M2 50 L98 50 M15 15 L85 85 M15 85 L85 15" stroke="currentColor" strokeWidth="0.05" className="text-primary/20" />
-                                 {/* ORBITING DATA NODES */}
                                  <circle r="1" className="fill-primary animate-[bounce_3s_infinite]" style={{ transform: 'translate(50px, 2px)' }} />
                                  <circle r="1" className="fill-primary animate-[bounce_4s_infinite]" style={{ transform: 'translate(2px, 50px)' }} />
                                  <circle r="1" className="fill-primary animate-[bounce_5s_infinite]" style={{ transform: 'translate(98px, 50px)' }} />
                                </svg>
 
-                               {/* SINGULARITY CORE */}
                                <div className={cn(
                                  "relative z-10 w-32 h-32 flex items-center justify-center rounded-3xl rotate-45 border border-primary/40 transition-all duration-1000",
                                  isInterrogating && isOnline ? "bg-primary/20 shadow-[0_0_80px_rgba(173,79,230,0.8)] scale-110" : "bg-primary/5"
                                )}>
                                  <div className="w-16 h-16 rounded-2xl bg-primary shadow-[0_0_40px_rgba(173,79,230,1)] animate-pulse" />
-                                 {/* SCANLINE OVER CORE */}
                                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-4 animate-[bounce_2s_infinite]" />
                                </div>
 
-                               {/* SIGNAL EMISSION WAVES */}
                                {isInterrogating && isOnline && (
                                  <>
                                    <div className="absolute inset-0 rounded-full border border-primary/60 animate-ping opacity-30" />
@@ -1677,9 +1649,9 @@ export default function AiCryptoDashboard() {
                         <div className="space-y-6">
                           <div className="flex items-center justify-between">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Font Size</label>
-                            <span className="text-xs font-code text-primary">{consoleFontSize[0]}px</span>
+                            <span className="text-xs font-code text-primary">{consoleFontSize}px</span>
                           </div>
-                          <Slider value={consoleFontSize} onValueChange={setConsoleFontSize} min={8} max={24} step={1} className="pointer-events-auto cursor-pointer" />
+                          <Slider value={[consoleFontSize]} onValueChange={(v) => setConsoleFontSize(v[0])} min={8} max={24} step={1} className="pointer-events-auto cursor-pointer" />
                         </div>
                       </div>
                     </div>
