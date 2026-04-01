@@ -84,7 +84,7 @@ const SERVERS = [
     name: 'NEURAL CORE PRIME', 
     region: 'GENEVA, SWITZERLAND', 
     latency: '2.4ms', 
-    status: 'ULTRA-LIVE', 
+    status: 'ELITE-CORE', 
     load: 0.8, 
     ip: '45.13.252.1',
     features: [
@@ -99,7 +99,7 @@ const SERVERS = [
     name: 'QUANTUM UPLINK', 
     region: 'LUXEMBOURG CITY', 
     latency: '5.2ms', 
-    status: 'BASIC', 
+    status: 'STANDARD', 
     load: 0.4, 
     ip: '102.13.4.88',
     features: []
@@ -122,6 +122,16 @@ const SERVERS = [
     status: 'BASIC', 
     load: 0.7, 
     ip: '172.10.45.9',
+    features: []
+  },
+  { 
+    id: 'asia-ne', 
+    name: 'ASIA NORTHEAST', 
+    region: 'TOKYO, JAPAN', 
+    latency: '62.4ms', 
+    status: 'BASIC', 
+    load: 0.5, 
+    ip: '113.45.2.10',
     features: []
   }
 ]
@@ -745,7 +755,7 @@ export default function AiCryptoDashboard() {
     })
   }
 
-  const isUltraLiveSelected = useMemo(() => selectedServer?.status === 'ULTRA-LIVE', [selectedServer]);
+  const isEliteSelected = useMemo(() => selectedServer?.id === 'node-prime-exclusive', [selectedServer]);
 
   return (
     <SidebarProvider>
@@ -1375,7 +1385,8 @@ export default function AiCryptoDashboard() {
                     <div className="px-4 mx-1 space-y-4">
                       {SERVERS.map((server) => {
                         const isSelected = selectedServerId === server.id;
-                        const isUltraLive = server.status === 'ULTRA-LIVE';
+                        const isElite = server.status === 'ELITE-CORE';
+                        const isStandard = server.status === 'STANDARD';
                         const isPrime = server.id === 'node-prime-exclusive';
                         
                         return (
@@ -1410,8 +1421,9 @@ export default function AiCryptoDashboard() {
                                 <div className="flex flex-col items-end">
                                   <div className={cn(
                                     "text-[10px] font-black px-3 py-1 rounded uppercase tracking-widest border", 
-                                    isUltraLive ? "bg-green-500/20 text-green-400 border-green-500/30 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.3)]" : 
-                                    "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                                    isElite ? "bg-green-500/20 text-green-400 border-green-500/30 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.3)]" : 
+                                    isStandard ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
+                                    "bg-white/10 text-white/40 border-white/5"
                                   )}>
                                     {server.status}
                                   </div>
@@ -1446,7 +1458,7 @@ export default function AiCryptoDashboard() {
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between text-[9px] font-code uppercase">
                                     <span className="text-gray-600">Node Stability</span>
-                                    <span className="text-primary font-black uppercase tracking-widest">{isSelected ? (isUltraLive ? 'Nominal' : 'Nominal') : 'Nominal'}</span>
+                                    <span className="text-primary font-black uppercase tracking-widest">{isSelected ? (isElite ? 'Nominal' : 'Nominal') : 'Nominal'}</span>
                                   </div>
                                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner">
                                     <div className="h-full bg-primary/60 shadow-[0_0_10px_rgba(173,79,230,0.4)] transition-all duration-1000" style={{ width: isSelected ? '100%' : '85%' }} />
@@ -1468,7 +1480,7 @@ export default function AiCryptoDashboard() {
                             <div className="flex items-center gap-5">
                               <div className={cn(
                                 "w-16 h-16 rounded-2xl flex items-center justify-center text-primary relative transition-all duration-500 border",
-                                isUltraLiveSelected ? "bg-primary/20 border-primary/40 shadow-[0_0_40px_rgba(173,79,230,0.3)]" : "bg-primary/10 border-primary/20"
+                                isEliteSelected ? "bg-primary/20 border-primary/40 shadow-[0_0_40px_rgba(173,79,230,0.3)]" : "bg-primary/10 border-primary/20"
                               )}>
                                 <Dna className={cn("w-8 h-8 transition-all duration-1000", (isInterrogating && isOnline) && "animate-pulse")} />
                                 {(isInterrogating && isOnline) && <div className="absolute inset-0 rounded-2xl pulse-ring border border-primary/40" />}
@@ -1484,18 +1496,18 @@ export default function AiCryptoDashboard() {
                             <div className="relative flex items-center justify-center w-[400px] h-[400px]">
                                <div className={cn(
                                  "absolute inset-0 rounded-full bg-primary/5 blur-[100px] transition-all duration-1000",
-                                 isUltraLiveSelected ? "opacity-100 scale-125" : "opacity-60 scale-100"
+                                 isEliteSelected ? "opacity-100 scale-125" : "opacity-60 scale-100"
                                )} />
                                
                                <div className={cn(
                                  "absolute inset-0 border border-primary/20 rounded-full",
-                                 isUltraLiveSelected ? "animate-[spin_10s_linear_infinite]" : "animate-[spin_30s_linear_infinite]"
+                                 isEliteSelected ? "animate-[spin_10s_linear_infinite]" : "animate-[spin_30s_linear_infinite]"
                                )} 
                                     style={{ borderStyle: 'dashed', borderDasharray: '40 20' }} />
                                
                                <div className={cn(
                                  "absolute inset-10 border border-primary/40 rounded-full",
-                                 isUltraLiveSelected ? "animate-[spin_5s_linear_infinite_reverse]" : "animate-[spin_20s_linear_infinite_reverse]"
+                                 isEliteSelected ? "animate-[spin_5s_linear_infinite_reverse]" : "animate-[spin_20s_linear_infinite_reverse]"
                                )} 
                                     style={{ borderStyle: 'dashed', borderDasharray: '10 5' }} />
 
@@ -1509,13 +1521,13 @@ export default function AiCryptoDashboard() {
 
                                <div className={cn(
                                  "relative z-10 w-32 h-32 flex items-center justify-center rounded-3xl rotate-45 border transition-all duration-1000",
-                                 isUltraLiveSelected 
+                                 isEliteSelected 
                                    ? "bg-primary/30 border-primary/60 shadow-[0_0_120px_rgba(173,79,230,1)] scale-125" 
                                    : "bg-primary/5 border-primary/20 shadow-[0_0_40px_rgba(173,79,230,0.3)] scale-100"
                                )}>
                                  <div className={cn(
                                    "w-16 h-16 rounded-2xl bg-primary shadow-[0_0_40px_rgba(173,79,230,1)]",
-                                   isUltraLiveSelected ? "animate-pulse duration-700" : "animate-pulse duration-2000"
+                                   isEliteSelected ? "animate-pulse duration-700" : "animate-pulse duration-2000"
                                  )} />
                                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent h-4 animate-[bounce_2s_infinite]" />
                                </div>
