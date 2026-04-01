@@ -909,14 +909,6 @@ export default function AiCryptoDashboard() {
                               {boosterCount} UNITS
                             </p>
                           </div>
-                          <div className="space-y-1 pt-2 border-t border-white/5">
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                              <Cpu className="w-3 h-3" /> CPU Usage
-                            </p>
-                            <p className="text-lg font-black font-code text-primary tracking-tighter">
-                              {cpuLoad.toFixed(1)}%
-                            </p>
-                          </div>
                         </div>
                       </div>
                       <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mt-6 transition-all duration-500">
