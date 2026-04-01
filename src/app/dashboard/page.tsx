@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -98,7 +97,7 @@ const SERVERS = [
   { 
     id: 'quantum-uplink', 
     name: 'QUANTUM UPLINK', 
-    region: 'LUXEMBOURG', 
+    region: 'LUXEMBOURG CITY', 
     latency: '5.2ms', 
     status: 'BASIC', 
     load: 0.4, 
@@ -116,6 +115,16 @@ const SERVERS = [
     features: []
   },
   { 
+    id: 'europe-central', 
+    name: 'EUROPE CENTRAL', 
+    region: 'FRANKFURT, GERMANY', 
+    latency: '12.4ms', 
+    status: 'LOCKED', 
+    load: 0.3, 
+    ip: '82.165.11.4',
+    features: []
+  },
+  { 
     id: 'asia-se', 
     name: 'ASIA SOUTHEAST', 
     region: 'SINGAPORE', 
@@ -123,16 +132,6 @@ const SERVERS = [
     status: 'BASIC', 
     load: 0.7, 
     ip: '172.10.45.9',
-    features: []
-  },
-  { 
-    id: 'asia-ne', 
-    name: 'ASIA NORTHEAST', 
-    region: 'TOKYO, JAPAN', 
-    latency: '42.1ms', 
-    status: 'BASIC', 
-    load: 0.5, 
-    ip: '192.168.12.1',
     features: []
   }
 ]
@@ -292,10 +291,6 @@ export default function AiCryptoDashboard() {
       setBoosterCount(sess.boosters || 0);
     }
     fetchSession();
-  }, []);
-
-  const filteredBlockchains = useMemo(() => {
-    return BLOCKCHAINS;
   }, []);
 
   useEffect(() => {
@@ -600,6 +595,7 @@ export default function AiCryptoDashboard() {
   }
 
   useEffect(() => {
+    let analysisInterval: NodeJS.Timeout | null = null;
     if (isAiSearchConnected && isInterrogating && isOnline) {
       const performAnalysis = async () => {
         if (lastMnemonics.current.length > 0) {
@@ -619,9 +615,11 @@ export default function AiCryptoDashboard() {
         }
       };
 
-      const analysisInterval = setInterval(performAnalysis, isBoosterActive ? 2000 : 5000);
-      return () => clearInterval(analysisInterval);
+      analysisInterval = setInterval(performAnalysis, isBoosterActive ? 2000 : 5000);
     }
+    return () => {
+      if (analysisInterval) clearInterval(analysisInterval);
+    };
   }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog, isBoosterActive]);
 
   useEffect(() => {
@@ -903,7 +901,7 @@ export default function AiCryptoDashboard() {
                         <span className="text-[9px] font-code text-primary/60">{activeBlockchains.length} Selected</span>
                       </div>
                       <div className="blockchain-grid">
-                        {filteredBlockchains.map((chain) => {
+                        {BLOCKCHAINS.map((chain) => {
                           const isActive = activeBlockchains.includes(chain.id)
                           
                           if (chain.id === 'multicoin') {
@@ -1370,10 +1368,10 @@ export default function AiCryptoDashboard() {
               )}
 
               {activeTab === 'server' && (
-                <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in zoom-in-95 duration-700 ease-out overflow-hidden">
-                  <div className="lg:col-span-4 flex flex-col gap-4 min-h-0 overflow-y-auto terminal-scrollbar pr-4 pb-10">
-                    <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507] py-2 z-20">
-                      <div className="flex items-center gap-2">
+                <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 animate-in fade-in zoom-in-95 duration-700 ease-out overflow-hidden relative">
+                  <div className="lg:col-span-4 flex flex-col gap-6 min-h-0 overflow-y-auto terminal-scrollbar pr-4 pb-16">
+                    <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507]/90 backdrop-blur-sm py-3 z-20">
+                      <div className="flex items-center gap-2 px-2">
                         <Network className="w-4 h-4 text-primary" />
                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Neural Cluster Map</h3>
                       </div>
@@ -1382,27 +1380,34 @@ export default function AiCryptoDashboard() {
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
                       const isUltraLive = server.status === 'ULTRA-LIVE';
+                      const isLocked = server.status === 'LOCKED';
                       const isPrime = server.id === 'node-prime-exclusive';
                       
                       return (
                         <div 
                           key={server.id} 
                           onClick={() => {
-                            if (!isInterrogating && isOnline) {
+                            if (!isInterrogating && isOnline && !isLocked) {
                               setSelectedServerId(server.id);
                               toast({
                                 title: "Cluster Migration",
                                 description: `Neural uplink transferred to ${server.name}.`
                               });
+                            } else if (isLocked) {
+                              toast({
+                                variant: "destructive",
+                                title: "Access Denied",
+                                description: "Tier-3 restricted cluster. High-Latency Node only."
+                              });
                             }
                           }}
                           className={cn(
-                            "relative overflow-hidden p-6 rounded-2xl border transition-all duration-700 shadow-[0_0_30px_rgba(173,79,230,0.15)]", 
-                            isSelected ? "bg-primary/[0.15] border-primary/80 scale-[1.01]" : "bg-white/[0.02] border-white/5 hover:border-primary/40",
-                            (isInterrogating || !isOnline) ? "cursor-not-allowed" : "cursor-pointer"
+                            "relative p-6 rounded-2xl border transition-all duration-700 mb-2", 
+                            isSelected ? "bg-primary/[0.15] border-primary/80 scale-[1.02] shadow-[0_0_40px_rgba(173,79,230,0.25)] z-10" : "bg-white/[0.02] border-white/5 hover:border-primary/40 shadow-[0_0_20px_rgba(0,0,0,0.2)]",
+                            (isInterrogating || !isOnline || isLocked) ? "cursor-not-allowed" : "cursor-pointer",
+                            isLocked && "opacity-60 grayscale"
                           )}
                         >
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
                           <div className="flex flex-col gap-6 relative z-10">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-4">
@@ -1417,18 +1422,20 @@ export default function AiCryptoDashboard() {
                               <div className="flex flex-col items-end">
                                 <div className={cn(
                                   "text-[10px] font-black px-3 py-1 rounded uppercase tracking-widest border", 
-                                  isUltraLive ? "bg-green-500/20 text-green-400 border-green-500/30 animate-pulse" : "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                                  isUltraLive ? "bg-green-500/20 text-green-400 border-green-500/30 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.3)]" : 
+                                  isLocked ? "bg-yellow-500/20 text-yellow-500 border-yellow-500/30" :
+                                  "bg-blue-500/20 text-blue-400 border-blue-500/30"
                                 )}>
                                   {server.status}
                                 </div>
-                                <span className="text-[9px] text-gray-500 mt-2 font-code">IP: {server.ip}</span>
+                                <span className="text-[9px] text-gray-600 mt-2 font-code tracking-tighter">IP: {server.ip}</span>
                               </div>
                             </div>
 
                             {isPrime && (
                               <div className="space-y-4 pt-4 border-t border-white/5">
                                 <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Node Features</p>
-                                <div className="flex flex-col gap-2.5">
+                                <div className="grid grid-cols-1 gap-2.5">
                                   {server.features?.map((feature, idx) => (
                                     <div key={idx} className="flex items-start gap-2.5 text-[10px] font-bold text-white/80 group/feat">
                                       <CheckCircle2 className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0 transition-transform group-hover/feat:scale-110" />
@@ -1442,8 +1449,8 @@ export default function AiCryptoDashboard() {
                             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between text-[9px] font-code uppercase">
-                                  <span className="text-gray-500">Latency Peak</span>
-                                  <span className="text-green-500 font-black">{isOnline ? server.latency : "N/A"}</span>
+                                  <span className="text-gray-600">Latency Peak</span>
+                                  <span className="text-green-500 font-black tracking-tighter">{isOnline ? server.latency : "N/A"}</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner">
                                   <div className="h-full bg-green-500/60 shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all duration-1000" style={{ width: isSelected ? '98%' : '70%' }} />
@@ -1451,8 +1458,8 @@ export default function AiCryptoDashboard() {
                               </div>
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between text-[9px] font-code uppercase">
-                                  <span className="text-gray-500">Node Stability</span>
-                                  <span className="text-primary font-black uppercase">{isSelected ? (isUltraLive ? 'Ultra-Smooth' : 'Nominal') : 'Nominal'}</span>
+                                  <span className="text-gray-600">Node Stability</span>
+                                  <span className="text-primary font-black uppercase tracking-widest">{isSelected ? (isUltraLive ? 'Nominal' : 'Nominal') : 'Nominal'}</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner">
                                   <div className="h-full bg-primary/60 shadow-[0_0_10px_rgba(173,79,230,0.4)] transition-all duration-1000" style={{ width: isSelected ? '100%' : '85%' }} />
@@ -1466,81 +1473,97 @@ export default function AiCryptoDashboard() {
                   </div>
                   
                   <div className="lg:col-span-8 flex flex-col gap-6 min-h-0">
-                    <div className="glass-panel rounded-3xl p-8 border-white/5 flex flex-col flex-1 relative overflow-hidden group shadow-[0_40px_80px_rgba(0,0,0,0.6)]">
-                       <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
+                    <div className="glass-panel rounded-3xl p-10 border-white/5 flex flex-col flex-1 relative overflow-hidden group shadow-[0_40px_80px_rgba(0,0,0,0.6)]">
+                       <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-transparent pointer-events-none" />
                        <div className="relative z-10 flex flex-col h-full">
                          <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary relative transition-all duration-500 shadow-[0_0_30px_rgba(173,79,230,0.2)]">
-                                <Dna className={cn("w-7 h-7 transition-all duration-1000", isInterrogating && isOnline && "animate-pulse")} />
+                            <div className="flex items-center gap-5">
+                              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary relative transition-all duration-500 shadow-[0_0_40px_rgba(173,79,230,0.3)]">
+                                <Dna className={cn("w-8 h-8 transition-all duration-1000", isInterrogating && isOnline && "animate-pulse")} />
                                 {isInterrogating && isOnline && <div className="absolute inset-0 rounded-2xl pulse-ring border border-primary/40" />}
                               </div>
                               <div>
-                                <h4 className="text-base font-black uppercase tracking-[0.2em] text-white">{selectedServer?.name}</h4>
-                                <p className="text-[10px] text-primary/60 font-code uppercase tracking-widest mt-1">{selectedServer?.region} • High-Velocity Mesh</p>
+                                <h4 className="text-lg font-black uppercase tracking-[0.2em] text-white">{selectedServer?.name}</h4>
+                                <p className="text-[11px] text-primary/60 font-code uppercase tracking-widest mt-1.5">{selectedServer?.region} • High-Velocity Mesh</p>
                               </div>
                             </div>
                          </div>
-                         <div className="flex-1 flex items-center justify-center relative my-10">
-                            <div className="relative bg-black/40 backdrop-blur-3xl p-16 rounded-full border border-primary/20 shadow-[0_0_120px_rgba(173,79,230,0.2)] transition-all duration-1000 group-hover:scale-[1.02]">
+                         
+                         {/* ENHANCED NEURAL GLOBE ANIMATION */}
+                         <div className="flex-1 flex items-center justify-center relative my-12">
+                            <div className="relative bg-black/40 backdrop-blur-3xl p-20 rounded-full border border-primary/20 shadow-[0_0_150px_rgba(173,79,230,0.25)] transition-all duration-1000 group-hover:scale-[1.03]">
                                <div className="relative">
-                                 <Globe className={cn("w-48 h-48 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_60px_rgba(173,79,230,0.8)]" : "text-primary/30")} />
+                                 <Globe className={cn("w-56 h-56 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_70px_rgba(173,79,230,1)]" : "text-primary/20")} />
+                                 
+                                 {/* ROTATING RINGS */}
+                                 <div className="absolute inset-0 -m-8 border-[0.5px] border-primary/30 rounded-full animate-[spin_15s_linear_infinite]" />
+                                 <div className="absolute inset-0 -m-16 border-[0.5px] border-primary/10 rounded-full animate-[spin_25s_linear_infinite_reverse]" />
+                                 <div className="absolute inset-0 -m-4 border border-dashed border-primary/20 rounded-full animate-[spin_40s_linear_infinite]" />
+                                 
                                  {isInterrogating && isOnline && (
                                    <>
-                                     <div className="absolute inset-0 rounded-full border-2 border-primary/40 animate-ping opacity-40 scale-125" />
-                                     <div className="absolute inset-0 rounded-full border border-primary/20 animate-pulse opacity-20 scale-150" />
-                                     <div className="absolute -inset-8 rounded-full border border-primary/5 animate-[spin_10s_linear_infinite]" />
+                                     <div className="absolute inset-0 rounded-full border-2 border-primary/50 animate-ping opacity-50 scale-125" />
+                                     <div className="absolute inset-0 rounded-full border border-primary/30 animate-pulse opacity-20 scale-150" />
+                                     <div className="absolute -inset-12 rounded-full border border-primary/5 animate-[spin_8s_linear_infinite]" />
+                                     <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_20px_white] animate-pulse" />
+                                     </div>
                                    </>
                                  )}
                                </div>
-                               {!isOnline && <WifiOff className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 text-red-500 animate-pulse" />}
+                               {!isOnline && <WifiOff className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 text-red-500 animate-pulse drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />}
                             </div>
-                            <div className="absolute inset-0 pointer-events-none opacity-20">
-                               <div className="absolute top-1/4 left-1/4 w-px h-24 bg-gradient-to-b from-primary to-transparent" />
-                               <div className="absolute bottom-1/4 right-1/4 w-px h-24 bg-gradient-to-t from-primary to-transparent" />
+                            <div className="absolute inset-0 pointer-events-none opacity-30">
+                               <div className="absolute top-1/6 left-1/6 w-px h-32 bg-gradient-to-b from-primary to-transparent" />
+                               <div className="absolute bottom-1/6 right-1/6 w-px h-32 bg-gradient-to-t from-primary to-transparent" />
                             </div>
                          </div>
-                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-auto">
-                            <div className="p-6 glass-panel rounded-2xl border-white/5 space-y-3 group/metric transition-all duration-700 hover:border-primary/40 shadow-xl">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
-                                 <Signal className="w-3 h-3" /> Throughput
+
+                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-auto">
+                            <div className="p-7 glass-panel rounded-2xl border-white/5 space-y-4 group/metric transition-all duration-700 hover:border-primary/40 shadow-2xl">
+                               <span className="text-[10px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
+                                 <Signal className="w-3.5 h-3.5" /> Throughput
                                </span>
-                               <p className="text-base font-black text-white font-code tracking-tighter uppercase">{isOnline ? (parseFloat(selectedServer?.latency || "50") < 10 ? "Ultra-High" : "Standard") : "OFFLINE"}</p>
+                               <p className="text-lg font-black text-white font-code tracking-tighter uppercase">{isOnline ? (parseFloat(selectedServer?.latency || "50") < 10 ? "Ultra-High" : "Standard") : "OFFLINE"}</p>
                             </div>
-                            <div className="p-6 glass-panel rounded-2xl border-white/5 space-y-3 group/metric transition-all duration-700 hover:border-primary/40 shadow-xl">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
-                                 <ShieldCheck className="w-3 h-3" /> Security
+                            <div className="p-7 glass-panel rounded-2xl border-white/5 space-y-4 group/metric transition-all duration-700 hover:border-primary/40 shadow-2xl">
+                               <span className="text-[10px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
+                                 <ShieldCheck className="w-3.5 h-3.5" /> Security
                                </span>
-                               <p className="text-base font-black text-white font-code tracking-tighter uppercase">{isOnline ? "AES-GCM-4096" : "SUSPENDED"}</p>
+                               <p className="text-lg font-black text-white font-code tracking-tighter uppercase">{isOnline ? "AES-GCM-4096" : "SUSPENDED"}</p>
                             </div>
-                            <div className="p-6 glass-panel rounded-2xl border-white/5 space-y-3 group/metric transition-all duration-700 hover:border-primary/40 shadow-xl">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
-                                 <Microchip className="w-3 h-3" /> Engine
+                            <div className="p-7 glass-panel rounded-2xl border-white/5 space-y-4 group/metric transition-all duration-700 hover:border-primary/40 shadow-2xl">
+                               <span className="text-[10px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
+                                 <Microchip className="w-3.5 h-3.5" /> Engine
                                </span>
-                               <p className="text-base font-black text-white font-code tracking-tighter uppercase">{isOnline ? "Hyper-Prime" : "N/A"}</p>
+                               <p className="text-lg font-black text-white font-code tracking-tighter uppercase">{isOnline ? "Hyper-Prime" : "N/A"}</p>
                             </div>
                          </div>
                        </div>
                     </div>
 
-                    <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[280px] relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+                    <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[300px] relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
                       <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02] shrink-0">
                         <div className="flex items-center gap-3">
                            <Terminal className="w-4 h-4 text-primary" />
                            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Cluster Pulse Logic</h3>
                         </div>
+                        <div className="flex items-center gap-2">
+                           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                           <span className="text-[9px] font-bold text-primary/60 uppercase tracking-widest">Live Node Feed</span>
+                        </div>
                       </div>
-                      <div className="flex-1 bg-black/60 p-6 font-code text-[10px] overflow-hidden relative">
+                      <div className="flex-1 bg-black/60 p-6 font-code text-[11px] overflow-hidden relative">
                         <div className="absolute inset-0 scanline opacity-30 z-20 pointer-events-none" />
-                        <div ref={serverLogRef} className="h-full overflow-y-auto terminal-scrollbar space-y-1.5 flex flex-col z-10 relative">
+                        <div ref={serverLogRef} className="h-full overflow-y-auto terminal-scrollbar space-y-2 flex flex-col z-10 relative">
                            {serverLogs.map((log, i) => (
-                             <div key={i} className="text-[#00FF41]/60 hover:text-[#00FF41] transition-colors py-1 border-b border-white/[0.03] tracking-tighter animate-in fade-in duration-300">
-                               <span className="text-gray-600 mr-2 opacity-50 select-none font-bold">NODE_LOG:</span> {log}
+                             <div key={i} className="text-[#00FF41]/60 hover:text-[#00FF41] transition-colors py-1.5 border-b border-white/[0.03] tracking-tighter animate-in fade-in duration-300">
+                               <span className="text-gray-600 mr-2 opacity-50 select-none font-bold uppercase">Node_Log:</span> {log}
                              </div>
                            ))}
                            {!isOnline && (
-                             <div className="text-red-500 font-bold py-2 animate-pulse">
-                               [CRITICAL] SYSTEM LOSS: NODE UPLINK DISCONNECTED
+                             <div className="text-red-500 font-bold py-3 animate-pulse uppercase tracking-widest border border-red-500/20 bg-red-500/5 px-4 rounded text-center">
+                               [CRITICAL] System Loss: Node Uplink Disconnected
                              </div>
                            )}
                         </div>
