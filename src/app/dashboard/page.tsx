@@ -84,7 +84,7 @@ const SERVERS = [
     name: 'NEURAL CORE PRIME', 
     region: 'Geneva, Switzerland', 
     latency: '2.4ms', 
-    status: 'active', 
+    status: 'Ultra-Live', 
     load: 0.8, 
     ip: '45.13.252.1',
     features: [
@@ -98,8 +98,8 @@ const SERVERS = [
     id: 'quantum-uplink', 
     name: 'QUANTUM UPLINK', 
     region: 'Luxembourg', 
-    latency: '4.2ms', 
-    status: 'active', 
+    latency: '5.2ms', 
+    status: 'Basic', 
     load: 0.4, 
     ip: '102.13.4.88',
     features: [
@@ -113,7 +113,7 @@ const SERVERS = [
     name: 'NORTH AMERICA EAST', 
     region: 'Virginia, USA', 
     latency: '28.5ms', 
-    status: 'active', 
+    status: 'Basic', 
     load: 0.6, 
     ip: '34.2.145.11',
     features: [
@@ -126,7 +126,7 @@ const SERVERS = [
     name: 'ASIA SOUTHEAST', 
     region: 'Singapore', 
     latency: '56.2ms', 
-    status: 'active', 
+    status: 'Basic', 
     load: 0.7, 
     ip: '172.10.45.9',
     features: [
@@ -139,7 +139,7 @@ const SERVERS = [
     name: 'ASIA NORTHEAST', 
     region: 'Tokyo, Japan', 
     latency: '42.1ms', 
-    status: 'active', 
+    status: 'Basic', 
     load: 0.5, 
     ip: '192.168.12.1',
     features: [
@@ -1218,7 +1218,7 @@ export default function AiCryptoDashboard() {
                               onClick={disconnectAiSearch} 
                               disabled={isInterrogating} 
                               variant="outline" 
-                              className="w-full shrink-0 mt-auto border-red-500/30 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 font-black text-[11px] uppercase tracking-[0.1em] transition-all duration-300 h-11 hover:scale-[1.02] active:scale-95 group/disc shadow-[0_5px_15px_rgba(239,68,68,0.1)]"
+                              className="w-full shrink-0 mt-auto border-red-500/30 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 font-black text-[11px] uppercase tracking-[0.1em] transition-all duration-300 h-11 hover:scale-[1.02] active:scale-95 group/disc shadow-[0_5px_15px_rgba(173,79,230,0.1)]"
                             >
                                <Unplug className="w-4 h-4 mr-2 group-hover/disc:rotate-12 transition-transform" /> 
                                Disconnect Link
@@ -1395,6 +1395,7 @@ export default function AiCryptoDashboard() {
                     
                     {SERVERS.map((server) => {
                       const isSelected = selectedServerId === server.id;
+                      const isUltraLive = server.id === 'node-prime-exclusive';
                       return (
                         <div 
                           key={server.id} 
@@ -1426,24 +1427,29 @@ export default function AiCryptoDashboard() {
                                 </div>
                               </div>
                               <div className="flex flex-col items-end">
-                                <div className={cn("text-[10px] font-black px-3 py-1 rounded uppercase tracking-widest border animate-pulse", isOnline ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-500 border-red-500/30")}>
-                                  {isOnline ? "Ultra-Live" : "Offline"}
+                                <div className={cn(
+                                  "text-[10px] font-black px-3 py-1 rounded uppercase tracking-widest border animate-pulse", 
+                                  isUltraLive ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                                )}>
+                                  {isUltraLive ? "Ultra-Live" : "Basic"}
                                 </div>
                                 <span className="text-[9px] text-gray-500 mt-2 font-code">IP: {server.ip}</span>
                               </div>
                             </div>
 
-                            <div className="space-y-4 pt-4 border-t border-white/5">
-                              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Node Features</p>
-                              <div className="grid grid-cols-1 gap-2">
-                                {server.features?.map((feature, idx) => (
-                                  <div key={idx} className="flex items-center gap-2 text-[10px] font-bold text-white/80">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                                    <span className="tracking-tight uppercase">{feature}</span>
-                                  </div>
-                                ))}
+                            {isUltraLive && (
+                              <div className="space-y-4 pt-4 border-t border-white/5">
+                                <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Node Features</p>
+                                <div className="grid grid-cols-1 gap-2">
+                                  {server.features?.map((feature, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 text-[10px] font-bold text-white/80">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                                      <span className="tracking-tight uppercase">{feature}</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
+                            )}
 
                             <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
                               <div className="space-y-2">
