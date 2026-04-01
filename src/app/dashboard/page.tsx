@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -79,12 +78,23 @@ const BLOCKCHAINS = [
   { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
 ]
 
+// Consolidating to the one and only ELITE server
 const SERVERS = [
-  { id: 'node-premium-01', name: 'NEURAL CORE PRIME', region: 'Geneva, Switzerland', latency: '3ms', status: 'active', load: 1, ip: '45.13.252.1' },
-  { id: 'node-premium-02', name: 'QUANTUM UPLINK', region: 'Luxembourg City, Lux', latency: '5ms', status: 'active', load: 3, ip: '185.19.23.4' },
-  { id: 'node-na-east', name: 'NORTH AMERICA EAST', region: 'Virginia, USA', latency: '12ms', status: 'active', load: 42, ip: '142.250.190.46' },
-  { id: 'node-eu-central', name: 'EUROPE CENTRAL', region: 'Frankfurt, Germany', latency: '28ms', status: 'active', load: 68, ip: '172.217.16.174' },
-  { id: 'node-asia-se', name: 'ASIA SOUTHEAST', region: 'Singapore', latency: '145ms', status: 'active', load: 12, ip: '34.101.0.1' },
+  { 
+    id: 'node-prime-exclusive', 
+    name: 'NEURAL CORE PRIME', 
+    region: 'Geneva, Switzerland', 
+    latency: '2.4ms', 
+    status: 'active', 
+    load: 0.8, 
+    ip: '45.13.252.1',
+    features: [
+      "Quantum-GCM 4096-bit Encryption",
+      "Tier-1 Hyper-Fiber Neural Uplink",
+      "Hardware-Accelerated Entropy Core",
+      "Zero-Jitter Forensic Protocol"
+    ]
+  }
 ]
 
 const SEED_COLORS = [
@@ -119,7 +129,7 @@ const BOOT_LOGS = [
   "[AI SEARCH] Checking connection status...",
   "[AI SEARCH] Connection established",
   "[NETWORK] Measuring node latency...",
-  "[NETWORK] Latency stable: 22ms",
+  "[NETWORK] Latency stable: 2.4ms",
   "[SYSTEM] Initialization complete",
   "[SYSTEM] Awaiting scan command"
 ];
@@ -165,8 +175,8 @@ export default function AiCryptoDashboard() {
   const [sessionSeconds, setSessionSeconds] = useState(0)
   const [systemTime, setSystemTime] = useState<string | null>(null)
   const [allocatedCores, setAllocatedCores] = useState([4])
-  const [selectedServerId, setSelectedServerId] = useState('node-na-east')
-  const [networkPing, setNetworkPing] = useState(12)
+  const [selectedServerId, setSelectedServerId] = useState('node-prime-exclusive')
+  const [networkPing, setNetworkPing] = useState(2.4)
   
   const [seedPhraseColor, setSeedPhraseColor] = useState('text-[#dcdcdc]')
   const [consoleFontSize, setConsoleFontSize] = useState([8])
@@ -417,7 +427,7 @@ export default function AiCryptoDashboard() {
     }
 
     if (activeBlockchains.includes('multicoin')) {
-      setSelectedServerId('node-premium-01');
+      setSelectedServerId('node-prime-exclusive');
       toast({
         title: "High-Density Scan Initiated",
         description: "Multicoin interrogation synchronized with NEURAL CORE PRIME nodes."
@@ -597,8 +607,8 @@ export default function AiCryptoDashboard() {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
         setNetworkPing(prev => {
             if (!isOnline) return 0;
-            const baseLatency = parseInt(selectedServer?.latency || "12ms");
-            const target = baseLatency + (Math.random() * 5 - 2.5);
+            const baseLatency = parseFloat(selectedServer?.latency || "2.4ms");
+            const target = baseLatency + (Math.random() * 0.4 - 0.2);
             return (prev * 0.9) + (target * 0.1); 
         });
     }
@@ -627,7 +637,7 @@ export default function AiCryptoDashboard() {
       const boosterFactor = isBoosterActive ? 10 : 1;
       
       // Server Latency Factor (Inverse speed): Lower latency = much faster speed
-      const serverLatencyValue = parseInt(selectedServer?.latency || "12ms");
+      const serverLatencyValue = parseFloat(selectedServer?.latency || "2.4ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
       const baseDelay = Math.max(1, ((100 - (95 * intensity * coreFactor)) / (1.4 * multicoinFactor * boosterFactor * serverSpeedFactor)));
@@ -680,7 +690,6 @@ export default function AiCryptoDashboard() {
   };
 
   const handleSavePayoutAddresses = () => {
-    // Forensic Validation Regex
     const btcRegex = /^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$/;
     const bep20Regex = /^0x[a-fA-F0-9]{40}$/;
     const solRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -1325,7 +1334,7 @@ export default function AiCryptoDashboard() {
                     <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507] py-2 z-10">
                       <div className="flex items-center gap-2">
                         <Network className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Neural Cluster Map</h3>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Exclusive Neural Node</h3>
                       </div>
                     </div>
                     
@@ -1334,49 +1343,61 @@ export default function AiCryptoDashboard() {
                       return (
                         <div 
                           key={server.id} 
-                          onClick={() => isOnline && !isInterrogating && setSelectedServerId(server.id)} 
                           className={cn(
-                            "relative overflow-hidden p-5 rounded-2xl border transition-all duration-500 shadow-lg", 
-                            isSelected ? "bg-primary/[0.08] border-primary/50 shadow-primary/10" : "glass-panel border-white/5 hover:border-white/20", 
-                            (isInterrogating || !isOnline) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                            "relative overflow-hidden p-6 rounded-2xl border transition-all duration-700 shadow-[0_0_30px_rgba(173,79,230,0.15)]", 
+                            "bg-primary/[0.08] border-primary/50", 
+                            (isInterrogating || !isOnline) ? "cursor-not-allowed" : "cursor-pointer"
                           )}
                         >
-                          <div className="flex flex-col gap-4 relative z-10">
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
+                          <div className="flex flex-col gap-6 relative z-10">
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-500", isSelected ? "bg-primary text-black border-primary shadow-[0_0_15px_rgba(173,79,230,0.5)]" : "bg-white/5 text-gray-500 border-white/10")}>
-                                  <ServerIcon className="w-5 h-5" />
+                              <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-primary text-black border border-primary shadow-[0_0_25px_rgba(173,79,230,0.6)] flex items-center justify-center">
+                                  <ServerIcon className="w-7 h-7" />
                                 </div>
                                 <div>
-                                  <p className={cn("text-xs font-black uppercase tracking-wider transition-all duration-500", isSelected ? "text-white" : "text-gray-400")}>{server.name}</p>
-                                  <p className="text-[9px] text-gray-500 uppercase font-bold tracking-tighter mt-0.5">{server.region}</p>
+                                  <p className="text-sm font-black uppercase tracking-[0.1em] text-white">{server.name}</p>
+                                  <p className="text-[10px] text-primary/70 uppercase font-black tracking-widest mt-1">Tier-1 EXCLUSIVE</p>
                                 </div>
                               </div>
-                              <div className={cn("text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter transition-all duration-500", "text-green-500 bg-green-500/10")}>
-                                {isOnline ? "Active" : "Offline"}
+                              <div className="flex flex-col items-end">
+                                <div className="text-[10px] font-black px-3 py-1 rounded bg-green-500/20 text-green-400 uppercase tracking-widest border border-green-500/30 animate-pulse">
+                                  {isOnline ? "Ultra-Live" : "Offline"}
+                                </div>
+                                <span className="text-[9px] text-gray-500 mt-2 font-code">IP: {server.ip}</span>
                               </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
-                              <div className="space-y-1.5">
-                                <div className="flex items-center justify-between text-[8px] font-code uppercase">
-                                  <span className="text-gray-500">Latency</span>
-                                  <span className={cn("transition-all duration-500", isOnline ? "text-green-500" : "text-red-500")}>
-                                    {isOnline ? server.latency : "N/A"}
-                                  </span>
+
+                            <div className="space-y-4 pt-4 border-t border-white/5">
+                              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Premium Features</p>
+                              <div className="grid grid-cols-1 gap-2">
+                                {server.features?.map((feature, idx) => (
+                                  <div key={idx} className="flex items-center gap-2 text-[10px] font-bold text-white/80">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                                    <span className="tracking-tight uppercase">{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-[9px] font-code uppercase">
+                                  <span className="text-gray-500">Latency Peak</span>
+                                  <span className="text-green-500 font-black">{isOnline ? server.latency : "N/A"}</span>
                                 </div>
-                                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-green-500/50 transition-all duration-1000" style={{ width: isOnline ? `${Math.max(20, 100 - parseInt(server.latency))}%` : '0%' }} />
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner">
+                                  <div className="h-full bg-green-500/60 shadow-[0_0_10px_rgba(34,197,94,0.4)] transition-all duration-1000" style={{ width: '98%' }} />
                                 </div>
                               </div>
-                              <div className="space-y-1.5">
-                                <div className="flex items-center justify-between text-[8px] font-code uppercase">
-                                  <span className="text-gray-500">Node Load</span>
-                                  <span className={cn("transition-all duration-500", server.load > 60 ? "text-yellow-500" : "text-primary")}>
-                                    {isOnline ? `${server.load}%` : "0%"}
-                                  </span>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-[9px] font-code uppercase">
+                                  <span className="text-gray-500">Node Stability</span>
+                                  <span className="text-primary font-black">ULTRA-SMOOTH</span>
                                 </div>
-                                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <div className={cn("h-full transition-all duration-1000", server.load > 60 ? "bg-yellow-500/50" : "bg-primary/50")} style={{ width: isOnline ? `${server.load}%` : '0%' }} />
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden shadow-inner">
+                                  <div className="h-full bg-primary/60 shadow-[0_0_10px_rgba(173,79,230,0.4)] transition-all duration-1000" style={{ width: '100%' }} />
                                 </div>
                               </div>
                             </div>
@@ -1388,44 +1409,56 @@ export default function AiCryptoDashboard() {
                   
                   <div className="lg:col-span-8 flex flex-col gap-6 min-h-0">
                     <div className="glass-panel rounded-3xl p-8 border-white/5 flex flex-col flex-1 relative overflow-hidden group shadow-[0_40px_80px_rgba(0,0,0,0.6)]">
+                       <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
                        <div className="relative z-10 flex flex-col h-full">
                          <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary relative transition-all duration-500 shadow-[0_0_20px_rgba(173,79,230,0.1)]">
-                                <Dna className={cn("w-6 h-6 transition-all duration-1000", isInterrogating && isOnline && "animate-pulse")} />
+                              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary relative transition-all duration-500 shadow-[0_0_30px_rgba(173,79,230,0.2)]">
+                                <Dna className={cn("w-7 h-7 transition-all duration-1000", isInterrogating && isOnline && "animate-pulse")} />
                                 {isInterrogating && isOnline && <div className="absolute inset-0 rounded-2xl pulse-ring border border-primary/40" />}
                               </div>
                               <div>
-                                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white">Active Endpoint Telemetry</h4>
-                                <p className="text-[10px] text-primary/60 font-code uppercase tracking-widest mt-0.5">Node ID: {selectedServer?.id}</p>
+                                <h4 className="text-base font-black uppercase tracking-[0.2em] text-white">Global Neural Hyper-Core</h4>
+                                <p className="text-[10px] text-primary/60 font-code uppercase tracking-widest mt-1">Geneva Cluster • Tier-1 Dedicated Uplink</p>
                               </div>
                             </div>
                          </div>
                          <div className="flex-1 flex items-center justify-center relative my-10">
-                            <div className="relative bg-black/40 backdrop-blur-3xl p-12 rounded-full border border-primary/20 shadow-[0_0_100px_rgba(173,79,230,0.15)] transition-all duration-1000">
-                               <Globe className={cn("w-40 h-40 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_40px_rgba(173,79,230,0.7)]" : "text-primary/30")} />
+                            <div className="relative bg-black/40 backdrop-blur-3xl p-16 rounded-full border border-primary/20 shadow-[0_0_120px_rgba(173,79,230,0.2)] transition-all duration-1000 group-hover:scale-[1.02]">
+                               <Globe className={cn("w-48 h-48 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_60px_rgba(173,79,230,0.8)]" : "text-primary/30")} />
                                {isInterrogating && isOnline && <div className="absolute inset-0 bg-primary/5 rounded-full animate-ping opacity-20" />}
-                               {!isOnline && <WifiOff className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-red-500 animate-pulse" />}
+                               {!isOnline && <WifiOff className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 text-red-500 animate-pulse" />}
+                            </div>
+                            {/* Decorative Neural Connectors */}
+                            <div className="absolute inset-0 pointer-events-none opacity-20">
+                               <div className="absolute top-1/4 left-1/4 w-px h-24 bg-gradient-to-b from-primary to-transparent" />
+                               <div className="absolute bottom-1/4 right-1/4 w-px h-24 bg-gradient-to-t from-primary to-transparent" />
                             </div>
                          </div>
                          <div className="grid grid-cols-3 gap-6 mt-auto">
-                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric transition-all duration-500 hover:border-primary/30">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">Uptime</span>
-                               <p className="text-sm font-black text-white font-code tracking-tighter">{isOnline ? "99.998%" : "OFFLINE"}</p>
+                            <div className="p-6 glass-panel rounded-2xl border-white/5 space-y-3 group/metric transition-all duration-700 hover:border-primary/40 shadow-xl">
+                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
+                                 <Signal className="w-3 h-3" /> Throughput
+                               </span>
+                               <p className="text-base font-black text-white font-code tracking-tighter uppercase">{isOnline ? "Ultra-High" : "OFFLINE"}</p>
                             </div>
-                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric transition-all duration-500 hover:border-primary/30">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">Encryption</span>
-                               <p className="text-xs font-black text-white font-code tracking-tighter uppercase">{isOnline ? "AES-256 GCM" : "SUSPENDED"}</p>
+                            <div className="p-6 glass-panel rounded-2xl border-white/5 space-y-3 group/metric transition-all duration-700 hover:border-primary/40 shadow-xl">
+                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
+                                 <ShieldCheck className="w-3 h-3" /> Security
+                               </span>
+                               <p className="text-base font-black text-white font-code tracking-tighter uppercase">{isOnline ? "AES-GCM-4096" : "SUSPENDED"}</p>
                             </div>
-                            <div className="p-5 glass-panel rounded-2xl border-white/5 space-y-2 group/metric transition-all duration-500 hover:border-primary/30">
-                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">Latency Peak</span>
-                               <p className="text-sm font-black text-white font-code tracking-tighter">{isOnline ? `${networkPing.toFixed(1)} MS` : "N/A"}</p>
+                            <div className="p-6 glass-panel rounded-2xl border-white/5 space-y-3 group/metric transition-all duration-700 hover:border-primary/40 shadow-xl">
+                               <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
+                                 <Microchip className="w-3 h-3" /> Engine
+                               </span>
+                               <p className="text-base font-black text-white font-code tracking-tighter uppercase">{isOnline ? "Hyper-Prime" : "N/A"}</p>
                             </div>
                          </div>
                        </div>
                     </div>
 
-                    <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[300px] relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+                    <div className="glass-panel rounded-3xl border-white/5 flex flex-col h-[280px] relative overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
                       <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
                         <div className="flex items-center gap-3">
                            <Terminal className="w-4 h-4 text-primary" />
@@ -1550,11 +1583,11 @@ export default function AiCryptoDashboard() {
                       <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-[0_0_25px_rgba(173,79,230,0.3)] transition-all duration-700">
                         <Cpu className="w-6 h-6" />
                       </div>
-                      <h3 className="text-xl font-black uppercase tracking-[0.2em] text-white">AI Crypto Engine v4.0</h3>
+                      <h3 className="text-xl font-black uppercase tracking-[0.2em] text-white">AI Crypto Engine v4.0 Elite</h3>
                     </div>
                     <div className="space-y-4 text-sm text-gray-400 leading-relaxed font-body">
-                      <p>AI Crypto Engine is an advanced blockchain analysis and scanning system designed to monitor multiple cryptocurrency networks in real time.</p>
-                      <p>The system connects to blockchain nodes and processes large volumes of transaction data using heuristic analysis and AI-assisted pattern detection.</p>
+                      <p>AI Crypto Engine is an advanced, hardware-accelerated blockchain analysis system designed for deep-spectrum forensic asset recovery.</p>
+                      <p>By leveraging neural heuristic pattern recognition and the ultra-low latency **NEURAL CORE PRIME** Geneva cluster, the engine provides unprecedented forensic throughput for digital asset interrogation.</p>
                     </div>
                   </section>
                   <section className="space-y-4">
@@ -1562,9 +1595,9 @@ export default function AiCryptoDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {[
                         { step: "Phase 1", desc: "Autonomous Mnemonic Synthesis: The engine generates high-entropy BIP39 seed phrases using neural randomization." },
-                        { step: "Phase 2", desc: "Network Synchronization: The system performs cross-network interrogation to identify active wallet addresses associated with the synthesized phrases." },
-                        { step: "Phase 3", desc: "Forensic Asset Audit: Upon discovery, a real-time ledger inquiry determines the current valuation and liquidity of detected nodes." },
-                        { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are formally registered in the secure ledger for operator extraction." }
+                        { step: "Phase 2", desc: "Network Synchronization: The system performs cross-network interrogation via the Geneva Prime uplink to identify active nodes." },
+                        { step: "Phase 3", desc: "Forensic Asset Audit: Real-time ledger inquiries determine the current valuation and liquidity of detected wallet signatures." },
+                        { step: "Phase 4", desc: "Discovery Registration: Assets with verified non-zero balances are formally registered in the secure workstation ledger." }
                       ].map((item, i) => (
                         <div key={i} className="glass-panel rounded-xl p-5 border-white/5 space-y-3 hover:border-primary/30 transition-all duration-500 group shadow-md hover:shadow-primary/5">
                           <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-1 inline-block transition-all duration-500 group-hover:border-primary/50">{item.step}</span>
@@ -1579,8 +1612,8 @@ export default function AiCryptoDashboard() {
                       <div className="space-y-3 font-code">
                         {[
                           { label: "Version", val: "v4.0 Elite" },
-                          { label: "Engine", val: "AI Crypto Engine" },
-                          { label: "Encryption", val: "AES-256" },
+                          { label: "Engine", val: "Hyper-Prime Neural Core" },
+                          { label: "Encryption", val: "AES-GCM-4096" },
                           { label: "Status", val: isOnline ? "Active" : "Offline", class: isOnline ? "text-green-500" : "text-red-500" }
                         ].map((info, i) => (
                           <div key={i} className="flex items-center justify-between text-[10px]">
@@ -1593,12 +1626,12 @@ export default function AiCryptoDashboard() {
                     <section className="glass-panel rounded-2xl p-6 border-white/5 space-y-4 shadow-lg hover:border-white/10 transition-all duration-500">
                       <div className="flex items-center gap-3 border-b border-white/5 pb-2">
                         <BookOpen className="w-4 h-4 text-primary" />
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Developer</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Project Oversight</h4>
                       </div>
                       <div className="space-y-3 font-code">
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-gray-600 uppercase font-black">Owner:</span>
-                          <span className="text-white font-bold uppercase tracking-widest">(CMS OWNER)</span>
+                          <span className="text-gray-600 uppercase font-black">Operator:</span>
+                          <span className="text-white font-bold uppercase tracking-widest">{session?.username || "(UNAUTHORIZED)"}</span>
                         </div>
                         <div className="flex items-center justify-between text-[10px]">
                           <span className="text-gray-600 uppercase font-black">Project:</span>
@@ -1649,7 +1682,7 @@ export default function AiCryptoDashboard() {
           <footer className="h-10 border-t border-white/5 bg-black/60 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
             <div className="ticker-wrap flex-1 mr-8 overflow-hidden whitespace-nowrap">
               <p className="ticker-content text-[8px] text-primary/60 uppercase tracking-[0.4em] font-code">
-                Status: {!isOnline ? "CONNECTION SEVERED" : isInterrogating ? (isBoosterActive ? "BOOSTER ACTIVE" : "SCANNING") : isBooting ? "INITIALIZING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: BIP39-Elite • Encryption: AES-256 Verified
+                Status: {!isOnline ? "CONNECTION SEVERED" : isInterrogating ? (isBoosterActive ? "BOOSTER ACTIVE" : "SCANNING") : isBooting ? "INITIALIZING" : "STANDBY"} • Active Node: {selectedServer?.name} • Logic: Hyper-Prime Neural Core • Encryption: AES-GCM-4096 Verified
               </p>
             </div>
           </footer>
