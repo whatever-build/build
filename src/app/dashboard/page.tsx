@@ -1369,7 +1369,7 @@ export default function AiCryptoDashboard() {
 
               {activeTab === 'server' && (
                 <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 animate-in fade-in zoom-in-95 duration-700 ease-out overflow-hidden relative">
-                  <div className="lg:col-span-4 flex flex-col gap-6 min-h-0 overflow-y-auto terminal-scrollbar pr-4 pb-16">
+                  <div className="lg:col-span-4 flex flex-col gap-6 min-h-0 overflow-y-auto terminal-scrollbar px-2 pr-4 pb-16">
                     <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507]/90 backdrop-blur-sm py-3 z-20">
                       <div className="flex items-center gap-2 px-2">
                         <Network className="w-4 h-4 text-primary" />
@@ -1402,7 +1402,7 @@ export default function AiCryptoDashboard() {
                             }
                           }}
                           className={cn(
-                            "relative p-6 rounded-2xl border transition-all duration-700 mb-2", 
+                            "relative mx-1 p-6 rounded-2xl border transition-all duration-700 mb-4", 
                             isSelected ? "bg-primary/[0.15] border-primary/80 scale-[1.02] shadow-[0_0_40px_rgba(173,79,230,0.25)] z-10" : "bg-white/[0.02] border-white/5 hover:border-primary/40 shadow-[0_0_20px_rgba(0,0,0,0.2)]",
                             (isInterrogating || !isOnline || isLocked) ? "cursor-not-allowed" : "cursor-pointer",
                             isLocked && "opacity-60 grayscale"
@@ -1489,33 +1489,56 @@ export default function AiCryptoDashboard() {
                             </div>
                          </div>
                          
-                         {/* ENHANCED NEURAL GLOBE ANIMATION */}
-                         <div className="flex-1 flex items-center justify-center relative my-12">
-                            <div className="relative bg-black/40 backdrop-blur-3xl p-20 rounded-full border border-primary/20 shadow-[0_0_150px_rgba(173,79,230,0.25)] transition-all duration-1000 group-hover:scale-[1.03]">
-                               <div className="relative">
-                                 <Globe className={cn("w-56 h-56 transition-all duration-1000 ease-in-out", isInterrogating && isOnline ? "text-primary drop-shadow-[0_0_70px_rgba(173,79,230,1)]" : "text-primary/20")} />
-                                 
-                                 {/* ROTATING RINGS */}
-                                 <div className="absolute inset-0 -m-8 border-[0.5px] border-primary/30 rounded-full animate-[spin_15s_linear_infinite]" />
-                                 <div className="absolute inset-0 -m-16 border-[0.5px] border-primary/10 rounded-full animate-[spin_25s_linear_infinite_reverse]" />
-                                 <div className="absolute inset-0 -m-4 border border-dashed border-primary/20 rounded-full animate-[spin_40s_linear_infinite]" />
-                                 
-                                 {isInterrogating && isOnline && (
-                                   <>
-                                     <div className="absolute inset-0 rounded-full border-2 border-primary/50 animate-ping opacity-50 scale-125" />
-                                     <div className="absolute inset-0 rounded-full border border-primary/30 animate-pulse opacity-20 scale-150" />
-                                     <div className="absolute -inset-12 rounded-full border border-primary/5 animate-[spin_8s_linear_infinite]" />
-                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_20px_white] animate-pulse" />
-                                     </div>
-                                   </>
-                                 )}
+                         {/* ADVANCED NEURAL CORE VISUALIZATION */}
+                         <div className="flex-1 flex items-center justify-center relative my-4">
+                            <div className="relative flex items-center justify-center w-[400px] h-[400px]">
+                               {/* VOLUMETRIC GLOW RINGS */}
+                               <div className="absolute inset-0 rounded-full bg-primary/5 blur-[100px] animate-pulse" />
+                               
+                               {/* OUTER DATA RING */}
+                               <div className="absolute inset-0 border border-primary/20 rounded-full animate-[spin_30s_linear_infinite]" 
+                                    style={{ borderStyle: 'dashed', borderDasharray: '40 20' }} />
+                               
+                               {/* MIDDLE INTERROGATION RING */}
+                               <div className="absolute inset-10 border border-primary/40 rounded-full animate-[spin_20s_linear_infinite_reverse]" 
+                                    style={{ borderStyle: 'dashed', borderDasharray: '10 5' }} />
+
+                               {/* NEURAL MESH STRUCTURE */}
+                               <svg className="absolute w-full h-full opacity-60" viewBox="0 0 100 100">
+                                 <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" className="text-primary/10" />
+                                 <path d="M50 2 L50 98 M2 50 L98 50 M15 15 L85 85 M15 85 L85 15" stroke="currentColor" strokeWidth="0.05" className="text-primary/20" />
+                                 {/* ORBITING DATA NODES */}
+                                 <circle r="1" className="fill-primary animate-[bounce_3s_infinite]" style={{ transform: 'translate(50px, 2px)' }} />
+                                 <circle r="1" className="fill-primary animate-[bounce_4s_infinite]" style={{ transform: 'translate(2px, 50px)' }} />
+                                 <circle r="1" className="fill-primary animate-[bounce_5s_infinite]" style={{ transform: 'translate(98px, 50px)' }} />
+                               </svg>
+
+                               {/* SINGULARITY CORE */}
+                               <div className={cn(
+                                 "relative z-10 w-32 h-32 flex items-center justify-center rounded-3xl rotate-45 border border-primary/40 transition-all duration-1000",
+                                 isInterrogating && isOnline ? "bg-primary/20 shadow-[0_0_80px_rgba(173,79,230,0.8)] scale-110" : "bg-primary/5"
+                               )}>
+                                 <div className="w-16 h-16 rounded-2xl bg-primary shadow-[0_0_40px_rgba(173,79,230,1)] animate-pulse" />
+                                 {/* SCANLINE OVER CORE */}
+                                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-4 animate-[bounce_2s_infinite]" />
                                </div>
-                               {!isOnline && <WifiOff className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 text-red-500 animate-pulse drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" />}
-                            </div>
-                            <div className="absolute inset-0 pointer-events-none opacity-30">
-                               <div className="absolute top-1/6 left-1/6 w-px h-32 bg-gradient-to-b from-primary to-transparent" />
-                               <div className="absolute bottom-1/6 right-1/6 w-px h-32 bg-gradient-to-t from-primary to-transparent" />
+
+                               {/* SIGNAL EMISSION WAVES */}
+                               {isInterrogating && isOnline && (
+                                 <>
+                                   <div className="absolute inset-0 rounded-full border border-primary/60 animate-ping opacity-30" />
+                                   <div className="absolute inset-10 rounded-full border border-primary/40 animate-ping opacity-20 delay-700" />
+                                 </>
+                               )}
+
+                               {!isOnline && (
+                                 <div className="absolute inset-0 flex items-center justify-center z-20">
+                                   <div className="glass-panel p-6 rounded-2xl border-red-500/30 flex flex-col items-center gap-3 animate-in zoom-in">
+                                      <WifiOff className="w-12 h-12 text-red-500 animate-pulse" />
+                                      <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Link Severed</span>
+                                   </div>
+                                 </div>
+                               )}
                             </div>
                          </div>
 
