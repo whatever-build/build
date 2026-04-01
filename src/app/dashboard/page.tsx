@@ -903,6 +903,14 @@ export default function AiCryptoDashboard() {
                           </div>
                           <div className="space-y-1 pt-2 border-t border-white/5">
                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                              <Rocket className="w-3 h-3" /> Boosters
+                            </p>
+                            <p className="text-lg font-black font-code text-primary tracking-tighter">
+                              {boosterCount} UNITS
+                            </p>
+                          </div>
+                          <div className="space-y-1 pt-2 border-t border-white/5">
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
                               <Cpu className="w-3 h-3" /> CPU Usage
                             </p>
                             <p className="text-lg font-black font-code text-primary tracking-tighter">
