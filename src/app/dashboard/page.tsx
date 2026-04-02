@@ -822,7 +822,7 @@ export default function AiCryptoDashboard() {
           <SidebarHeader className="p-6 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(173,79,230,0.5)] animate-in fade-in zoom-in duration-1000">
-                <Cpu className="w-6 h-6 text-black" />
+                <Zap className="w-6 h-6 text-black animate-pulse duration-[3000ms]" />
               </div>
               <div className="animate-in fade-in slide-in-from-left-2 duration-1000">
                 <h1 className="text-sm font-black tracking-tight uppercase leading-none text-white">Ai Crypto</h1>
