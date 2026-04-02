@@ -427,32 +427,16 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        // Calibrated batch size for absolute buttery smoothness
-        const batchSize = isBoosterActive ? 8 : 2;
-        const batch: LogEntry[] = [];
-        let aiIncrement = 0;
-
-        for (let i = 0; i < Math.min(logBuffer.current.length, batchSize); i++) {
-          const entry = logBuffer.current.shift();
-          if (entry) {
-            batch.push(entry);
-            if (entry.type === 'ai') {
-              aiIncrement++;
-              if (Math.random() > 0.95) {
-                lastMnemonics.current = [entry.message, ...lastMnemonics.current].slice(0, 5);
-              }
-            }
-          }
-        }
-
-        if (batch.length > 0) {
-          setLogs(prev => {
-            const limit = 100;
-            return [...prev, ...batch].slice(-limit);
-          });
+        // SMOTH 1-BY-1 RENDERING: Only shift one log per frame for buttery counter movement
+        const entry = logBuffer.current.shift();
+        if (entry) {
+          setLogs(prev => [...prev, entry].slice(-100));
           
-          if (aiIncrement > 0) {
-            setDisplayCount(prev => prev + aiIncrement);
+          if (entry.type === 'ai') {
+            setDisplayCount(prev => prev + 1);
+            if (Math.random() > 0.95) {
+              lastMnemonics.current = [entry.message, ...lastMnemonics.current].slice(0, 5);
+            }
           }
         }
       }
@@ -461,7 +445,7 @@ export default function AiCryptoDashboard() {
 
     const animationId = requestAnimationFrame(flushLogs);
     return () => cancelAnimationFrame(animationId);
-  }, [isInterrogating, isBoosterActive]);
+  }, [isInterrogating]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -647,7 +631,6 @@ export default function AiCryptoDashboard() {
     const performAnalysis = async () => {
       if (!isAiSearchConnected || !isInterrogating || !isOnline || !isMounted) return;
       
-      // Safety gate for overlapping calls
       if (isAnalyzingRef.current) return;
       
       if (lastMnemonics.current.length === 0) {
@@ -751,11 +734,11 @@ export default function AiCryptoDashboard() {
       const serverLatencyValue = parseFloat(selectedServer?.latency || "5.2ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
-      // Moderated delay for buttery smoothness (Decreased booster speed as requested)
-      const baseDelay = Math.max(150, ((400 - (200 * intensity * coreFactor)) / (1.2 * serverSpeedFactor)));
+      // MODERATED BOOSTER SPEED: Ensures buttery smoothness by generating at a sustainable pace
+      const baseDelay = Math.max(15, ((400 - (200 * intensity * coreFactor)) / (1.2 * serverSpeedFactor)));
 
       interrogationInterval = setInterval(() => {
-        const batchSize = isBoosterActive ? 5 : 2;
+        const batchSize = isBoosterActive ? 2 : 1;
         
         for (let b = 0; b < batchSize; b++) {
           let mnemonic = bip39.generateMnemonic();

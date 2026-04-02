@@ -42,7 +42,7 @@ export default function LoginPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setLatency(prev => {
-        const fluctuation = Math.floor(Math.random() * 5) - 2; // -2 to +2ms
+        const fluctuation = Math.floor(Math.random() * 5) - 2;
         return Math.max(8, Math.min(45, prev + fluctuation));
       });
     }, 2000);
@@ -61,7 +61,6 @@ export default function LoginPage() {
     setIsLoading(true)
     setAuthLogs(["Authenticating user..."])
     
-    // Simulate forensic handshake sequence
     await new Promise(r => setTimeout(r, 600))
     setAuthLogs(prev => [...prev, "Verifying license key..."])
     
@@ -77,7 +76,6 @@ export default function LoginPage() {
           title: "Handshake Verified",
           description: `Neural link established for ${values.username}. Welcome, Operator.`
         })
-        // Delay redirect slightly for visual feedback
         setTimeout(() => {
           window.location.href = '/dashboard'
         }, 800)
@@ -108,8 +106,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-1000">
         <div className="flex flex-col items-center mb-10 text-center">
           <div className="relative mb-6 group animate-in zoom-in duration-1000">
-            <div className="absolute inset-0 bg-primary/40 blur-[20px] rounded-full group-hover:blur-[30px] transition-all duration-1000" />
-            <div className="relative w-20 h-20 rounded-[24px] bg-gradient-to-tr from-primary via-accent to-primary flex items-center justify-center shadow-[0_0_40px_rgba(173,79,230,0.6)] border border-primary/50 group-hover:scale-105 transition-transform duration-700">
+            <div className="absolute inset-0 bg-primary/40 blur-[25px] rounded-full group-hover:blur-[35px] transition-all duration-1000" />
+            <div className="relative w-20 h-20 rounded-[28px] bg-gradient-to-tr from-primary via-accent to-primary flex items-center justify-center shadow-[0_0_50px_rgba(173,79,230,0.7)] border border-primary/50 group-hover:scale-110 transition-transform duration-700">
               <Cpu className="w-11 h-11 text-black animate-pulse duration-[3000ms]" />
             </div>
           </div>
