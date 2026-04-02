@@ -1,0 +1,43 @@
+
+{
+  "entities": {
+    "License": {
+      "title": "Operator License",
+      "description": "A high-fidelity forensic credential for workstation access.",
+      "type": "object",
+      "properties": {
+        "licenseKey": {
+          "type": "string",
+          "description": "A unique 12-character alphanumeric authentication key."
+        },
+        "active": {
+          "type": "boolean",
+          "description": "The kill-switch status of the license."
+        },
+        "allowed_chains": {
+          "type": "array",
+          "description": "List of blockchain protocols authorized for interrogation.",
+          "items": { "type": "string" }
+        },
+        "ai_search_enabled": {
+          "type": "boolean",
+          "description": "Enables Enterprise Tier AI heuristic search modules."
+        },
+        "boosters": {
+          "type": "number",
+          "description": "Remaining forensic overclock units."
+        }
+      },
+      "required": ["licenseKey", "active"]
+    }
+  },
+  "auth": {
+    "providers": ["custom-license-handshake"]
+  },
+  "firestore": {
+    "/licenses/{username}": {
+      "schema": "#/entities/License",
+      "description": "Authoritative vault for operator forensic credentials."
+    }
+  }
+}
