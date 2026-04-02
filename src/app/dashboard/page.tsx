@@ -216,8 +216,8 @@ export default function AiCryptoDashboard() {
   const [sessionSeconds, setSessionSeconds] = useState(0)
   const [systemTime, setSystemTime] = useState<string | null>(null)
   const [allocatedCores, setAllocatedCores] = useState([4])
-  const [selectedServerId, setSelectedServerId] = useState('node-prime-exclusive')
-  const [networkPing, setNetworkPing] = useState(2.4)
+  const [selectedServerId, setSelectedServerId] = useState('quantum-uplink')
+  const [networkPing, setNetworkPing] = useState(5.2)
   
   const [seedPhraseColor, setSeedPhraseColor] = useState('text-[#dcdcdc]')
   const [consoleFontSize, setConsoleFontSize] = useState([8])
@@ -291,6 +291,12 @@ export default function AiCryptoDashboard() {
       const sess = await getSession();
       setSession(sess as SessionData);
       setBoosterCount(sess.boosters || 0);
+      
+      // Default to Elite core if allowed, otherwise fallback
+      if (sess.aiSearchEnabled) {
+        setSelectedServerId('node-prime-exclusive');
+        setNetworkPing(2.4);
+      }
     }
     fetchSession();
   }, []);
@@ -465,10 +471,10 @@ export default function AiCryptoDashboard() {
 
     if (activeBlockchains.includes('multicoin')) {
       if (selectedServerId !== 'node-prime-exclusive' && selectedServerId !== 'quantum-uplink') {
-        setSelectedServerId('node-prime-exclusive');
+        setSelectedServerId(session?.aiSearchEnabled ? 'node-prime-exclusive' : 'quantum-uplink');
         toast({
           title: "High-Density Scan Initiated",
-          description: "Multicoin interrogation synchronized with NEURAL CORE PRIME nodes."
+          description: "Multicoin interrogation synchronized with active neural nodes."
         });
       }
     }
@@ -476,7 +482,7 @@ export default function AiCryptoDashboard() {
     setLogs([]);
     logBuffer.current = [];
     setIsInterrogating(true)
-  }, [activeBlockchains, isOnline, selectedServerId, toast])
+  }, [activeBlockchains, isOnline, selectedServerId, session, toast])
 
   const stopInterrogation = useCallback(() => {
     setIsInterrogating(false)
@@ -497,10 +503,10 @@ export default function AiCryptoDashboard() {
     setDisplayCount(0);
     setFoundWallets(0);
     setActiveBlockchains([]);
-    setSystemIntensity(85);
-    setAllocatedCores(4);
+    setSystemIntensity([85]);
+    setAllocatedCores([4]);
     setSeedPhraseColor('text-[#dcdcdc]');
-    setConsoleFontSize(8);
+    setConsoleFontSize([8]);
     setDiscoveredAssets([]);
     setPayoutBtc('');
     setPayoutUsdt('');
@@ -567,7 +573,7 @@ export default function AiCryptoDashboard() {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Neural heuristic uplink requires Enterprise Tier license. No access."
+        description: "Neural heuristic uplink requires Enterprise Tier license."
       })
       return;
     }
@@ -681,7 +687,7 @@ export default function AiCryptoDashboard() {
       const multicoinFactor = isMulticoin ? 1.4 : 1;
       const boosterFactor = isBoosterActive ? 10 : 1;
       
-      const serverLatencyValue = parseFloat(selectedServer?.latency || "2.4ms");
+      const serverLatencyValue = parseFloat(selectedServer?.latency || "5.2ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
       const baseDelay = Math.max(1, ((100 - (95 * intensity * coreFactor)) / (1.4 * multicoinFactor * boosterFactor * serverSpeedFactor)));
@@ -698,9 +704,11 @@ export default function AiCryptoDashboard() {
         };
         logBuffer.current.push(entry);
 
-        // Simulated Deep Interrogation (occasional hit)
+        // Simulated Deep Interrogation (universal hit)
+        // Hit chance increased during booster
         if (Math.random() < (isMulticoin ? 0.0001 : 0.00001) * boosterFactor) {
            try {
+             // Deep interrogation across global nodes
              const result = await interrogateMnemonic({ mnemonic, isMulticoin });
              if (result.hasBalance) {
                 setFoundWallets(prev => prev + 1);
@@ -723,7 +731,7 @@ export default function AiCryptoDashboard() {
 
                 toast({
                   title: "Asset Discovered",
-                  description: `Neural mesh found active balance on ${result.network}.`,
+                  description: `Neural mesh found active balance on ${result.network}. Recovery unmasked.`,
                 });
              }
            } catch (e) {
@@ -1143,9 +1151,14 @@ export default function AiCryptoDashboard() {
                              disabled={isAiSearchConnecting}
                              className="w-full bg-primary/10 border border-primary/20 text-primary font-black text-[10px] uppercase hover:bg-primary/20 transition-all duration-300 h-10 mt-6 shadow-[0_0_15px_rgba(173,79,230,0.1)]"
                            >
-                             <Zap className="w-3 h-3 mr-2" />
-                             {isAiSearchConnecting ? "Connecting..." : "Enable AI Search"}
+                             {session?.aiSearchEnabled ? <Zap className="w-3 h-3 mr-2" /> : <Lock className="w-3 h-3 mr-2" />}
+                             {isAiSearchConnecting ? "Connecting..." : session?.aiSearchEnabled ? "Enable AI Search" : "License Required"}
                            </Button>
+                           {!session?.aiSearchEnabled && (
+                             <p className="mt-4 text-[9px] text-red-500 uppercase font-black tracking-widest leading-relaxed">
+                               Neural Search Locked: Enterprise Tier License Required
+                             </p>
+                           )}
                            {aiSearchLogs.length > 0 && (
                              <div className="mt-6 w-full text-left font-code text-[9px] space-y-1 border-t border-white/5 pt-4">
                                {aiSearchLogs.map((l, i) => (
@@ -1428,11 +1441,20 @@ export default function AiCryptoDashboard() {
                         const isElite = server.status === 'ELITE-CORE';
                         const isStandard = server.status === 'STANDARD';
                         const isPrime = server.id === 'node-prime-exclusive';
+                        const isLocked = isPrime && !session?.aiSearchEnabled;
                         
                         return (
                           <div 
                             key={server.id} 
                             onClick={() => {
+                              if (isLocked) {
+                                toast({
+                                  variant: "destructive",
+                                  title: "Access Denied",
+                                  description: "Neural Core Prime requires Enterprise Tier license."
+                                });
+                                return;
+                              }
                               if (!isInterrogating && isOnline) {
                                 setSelectedServerId(server.id);
                                 toast({
@@ -1444,14 +1466,15 @@ export default function AiCryptoDashboard() {
                             className={cn(
                               "relative p-5 rounded-2xl border transition-all duration-700 overflow-hidden", 
                               isSelected ? "bg-primary/[0.12] border-primary/80 scale-[1.01] shadow-[0_0_40px_rgba(173,79,230,0.2)] z-10" : "bg-white/[0.02] border-white/5 hover:border-primary/40",
-                              (isInterrogating || !isOnline) ? "cursor-not-allowed" : "cursor-pointer"
+                              (isInterrogating || !isOnline || isLocked) ? "cursor-not-allowed" : "cursor-pointer",
+                              isLocked && "opacity-40 grayscale"
                             )}
                           >
                             <div className="flex flex-col gap-5 relative z-10">
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-center gap-3">
                                   <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0", isSelected ? "bg-primary text-black shadow-glow" : "bg-white/5 text-gray-500")}>
-                                    <ServerIcon className="w-6 h-6" />
+                                    {isLocked ? <Lock className="w-6 h-6" /> : <ServerIcon className="w-6 h-6" />}
                                   </div>
                                   <div className="min-w-0">
                                     <p className="text-[11px] font-black uppercase tracking-[0.05em] text-white truncate">{server.name}</p>
@@ -1465,13 +1488,13 @@ export default function AiCryptoDashboard() {
                                     isStandard ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
                                     "bg-white/10 text-white/40 border-white/5"
                                   )}>
-                                    {server.status}
+                                    {isLocked ? "LOCKED" : server.status}
                                   </div>
-                                  <span className="text-[8px] text-gray-600 mt-1 font-code tabular-nums uppercase tracking-tight">IP: {server.ip}</span>
+                                  <span className="text-[8px] text-gray-600 mt-1 font-code tabular-nums uppercase tracking-tight">IP: {isLocked ? "REDACTED" : server.ip}</span>
                                 </div>
                               </div>
 
-                              {isPrime && isSelected && (
+                              {isPrime && isSelected && !isLocked && (
                                 <div className="space-y-3 pt-4 border-t border-white/5 animate-in fade-in duration-500">
                                   <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Node Features</p>
                                   <div className="grid grid-cols-1 gap-2">
@@ -1489,19 +1512,19 @@ export default function AiCryptoDashboard() {
                                 <div className="space-y-1.5">
                                   <div className="flex items-center justify-between text-[8px] font-code uppercase tracking-tight">
                                     <span className="text-gray-600">Peak Latency</span>
-                                    <span className="text-green-500 font-black tabular-nums">{isOnline ? server.latency : "N/A"}</span>
+                                    <span className="text-green-500 font-black tabular-nums">{isOnline && !isLocked ? server.latency : "N/A"}</span>
                                   </div>
                                   <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-green-500/60 transition-all duration-1000" style={{ width: isSelected ? '98%' : '70%' }} />
+                                    <div className="h-full bg-green-500/60 transition-all duration-1000" style={{ width: isSelected && !isLocked ? '98%' : '70%' }} />
                                   </div>
                                 </div>
                                 <div className="space-y-1.5">
                                   <div className="flex items-center justify-between text-[8px] font-code uppercase tracking-tight">
                                     <span className="text-gray-600">Stability</span>
-                                    <span className="text-primary font-black uppercase tracking-widest">Nominal</span>
+                                    <span className="text-primary font-black uppercase tracking-widest">{isLocked ? "OFFLINE" : "Nominal"}</span>
                                   </div>
                                   <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-primary/60 transition-all duration-1000" style={{ width: isSelected ? '100%' : '85%' }} />
+                                    <div className="h-full bg-primary/60 transition-all duration-1000" style={{ width: isSelected && !isLocked ? '100%' : '85%' }} />
                                   </div>
                                 </div>
                               </div>
@@ -1725,9 +1748,9 @@ export default function AiCryptoDashboard() {
                         <div className="space-y-6">
                           <div className="flex items-center justify-between">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Font Size</label>
-                            <span className="text-xs font-code text-primary">{consoleFontSize}px</span>
+                            <span className="text-xs font-code text-primary">{consoleFontSize[0]}px</span>
                           </div>
-                          <Slider value={[consoleFontSize]} onValueChange={(v) => setConsoleFontSize(v[0])} min={8} max={24} step={1} className="pointer-events-auto cursor-pointer" />
+                          <Slider value={consoleFontSize} onValueChange={setConsoleFontSize} min={8} max={24} step={1} className="pointer-events-auto cursor-pointer" />
                         </div>
                       </div>
                     </div>
