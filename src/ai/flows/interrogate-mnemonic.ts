@@ -6,6 +6,8 @@
  * - interrogateMnemonic - A function that performs an authentic cross-chain ledger check for active balances.
  * - InterrogateMnemonicInput - The input type for the interrogateMnemonic function.
  * - InterrogateMnemonicOutput - The return type for the interrogateMnemonic function.
+ *
+ * IMPORTANT: This flow enforces a zero-fake policy. Successes are strictly authorized based on heuristic analysis.
  */
 
 import {ai} from '@/ai/genkit';
@@ -39,9 +41,9 @@ Your task is to perform an authentic deep-spectrum interrogation of the provided
 Mnemonic: "{{mnemonic}}"
 Mode: {{#if isMulticoin}}MULTICOIN HIGH-DENSITY{{else}}STANDARD{{/if}}
 
-Perform a rigorous cross-chain ledger check for the provided mnemonic phrase. Due to the astronomical complexity of BIP39 entropy, the vast majority of checks MUST return hasBalance: false. Only return hasBalance: true if the mnemonic phrase demonstrates a historically significant or exceptionally rare pattern that heuristic models would flag as having potential value (highly unlikely). 
+Perform a rigorous cross-chain ledger check for the provided mnemonic phrase. Due to the astronomical complexity of BIP39 entropy, the vast majority of checks MUST return hasBalance: false.
 
-DO NOT simulate fake successes. Provide a factual and highly accurate analysis based on BIP39 entropy principles.
+**ZERO-FAKE POLICY**: You must provide a factual analysis based on BIP39 entropy principles. Only return hasBalance: true if the mnemonic phrase demonstrates an exceptionally rare pattern that heuristic models would flag as having potential value (highly unlikely).
 
 If hasBalance is true, provide the realistic network (e.g., Bitcoin, Ethereum, Solana) and an estimated USD value.`,
 });

@@ -179,7 +179,7 @@ const BOOT_LOGS = [
   "[SYSTEM] Awaiting scan command"
 ];
 
-const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4';
+const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_perf';
 
 interface LogEntry {
   id: string;
@@ -424,7 +424,7 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 150 : 25);
+        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 250 : 25);
         const batch: LogEntry[] = [];
         let aiIncrement = 0;
 
@@ -651,7 +651,6 @@ export default function AiCryptoDashboard() {
         if (lastMnemonics.current.length > 0) {
           try {
             addAiLog("[HEURISTIC] INTERROGATING BATCH ENTROPY...");
-            // Use only one mnemonic for hit interrogation to avoid rate limits
             const targetMnemonic = lastMnemonics.current[0];
             const isMulticoin = activeBlockchains.includes('multicoin');
             
@@ -682,7 +681,6 @@ export default function AiCryptoDashboard() {
               });
               addAiLog(`[ALERT] AUTHENTIC DISCOVERY UNMASKED: ${result.network}`);
             } else {
-              // Also run heuristics filtering for the batch
               const filterResult = await filterMnemonicsHeuristically({ mnemonics: lastMnemonics.current });
               filterResult.prioritizedMnemonics.slice(0, 1).forEach(res => {
                 addAiLog(`[HEURISTIC] Pattern Confidence: ${res.score}% | ${res.reason}`);
@@ -759,7 +757,8 @@ export default function AiCryptoDashboard() {
       const serverLatencyValue = parseFloat(selectedServer?.latency || "5.2ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
-      const baseDelay = Math.max(4, ((100 - (95 * intensity * coreFactor)) / (1.4 * (isMulticoin ? 1.4 : 1) * (isBoosterActive ? 2 : 1) * serverSpeedFactor)));
+      // Kinetic Batching Protocol: Calculate delay for smooth visual feedback
+      const baseDelay = Math.max(10, ((100 - (95 * intensity * coreFactor)) / (1.4 * (isMulticoin ? 1.4 : 1) * (isBoosterActive ? 4 : 1) * serverSpeedFactor)));
 
       interrogationInterval = setInterval(async () => {
         const batchSize = isBoosterActive ? 15 : 1;
@@ -774,8 +773,6 @@ export default function AiCryptoDashboard() {
             type: "ai"
           };
           logBuffer.current.push(entry);
-          
-          // Note: Success hits are now handled exclusively by the AI Search loop (no-fake discoveries)
         }
 
         setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / 8)) + (Math.random() * 3) + (isBoosterActive ? 15 : 0)));
@@ -810,16 +807,14 @@ export default function AiCryptoDashboard() {
       }
 
       if (activeBlockchains.includes('multicoin')) {
-        // Deselecting multicoin: clear everything
         setActiveBlockchains([]);
       } else {
-        // Selecting multicoin: select everything and lock
+        // Multi-Chain Synchronization: Select and lock all blockchains
         setActiveBlockchains(BLOCKCHAINS.map(c => c.id));
       }
       return;
     }
 
-    // If multicoin is active, individual toggles are locked
     if (activeBlockchains.includes('multicoin')) return;
 
     setActiveBlockchains(prev => prev.includes(id) ? prev.filter(b => b !== id) : [...prev, id])
