@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -179,7 +180,7 @@ const BOOT_LOGS = [
   "[SYSTEM] Awaiting scan command"
 ];
 
-const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_perf';
+const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_perf_smooth';
 
 interface LogEntry {
   id: string;
@@ -422,10 +423,12 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // BUTTERY SMOOTH BATCHING PROTOCOL
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 250 : 25);
+        // Kinetic bite: Take a size that feels fast but avoids React render choke
+        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 15 : 5);
         const batch: LogEntry[] = [];
         let aiIncrement = 0;
 
@@ -435,7 +438,8 @@ export default function AiCryptoDashboard() {
             batch.push(entry);
             if (entry.type === 'ai') {
               aiIncrement++;
-              if (Math.random() > 0.8) {
+              // Maintain latest mnemonics for AI analysis without overwhelming state
+              if (Math.random() > 0.9) {
                 lastMnemonics.current = [entry.message, ...lastMnemonics.current].slice(0, 5);
               }
             }
@@ -444,10 +448,12 @@ export default function AiCryptoDashboard() {
 
         if (batch.length > 0) {
           setLogs(prev => {
+            // Keep history lean for 60FPS performance
+            const limit = isBoosterActive ? 50 : 100;
             const filteredPrev = isInterrogating 
-              ? prev.filter(l => l.type === 'success' || l.type === 'info') 
+              ? prev.filter(l => l.type === 'success' || l.type === 'info' || l.type === 'ai') 
               : prev;
-            return [...filteredPrev, ...batch].slice(-100);
+            return [...filteredPrev, ...batch].slice(-limit);
           });
           
           if (aiIncrement > 0) {
@@ -502,19 +508,12 @@ export default function AiCryptoDashboard() {
          });
          return;
       }
-      if (selectedServerId !== 'node-prime-exclusive' && selectedServerId !== 'quantum-uplink') {
-        setSelectedServerId(licenseData?.aiSearchEnabled ? 'node-prime-exclusive' : 'quantum-uplink');
-        toast({
-          title: "High-Density Scan Initiated",
-          description: "Multicoin interrogation synchronized with active neural nodes."
-        });
-      }
     }
 
     setLogs([]);
     logBuffer.current = [];
     setIsInterrogating(true)
-  }, [activeBlockchains, isOnline, selectedServerId, licenseData, toast])
+  }, [activeBlockchains, isOnline, licenseData, toast])
 
   const stopInterrogation = useCallback(() => {
     setIsInterrogating(false)
@@ -651,7 +650,6 @@ export default function AiCryptoDashboard() {
       const performAnalysis = async () => {
         if (lastMnemonics.current.length > 0) {
           try {
-            addAiLog("[HEURISTIC] INTERROGATING BATCH ENTROPY...");
             const targetMnemonic = lastMnemonics.current[0];
             const isMulticoin = activeBlockchains.includes('multicoin');
             
@@ -701,29 +699,6 @@ export default function AiCryptoDashboard() {
   }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog, isBoosterActive, activeBlockchains, toast]);
 
   useEffect(() => {
-    let messageInterval: NodeJS.Timeout;
-    if (isAiSearchConnected && isInterrogating && isOnline) {
-      const msgs = [
-        "[SYSTEM] Synchronizing neural weights...",
-        "[DATA] Batch checksum verification: PASSED",
-        "[AI] Pattern recognition module operating at peak load.",
-        "[HUB] Heuristic cluster TX-09 reporting steady entropy.",
-        "[INFO] Entropy depth 256-bit confirmed.",
-        "[SEC] AES-256 session integrity verified.",
-        "[NETWORK] Multi-region node sync active.",
-        "[AI] Probabilistic recovery matrix calibrated.",
-        "[DATA] Scanning derivation paths: m/44'/60'/0'/0/0"
-      ];
-      messageInterval = setInterval(() => {
-        addAiLog(msgs[Math.floor(Math.random() * msgs.length)]);
-      }, isBoosterActive ? 800 : 2500);
-    }
-    return () => {
-      if (messageInterval) clearInterval(messageInterval);
-    }
-  }, [isAiSearchConnected, isInterrogating, isOnline, addAiLog, isBoosterActive]);
-
-  useEffect(() => {
     const updateTimeAndPing = () => {
         setSystemTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
         setNetworkPing(prev => {
@@ -758,12 +733,11 @@ export default function AiCryptoDashboard() {
       const serverLatencyValue = parseFloat(selectedServer?.latency || "5.2ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
-      // Kinetic Batching Protocol: Optimized delay for high-velocity smoothness
-      const baseDelay = Math.max(10, ((100 - (95 * intensity * coreFactor)) / (1.4 * (isMulticoin ? 1.4 : 1) * (isBoosterActive ? 4 : 1) * serverSpeedFactor)));
+      // Kinetic Batching Protocol: Increased delay but higher batch per interval for buttery smoothness
+      const baseDelay = Math.max(20, ((150 - (100 * intensity * coreFactor)) / (1.4 * (isMulticoin ? 1.4 : 1) * serverSpeedFactor)));
 
-      interrogationInterval = setInterval(async () => {
-        // Kinetic Batching: Generate multiple signatures per frame during booster to avoid UI lag
-        const batchSize = isBoosterActive ? 15 : 1;
+      interrogationInterval = setInterval(() => {
+        const batchSize = isBoosterActive ? 25 : 2;
         
         for (let b = 0; b < batchSize; b++) {
           let mnemonic = bip39.generateMnemonic();
@@ -774,6 +748,7 @@ export default function AiCryptoDashboard() {
             timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
             type: "ai"
           };
+          // Push to buffer for frame-aligned rendering
           logBuffer.current.push(entry);
         }
 
@@ -811,7 +786,6 @@ export default function AiCryptoDashboard() {
       if (activeBlockchains.includes('multicoin')) {
         setActiveBlockchains([]);
       } else {
-        // Multi-Chain Synchronization: Select and lock all blockchains
         setActiveBlockchains(BLOCKCHAINS.map(c => c.id));
       }
       return;
@@ -857,7 +831,6 @@ export default function AiCryptoDashboard() {
 
     setIsSavingPayout(true);
     try {
-      // SECURE UPLINK: Synchronize with HQ email repository
       await notifyPayoutSaved({
         username: session?.username || 'unknown_operator',
         btcAddress: payoutBtc || 'Not Provided',
