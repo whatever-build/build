@@ -83,7 +83,7 @@ const SERVERS = [
   { 
     id: 'node-prime-exclusive', 
     name: 'NEURAL CORE PRIME', 
-    region: 'GENEVA, SWITZERLAND', 
+    region: 'GENEVA HUB', 
     latency: '2.4ms', 
     status: 'ELITE-CORE', 
     load: 0.8, 
@@ -97,8 +97,8 @@ const SERVERS = [
   },
   { 
     id: 'quantum-uplink', 
-    name: 'QUANTUM UPLINK', 
-    region: 'LUXEMBOURG CITY', 
+    name: 'LUXEMBOURG UPLINK', 
+    region: 'LUXEMBOURG HUB', 
     latency: '5.2ms', 
     status: 'STANDARD', 
     load: 0.4, 
@@ -107,8 +107,8 @@ const SERVERS = [
   },
   { 
     id: 'na-east', 
-    name: 'NORTH AMERICA EAST', 
-    region: 'VIRGINIA, USA', 
+    name: 'VIRGINIA HUB', 
+    region: 'N. AMERICA HUB', 
     latency: '28.1ms', 
     status: 'BASIC', 
     load: 0.6, 
@@ -117,8 +117,8 @@ const SERVERS = [
   },
   { 
     id: 'asia-se', 
-    name: 'ASIA SOUTHEAST', 
-    region: 'SINGAPORE', 
+    name: 'SINGAPORE NODE', 
+    region: 'S.E. ASIA HUB', 
     latency: '56.2ms', 
     status: 'BASIC', 
     load: 0.7, 
@@ -127,8 +127,8 @@ const SERVERS = [
   },
   { 
     id: 'asia-ne', 
-    name: 'ASIA NORTHEAST', 
-    region: 'TOKYO, JAPAN', 
+    name: 'TOKYO CLUSTER', 
+    region: 'N.E. ASIA HUB', 
     latency: '62.4ms', 
     status: 'BASIC', 
     load: 0.5, 
@@ -1379,7 +1379,7 @@ export default function AiCryptoDashboard() {
                     <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#050507]/90 backdrop-blur-sm py-3 z-20">
                       <div className="flex items-center gap-2 px-2">
                         <Network className="w-4 h-4 text-primary" />
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Neural Cluster Map</h3>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Network Cluster</h3>
                       </div>
                     </div>
                     
@@ -1397,8 +1397,8 @@ export default function AiCryptoDashboard() {
                               if (!isInterrogating && isOnline) {
                                 setSelectedServerId(server.id);
                                 toast({
-                                  title: "Cluster Migration",
-                                  description: `Neural uplink transferred to ${server.name}.`
+                                  title: "Node Migration",
+                                  description: `System linked to ${server.name}.`
                                 });
                               }
                             }}
@@ -1449,7 +1449,7 @@ export default function AiCryptoDashboard() {
                               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
                                 <div className="space-y-1.5">
                                   <div className="flex items-center justify-between text-[8px] font-code uppercase tracking-tight">
-                                    <span className="text-gray-600">Latency Peak</span>
+                                    <span className="text-gray-600">Peak Latency</span>
                                     <span className="text-green-500 font-black tabular-nums">{isOnline ? server.latency : "N/A"}</span>
                                   </div>
                                   <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
@@ -1554,19 +1554,19 @@ export default function AiCryptoDashboard() {
                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8 mt-4 shrink-0">
                             <div className="p-5 md:p-7 glass-panel rounded-2xl border-white/5 space-y-3 md:space-y-4 group/metric transition-all duration-700 hover:border-primary/40">
                                <span className="text-[9px] md:text-[10px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
-                                 <Signal className="w-3 md:w-3.5 h-3 md:h-3.5" /> Throughput
+                                 <Signal className="w-3 md:w-3.5 h-3 md:h-3.5" /> Velocity
                                </span>
                                <p className="text-base md:text-lg font-black text-white font-code tracking-tighter uppercase truncate">{isOnline ? (parseFloat(selectedServer?.latency || "50") < 10 ? "Ultra-High" : "Standard") : "OFFLINE"}</p>
                             </div>
                             <div className="p-5 md:p-7 glass-panel rounded-2xl border-white/5 space-y-3 md:space-y-4 group/metric transition-all duration-700 hover:border-primary/40">
                                <span className="text-[9px] md:text-[10px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
-                                 <ShieldCheck className="w-3 md:w-3.5 h-3 md:h-3.5" /> Security
+                                 <ShieldCheck className="w-3 md:w-3.5 h-3 md:h-3.5" /> Encryption
                                </span>
                                <p className="text-base md:text-lg font-black text-white font-code tracking-tighter uppercase truncate">{isOnline ? "AES-GCM-4096" : "SUSPENDED"}</p>
                             </div>
                             <div className="p-5 md:p-7 glass-panel rounded-2xl border-white/5 space-y-3 md:space-y-4 group/metric transition-all duration-700 hover:border-primary/40">
                                <span className="text-[9px] md:text-[10px] text-gray-600 uppercase font-black tracking-widest flex items-center gap-2">
-                                 <Microchip className="w-3 md:w-3.5 h-3 md:h-3.5" /> Engine
+                                 <Microchip className="w-3 md:w-3.5 h-3 md:h-3.5" /> Core Status
                                </span>
                                <p className="text-base md:text-lg font-black text-white font-code tracking-tighter uppercase truncate">{isOnline ? "Hyper-Prime" : "N/A"}</p>
                             </div>
@@ -1578,7 +1578,7 @@ export default function AiCryptoDashboard() {
                       <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/5 bg-white/[0.02] shrink-0">
                         <div className="flex items-center gap-3">
                            <Terminal className="w-4 h-4 text-primary" />
-                           <h3 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-white">Cluster Pulse Logic</h3>
+                           <h3 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-white">Node Activity Feed</h3>
                         </div>
                         <div className="flex items-center gap-2">
                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
