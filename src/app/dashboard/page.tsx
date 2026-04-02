@@ -274,6 +274,18 @@ export default function AiCryptoDashboard() {
     });
   }, [toast]);
 
+  // SYNC UI SCALE TO ROOT
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.style.fontSize = `${uiScale}%`;
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        document.documentElement.style.fontSize = '';
+      }
+    };
+  }, [uiScale]);
+
   useEffect(() => {
     const checkLicense = async () => {
       const result = await verifyLicenseSession();
@@ -863,7 +875,6 @@ export default function AiCryptoDashboard() {
     <SidebarProvider>
       <div 
         className="flex h-screen w-full bg-[#050507] overflow-hidden text-foreground font-body select-none relative transition-all duration-700 ease-in-out"
-        style={{ fontSize: `${uiScale}%` }}
       >
         <Sidebar className="border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-2xl z-30">
           <SidebarHeader className="p-6 border-b border-white/5 shrink-0">
