@@ -411,7 +411,7 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
-        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 100 : 25);
+        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 250 : 25);
         const batch: LogEntry[] = [];
         let aiIncrement = 0;
 
@@ -702,7 +702,7 @@ export default function AiCryptoDashboard() {
       const coreFactor = allocatedCores[0] / 8;
       const isMulticoin = activeBlockchains.includes('multicoin');
       const multicoinFactor = isMulticoin ? 1.4 : 1;
-      const boosterFactor = isBoosterActive ? 10 : 1;
+      const boosterFactor = isBoosterActive ? 100 : 1;
       
       const serverLatencyValue = parseFloat(selectedServer?.latency || "5.2ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
