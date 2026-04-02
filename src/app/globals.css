@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,7 +63,7 @@
   .terminal-scrollbar::-webkit-scrollbar-thumb {
     background: rgba(173, 79, 230, 0.2);
     border-radius: 10px;
-    transition: background 0.5s ease;
+    transition: background 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .terminal-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(173, 79, 230, 0.4);
@@ -75,7 +74,8 @@
   }
 
   .glass-panel {
-    @apply bg-[#0f0f16]/75 backdrop-blur-md border border-white/[0.06] shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] transition-all duration-700 ease-out;
+    @apply bg-[#0f0f16]/75 backdrop-blur-md border border-white/[0.06] shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
+    transition: all 1000ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .scan-wrapper {
@@ -99,31 +99,31 @@
 
   @keyframes pulse-glow {
     0% { opacity: 0.4; transform: scaleY(1); }
-    50% { opacity: 0.8; transform: scaleY(1.15); }
+    50% { opacity: 0.8; transform: scaleY(1.1); }
     100% { opacity: 0.4; transform: scaleY(1); }
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation: pulse-glow 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     transform-origin: bottom;
   }
 
   @keyframes bgFlow {
     0% { transform: scale(1); }
-    50% { transform: scale(1.03); }
+    50% { transform: scale(1.02); }
     100% { transform: scale(1); }
   }
 
   @keyframes buttonPulse {
     0% { box-shadow: 0 0 0 0px rgba(173, 79, 230, 0.4); }
-    50% { box-shadow: 0 0 20px 4px rgba(173, 79, 230, 0.6); }
+    50% { box-shadow: 0 0 25px 6px rgba(173, 79, 230, 0.6); }
     100% { box-shadow: 0 0 0 0px rgba(173, 79, 230, 0.4); }
   }
 
   @keyframes lineFade {
     from {
       opacity: 0;
-      transform: translateY(6px) scale(0.98);
+      transform: translateY(8px) scale(0.98);
     }
     to {
       opacity: 1;
@@ -138,16 +138,20 @@
       radial-gradient(circle at 30% 20%, rgba(124, 108, 255, 0.15), transparent 40%),
       radial-gradient(circle at 70% 80%, rgba(79, 172, 254, 0.12), transparent 40%),
       #050507;
-    animation: bgFlow 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation: bgFlow 25s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
   .login-button-glow {
-    animation: buttonPulse 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    @apply bg-gradient-to-r from-[#7c6cff] to-[#9b7bff] hover:-translate-y-1 transition-all duration-500 ease-out;
+    animation: buttonPulse 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    @apply bg-gradient-to-r from-[#7c6cff] to-[#9b7bff] transition-all duration-700 ease-out shadow-[0_10px_30px_rgba(124,108,255,0.3)];
+  }
+  
+  .login-button-glow:hover {
+    @apply -translate-y-1;
   }
 
   .scan-console {
-    @apply font-code leading-relaxed transition-all duration-700;
+    @apply font-code leading-relaxed transition-all duration-1000;
     font-size: 13px;
     background: #07070b;
     padding: 20px;
@@ -158,73 +162,73 @@
   }
 
   .console-line {
-    animation: lineFade .4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation: lineFade .5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     word-break: break-word;
     display: block;
     white-space: normal;
   }
 
   .balance {
-    @apply transition-colors duration-500;
+    @apply transition-colors duration-700;
     color: #8df7b1;
   }
 
   .ticker-content {
     @apply inline-block;
-    animation: ticker 40s linear infinite;
+    animation: ticker 45s linear infinite;
   }
 
   .blockchain-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 14px;
   }
 
   .blockchain-card {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
+    padding: 14px 16px;
     background: #0f0f17;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
   }
 
   .blockchain-card:hover {
     border-color: hsl(var(--primary));
     background: #161625;
-    box-shadow: 0 8px 24px rgba(173, 79, 230, 0.25);
-    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(173, 79, 230, 0.3);
+    transform: translateY(-6px);
   }
 
   .blockchain-card.active {
     border-color: hsl(var(--primary));
-    background: rgba(35, 25, 60, 0.6);
-    box-shadow: 0 0 25px rgba(173, 79, 230, 0.4);
+    background: rgba(35, 25, 60, 0.7);
+    box-shadow: 0 0 30px rgba(173, 79, 230, 0.5);
   }
 
   .seed-counter {
     @apply font-code font-bold transition-all duration-1000;
-    font-size: 28px;
-    letter-spacing: 1px;
+    font-size: 32px;
+    letter-spacing: -0.5px;
     color: #ffffff;
-    text-shadow: 0 0 15px rgba(173, 79, 230, 0.6);
+    text-shadow: 0 0 20px rgba(173, 79, 230, 0.8);
   }
 
   .scanline {
     background: linear-gradient(
       to bottom,
       rgba(18, 16, 16, 0) 50%,
-      rgba(0, 0, 0, 0.08) 50%
+      rgba(0, 0, 0, 0.1) 50%
     );
     background-size: 100% 2px;
     pointer-events: none;
   }
 
   .shadow-glow {
-    box-shadow: 0 0 35px 4px rgba(173, 79, 230, 0.6);
+    box-shadow: 0 0 45px 6px rgba(173, 79, 230, 0.7);
   }
 
   @keyframes gradient {
@@ -234,7 +238,7 @@
   }
 
   .animate-gradient {
-    animation: gradient 4s ease-in-out infinite;
+    animation: gradient 5s ease-in-out infinite;
   }
 }
 
@@ -244,13 +248,13 @@
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(0.85); opacity: 0.5; }
-  50% { transform: scale(1.15); opacity: 0.2; }
-  100% { transform: scale(0.85); opacity: 0.5; }
+  0% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 0.2; }
+  100% { transform: scale(0.85); opacity: 0.6; }
 }
 
 .pulse-ring {
-  animation: pulse-ring 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: pulse-ring 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .font-code {
