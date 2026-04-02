@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -1017,7 +1016,7 @@ export default function AiCryptoDashboard() {
                       </div>
                     </section>
 
-                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-between overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-start overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
                       <div className="space-y-6">
                         <div className="space-y-1">
                           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
@@ -1065,9 +1064,18 @@ export default function AiCryptoDashboard() {
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 mt-6 transition-all duration-500">
-                        <span className="text-[9px] font-bold text-primary uppercase tracking-widest">Active Node: {selectedServer?.name}</span>
+
+                        <Button 
+                          onClick={activateBooster}
+                          disabled={!isInterrogating || isBoosterActive || boosterCount <= 0}
+                          className={cn(
+                            "w-full h-11 font-black text-[10px] uppercase tracking-widest transition-all duration-500 rounded-xl border mt-2",
+                            isBoosterActive ? "bg-primary text-black border-primary shadow-glow" : "bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 shadow-[0_5px_15px_rgba(173,79,230,0.1)]"
+                          )}
+                        >
+                          <Rocket className={cn("w-3 h-3 mr-2", isBoosterActive && "animate-bounce")} />
+                          {isBoosterActive ? `Neural Booster Engaged (${formatTime(boosterTimeRemaining).slice(3)})` : "Activate Neural Booster"}
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -1208,24 +1216,6 @@ export default function AiCryptoDashboard() {
                                 <span className="text-[8px] text-gray-600 uppercase font-black tracking-widest">AI Threads</span>
                                 <span className="text-[10px] font-code text-primary font-bold">{isBoosterActive ? '64 ACTIVE' : '16 ACTIVE'}</span>
                               </div>
-                            </div>
-
-                            <div className="space-y-3">
-                               <div className="flex items-center justify-between px-1">
-                                 <span className="text-[9px] text-gray-500 uppercase font-bold tracking-widest">Available Boosters</span>
-                                 <span className="text-[10px] font-code text-primary font-bold">{boosterCount} UNITS</span>
-                               </div>
-                               <Button 
-                                 onClick={activateBooster}
-                                 disabled={!isInterrogating || isBoosterActive || boosterCount <= 0}
-                                 className={cn(
-                                   "w-full h-10 font-black text-[10px] uppercase tracking-widest transition-all duration-500 rounded-xl border",
-                                   isBoosterActive ? "bg-primary text-black border-primary shadow-glow" : "bg-primary/5 text-primary border-primary/20 hover:bg-primary/10"
-                                 )}
-                               >
-                                 <Rocket className={cn("w-3 h-3 mr-2", isBoosterActive && "animate-bounce")} />
-                                 {isBoosterActive ? "Neural Booster Engaged" : "Activate Neural Booster"}
-                               </Button>
                             </div>
 
                             <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-black/60 border border-white/5 rounded-xl shadow-inner relative">
