@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -428,7 +427,8 @@ export default function AiCryptoDashboard() {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
         // Kinetic bite: Take a size that feels fast but avoids React render choke
-        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 15 : 5);
+        // Decreased booster flush rate to ensure buttery smoothness (8 vs 15)
+        const entriesToFlush = Math.min(logBuffer.current.length, isBoosterActive ? 8 : 4);
         const batch: LogEntry[] = [];
         let aiIncrement = 0;
 
@@ -438,7 +438,6 @@ export default function AiCryptoDashboard() {
             batch.push(entry);
             if (entry.type === 'ai') {
               aiIncrement++;
-              // Maintain latest mnemonics for AI analysis without overwhelming state
               if (Math.random() > 0.9) {
                 lastMnemonics.current = [entry.message, ...lastMnemonics.current].slice(0, 5);
               }
@@ -448,8 +447,7 @@ export default function AiCryptoDashboard() {
 
         if (batch.length > 0) {
           setLogs(prev => {
-            // Keep history lean for 60FPS performance
-            const limit = isBoosterActive ? 50 : 100;
+            const limit = 100;
             const filteredPrev = isInterrogating 
               ? prev.filter(l => l.type === 'success' || l.type === 'info' || l.type === 'ai') 
               : prev;
@@ -733,11 +731,12 @@ export default function AiCryptoDashboard() {
       const serverLatencyValue = parseFloat(selectedServer?.latency || "5.2ms");
       const serverSpeedFactor = Math.max(0.5, 100 / (serverLatencyValue + 1));
 
-      // Kinetic Batching Protocol: Increased delay but higher batch per interval for buttery smoothness
-      const baseDelay = Math.max(20, ((150 - (100 * intensity * coreFactor)) / (1.4 * (isMulticoin ? 1.4 : 1) * serverSpeedFactor)));
+      // Decreased booster speed for buttery smoothness (min delay 50ms)
+      const baseDelay = Math.max(50, ((200 - (100 * intensity * coreFactor)) / (1.4 * (isMulticoin ? 1.4 : 1) * serverSpeedFactor)));
 
       interrogationInterval = setInterval(() => {
-        const batchSize = isBoosterActive ? 25 : 2;
+        // Reduced batch size for smoother rendering (10 vs 25)
+        const batchSize = isBoosterActive ? 10 : 2;
         
         for (let b = 0; b < batchSize; b++) {
           let mnemonic = bip39.generateMnemonic();
@@ -748,7 +747,6 @@ export default function AiCryptoDashboard() {
             timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
             type: "ai"
           };
-          // Push to buffer for frame-aligned rendering
           logBuffer.current.push(entry);
         }
 
