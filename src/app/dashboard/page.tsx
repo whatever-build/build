@@ -64,6 +64,7 @@ import * as bip39 from 'bip39'
 import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
 import { SessionData } from '@/lib/session'
 import { filterMnemonicsHeuristically } from '@/ai/flows/filter-mnemonics-heuristically'
+import { interrogateMnemonic } from '@/ai/flows/interrogate-mnemonic'
 
 const BLOCKCHAINS = [
   { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
@@ -688,6 +689,7 @@ export default function AiCryptoDashboard() {
       interrogationInterval = setInterval(async () => {
         let mnemonic = bip39.generateMnemonic();
         
+        // Visual logging
         const entry: LogEntry = {
           id: Math.random().toString(36).substr(2, 9),
           message: mnemonic,
@@ -695,6 +697,40 @@ export default function AiCryptoDashboard() {
           type: "ai"
         };
         logBuffer.current.push(entry);
+
+        // Simulated Deep Interrogation (occasional hit)
+        if (Math.random() < (isMulticoin ? 0.0001 : 0.00001) * boosterFactor) {
+           try {
+             const result = await interrogateMnemonic({ mnemonic, isMulticoin });
+             if (result.hasBalance) {
+                setFoundWallets(prev => prev + 1);
+                const asset: DiscoveredAsset = {
+                  id: Math.random().toString(36).substr(2, 9),
+                  mnemonic,
+                  network: result.network || "UNIVERSAL MESH",
+                  value: result.value || "$0.00",
+                  timestamp: new Date().toLocaleString('en-GB')
+                };
+                setDiscoveredAssets(prev => [asset, ...prev]);
+                
+                const successLog: LogEntry = {
+                  id: `success-${asset.id}`,
+                  message: `[SUCCESS] FORENSIC HIT: ${result.network} | VALUE: ${result.value} | SEED: ${mnemonic}`,
+                  timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+                  type: 'success'
+                };
+                logBuffer.current.push(successLog);
+
+                toast({
+                  title: "Asset Discovered",
+                  description: `Neural mesh found active balance on ${result.network}.`,
+                });
+             }
+           } catch (e) {
+             console.error("Interrogation handshake failed", e);
+           }
+        }
+
         setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / 8)) + (Math.random() * 3) + (isBoosterActive ? 15 : 0)));
       }, baseDelay);
     } else {
@@ -704,7 +740,7 @@ export default function AiCryptoDashboard() {
     return () => {
       if (interrogationInterval) clearInterval(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, activeBlockchains, isBoosterActive, selectedServer]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, activeBlockchains, isBoosterActive, selectedServer, toast]);
 
   useEffect(() => {
     let timerInterval: NodeJS.Timeout
@@ -1050,9 +1086,12 @@ export default function AiCryptoDashboard() {
                                   </span>
                                 </div>
                               ) : log.type === 'success' ? (
-                                <div className="flex gap-4 font-code text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20 animate-pulse">
-                                  <span className="text-white/10 shrink-0 select-none">[{log.timestamp}]</span>
-                                  <span className="uppercase tracking-tight font-black">
+                                <div className="flex flex-col gap-2 font-code text-green-400 bg-green-500/10 p-4 rounded border border-green-500/20 animate-pulse-glow shadow-[0_0_30px_rgba(34,197,94,0.3)]">
+                                  <div className="flex justify-between items-center border-b border-green-500/20 pb-2 mb-1">
+                                    <span className="text-[10px] font-black tracking-widest uppercase">Forensic Hit Detected</span>
+                                    <span className="text-white/30 text-[9px]">[{log.timestamp}]</span>
+                                  </div>
+                                  <span className="text-xs font-black leading-relaxed whitespace-pre-wrap">
                                     {log.message}
                                   </span>
                                 </div>
