@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { 
-  Cpu, 
+  BrainCircuit, 
   ShieldCheck, 
   ChevronRight, 
   Fingerprint,
@@ -106,10 +106,13 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-1000">
         <div className="flex flex-col items-center mb-10 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-[0_0_30px_rgba(173,79,230,0.5)] mb-6 animate-in zoom-in duration-1000">
-            <Cpu className="w-10 h-10 text-black animate-smooth-spin" />
+          <div className="relative mb-6 group animate-in zoom-in duration-1000">
+            <div className="absolute inset-0 bg-primary/40 blur-[20px] rounded-full group-hover:blur-[30px] transition-all duration-1000" />
+            <div className="relative w-20 h-20 rounded-[24px] bg-gradient-to-tr from-primary via-accent to-primary flex items-center justify-center shadow-[0_0_40px_rgba(173,79,230,0.6)] border border-primary/50 group-hover:scale-105 transition-transform duration-700">
+              <BrainCircuit className="w-11 h-11 text-black animate-pulse duration-[3000ms]" />
+            </div>
           </div>
-          <h1 className="text-3xl font-black tracking-tighter uppercase text-white mb-1">Ai Crypto</h1>
+          <h1 className="text-3xl font-black tracking-tighter uppercase text-white mb-1 drop-shadow-sm">Ai Crypto</h1>
           
           <div className="flex items-center gap-4 text-[10px] text-[#8df7b1] font-code uppercase tracking-wider mt-2 opacity-80">
             <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Security: Verified</span>
