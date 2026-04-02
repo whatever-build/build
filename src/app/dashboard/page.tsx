@@ -1878,13 +1878,8 @@ export default function AiCryptoDashboard() {
                           Join the high-latency operator network for real-time node updates and technical support.
                         </p>
                       </div>
-<<<<<<< HEAD
                       <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all hover:scale-[1.03] shadow-lg">
                         <ExternalLink className="w-4 h-4" /> TELEGRAM UPLINK
-=======
-                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all duration-1000 hover:scale-[1.03] active:scale-95 shadow-lg">
-                        <ExternalLink className="w-4 h-4 transition-transform duration-700 group-hover:translate-x-1 group-hover:-translate-y-1" /> TELEGRAM
->>>>>>> a9dee1d7b656b6224e05b1bf0ddceb2d08e9c22f
                       </a>
                     </section>
                   </div>
