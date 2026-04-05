@@ -448,7 +448,7 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // OPTIMIZED FLUSH LOGS
+  // ULTRA-SMOOTH 1-BY-1 FLUSH LOGS
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
@@ -1969,8 +1969,8 @@ export default function AiCryptoDashboard() {
                           Join the high-latency operator network for real-time node updates and technical support.
                         </p>
                       </div>
-                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[0.6875rem] uppercase tracking-[0.3em] hover:shadow-glow transition-all duration-1000 hover:scale-[1.03] active:scale-95 shadow-lg">
-                        <ExternalLink className="w-4 h-4" /> TELEGRAM
+                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all duration-1000 hover:scale-[1.03] active:scale-95 shadow-lg">
+                        <ExternalLink className="w-4 h-4" /> TELEGRAM UPLINK
                       </a>
                     </section>
                   </div>
