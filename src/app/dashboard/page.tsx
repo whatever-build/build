@@ -213,6 +213,7 @@ export default function AiCryptoDashboard() {
   const [serverLogs, setServerLogs] = useState<string[]>([])
   const [isInterrogating, setIsInterrogating] = useState(false)
   const [isBooting, setIsBooting] = useState(true)
+  const [isAuthenticating, setIsAuthenticating] = useState(true)
   const [displayCount, setDisplayCount] = useState(0)
   const [foundWallets, setFoundWallets] = useState(0)
   const [activeBlockchains, setActiveBlockchains] = useState<string[]>([])
@@ -285,6 +286,14 @@ export default function AiCryptoDashboard() {
       }
     };
   }, [uiScale]);
+
+  // BIOMETRIC HANDSHAKE INITIALIZATION
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAuthenticating(false);
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const checkLicense = async () => {
@@ -876,6 +885,27 @@ export default function AiCryptoDashboard() {
       <div 
         className="flex h-screen w-full bg-[#050507] overflow-hidden text-foreground font-body select-none relative transition-all duration-700 ease-in-out"
       >
+        {isAuthenticating && (
+          <div className="fixed inset-0 z-[100] bg-[#050507] flex flex-col items-center justify-center p-8 animate-out fade-out duration-1000 fill-mode-forwards">
+            <div className="relative w-64 h-64 mb-12">
+              <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping" />
+              <div className="absolute inset-4 rounded-full border-2 border-primary/40 border-t-primary animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Fingerprint className="w-24 h-24 text-primary animate-pulse" />
+              </div>
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary/60 shadow-glow animate-scan-line" />
+            </div>
+            <div className="text-center space-y-4">
+              <h2 className="text-xl font-black text-white uppercase tracking-[0.4em] animate-pulse">Neural Identity Handshake</h2>
+              <div className="flex flex-col gap-2 font-code text-[10px] text-primary/60 uppercase">
+                <span>&gt; Calibrating Retinal Mesh...</span>
+                <span>&gt; Verifying Forensic Signature...</span>
+                <span>&gt; Uplink Established.</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Sidebar className="border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-2xl z-30">
           <SidebarHeader className="p-6 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-3">
@@ -1089,7 +1119,7 @@ export default function AiCryptoDashboard() {
                       </div>
                     </section>
 
-                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-start overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.5)] min-h-0 hover:border-primary/20 transition-all duration-700">
+                    <div className={cn("flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-start overflow-hidden min-h-0 transition-all duration-700", isInterrogating ? "shadow-volumetric-intense" : "shadow-volumetric")}>
                       <div className="space-y-6">
                         <div className="space-y-1">
                           <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
@@ -1241,7 +1271,12 @@ export default function AiCryptoDashboard() {
                        {!isAiSearchConnected ? (
                          <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
                            <div className="relative mb-8 group">
-                             <Globe className={cn("w-16 h-16 transition-all duration-1000", isAiSearchConnecting ? "text-primary animate-pulse drop-shadow-[0_0_30px_rgba(173,79,230,0.7)]" : "text-gray-800 group-hover:text-primary/40 group-hover:scale-110")} />
+                             <svg viewBox="0 0 100 100" className={cn("w-20 h-20 transition-all duration-1000", isAiSearchConnecting ? "text-primary scale-110" : "text-gray-800")}>
+                               <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="10 5" className={cn("animate-smooth-spin", isBoosterActive && "animate-spin-fast")} />
+                               <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="5 15" className={cn("animate-reverse-spin", isBoosterActive && "animate-reverse-spin-fast")} />
+                               <path d="M50 20 L50 80 M20 50 L80 50" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+                               <circle cx="50" cy="50" r="15" className={cn("fill-primary/20 animate-pulse-glow", isBoosterActive && "fill-primary/40")} />
+                             </svg>
                              {isAiSearchConnecting && <div className="absolute inset-0 rounded-full pulse-ring border border-primary/40" />}
                            </div>
                            <h4 className="text-[0.625rem] font-bold text-white uppercase tracking-widest mb-2">
@@ -1280,7 +1315,10 @@ export default function AiCryptoDashboard() {
                          <div className="flex flex-col h-full space-y-4 animate-in fade-in zoom-in-95 duration-700">
                             <div className="flex items-center gap-3 p-2 shrink-0 border-b border-white/5 pb-4">
                                <div className="relative shrink-0">
-                                 <Share2 className={cn("w-8 h-8 text-primary transition-all duration-700", isInterrogating && "animate-pulse")} />
+                                 <svg viewBox="0 0 100 100" className={cn("w-10 h-10 text-primary transition-all duration-700", isInterrogating && "animate-pulse")}>
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="10 5" className={cn("animate-smooth-spin", isBoosterActive && "animate-spin-fast")} />
+                                    <circle cx="50" cy="50" r="15" className="fill-primary animate-pulse" />
+                                 </svg>
                                  <div className="absolute inset-0 rounded-full pulse-ring border border-primary/40" />
                                </div>
                                <div className="flex flex-col">

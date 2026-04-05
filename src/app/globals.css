@@ -112,8 +112,50 @@
     to { transform: rotate(360deg); }
   }
 
+  @keyframes reverse-spin {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+
   .animate-smooth-spin {
     animation: smooth-spin 10s linear infinite;
+  }
+
+  .animate-reverse-spin {
+    animation: reverse-spin 15s linear infinite;
+  }
+
+  .animate-spin-fast {
+    animation: smooth-spin 2s linear infinite;
+  }
+
+  .animate-reverse-spin-fast {
+    animation: reverse-spin 3s linear infinite;
+  }
+
+  @keyframes scan-line {
+    0% { top: 0%; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  .animate-scan-line {
+    animation: scan-line 3s linear infinite;
+  }
+
+  @keyframes volumetric-pulse {
+    0% { box-shadow: 0 0 20px 2px rgba(173, 79, 230, 0.1); }
+    50% { box-shadow: 0 0 60px 10px rgba(173, 79, 230, 0.3); }
+    100% { box-shadow: 0 0 20px 2px rgba(173, 79, 230, 0.1); }
+  }
+
+  .shadow-volumetric {
+    animation: volumetric-pulse 8s ease-in-out infinite;
+  }
+
+  .shadow-volumetric-intense {
+    animation: volumetric-pulse 2s ease-in-out infinite;
   }
 
   @keyframes bgFlow {
