@@ -1224,7 +1224,7 @@ export default function AiCryptoDashboard() {
                       </div>
                     </section>
 
-                    <div className={cn("flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-start overflow-hidden min-h-0 transition-all duration-700", isInterrogating ? "shadow-volumetric-intense" : "shadow-volumetric")}>
+                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col justify-start overflow-hidden min-h-0 transition-all duration-700">
                       <div className="space-y-6">
                         <div className="space-y-1">
                           <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
