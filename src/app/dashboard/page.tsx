@@ -54,6 +54,15 @@ import {
   Loader2,
   ShieldAlert
 } from 'lucide-react'
+import { 
+  Area, 
+  AreaChart, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as RechartsTooltip, 
+  ResponsiveContainer 
+} from 'recharts'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -62,6 +71,7 @@ import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import * as bip39 from 'bip39'
 import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
 import { SessionData } from '@/lib/session'
@@ -197,6 +207,24 @@ const RISING_PARTICLES = [
   { left: '45%', delay: '1.4s', duration: '4.1s', size: '2.5px' },
   { left: '60%', delay: '2.6s', duration: '3.9s', size: '1.2px' },
   { left: '88%', delay: '0.3s', duration: '2.9s', size: '2.2px' },
+];
+
+const CHART_DATA = [
+  { name: '09.03', value: 0 },
+  { name: '10.03', value: 0 },
+  { name: '11.03', value: 8486 },
+  { name: '12.03', value: 0 },
+  { name: '13.03', value: 3000 },
+  { name: '14.03', value: 0 },
+  { name: '15.03', value: 0 },
+];
+
+const WITHDRAW_CARDS = [
+  { id: '1', symbol: 'BTC', amount: '0.04', usd: '$2,874.84', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
+  { id: '2', symbol: 'ETH', amount: '4', usd: '$8,486.48', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
+  { id: '3', symbol: 'BTC', amount: '0.0093', usd: '$668.11', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
+  { id: '4', symbol: 'BNB', amount: '11', usd: '$7,324.24', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
+  { id: '5', symbol: 'BTC', amount: '0.074', usd: '$5,316.17', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
 ];
 
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_manual_scale';
@@ -1431,50 +1459,109 @@ export default function AiCryptoDashboard() {
               )}
 
               {activeTab === 'withdraw' && (
-                <div className="flex-1 flex flex-col gap-8 min-h-0 animate-in slide-in-from-bottom-4 duration-700">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 shrink-0">
-                    <div className="glass-panel p-10 rounded-3xl border-primary/30 bg-primary/[0.02] relative overflow-hidden group shadow-[0_25px_50px_rgba(0,0,0,0.6)] transition-all duration-1000">
-                      <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-25 transition-all duration-1000">
-                         <Zap className="w-24 h-24 text-primary" />
+                <div className="flex-1 flex flex-col gap-6 min-h-0 animate-in slide-in-from-bottom-4 duration-700">
+                  <div className="flex-1 glass-panel rounded-[32px] p-6 border-white/5 relative overflow-hidden flex flex-col shadow-2xl">
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)]" />
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-8 z-10 shrink-0">
+                      <div className="flex items-center gap-4">
+                        <Activity className="w-6 h-6 text-primary" />
+                        <h3 className="text-[1.25rem] font-black uppercase tracking-widest text-white">Forensic Yield Map</h3>
                       </div>
-                      <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
-                            <Activity className="w-5 h-5 text-primary" />
-                          </div>
-                          <h4 className="text-[0.6875rem] font-black uppercase tracking-[0.2em] text-gray-400">Total Forensic Yield</h4>
-                        </div>
-                        <p className="text-[3.75rem] font-black font-code text-white tracking-tighter drop-shadow-[0_0_25px_rgba(173,79,230,0.5)]">
-                          $0.00
-                        </p>
-                      </div>
+                      <Select defaultValue="total">
+                        <SelectTrigger className="w-[140px] bg-white/5 border-white/10 rounded-xl h-10 font-bold uppercase text-[0.625rem] tracking-widest">
+                          <SelectValue placeholder="Period" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0a0a0f] border-white/10">
+                          <SelectItem value="total" className="text-xs font-bold uppercase">Total</SelectItem>
+                          <SelectItem value="daily" className="text-xs font-bold uppercase">Daily</SelectItem>
+                          <SelectItem value="weekly" className="text-xs font-bold uppercase">Weekly</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    <div className="md:col-span-2 glass-panel p-10 rounded-3xl border-white/5 flex items-center justify-between shadow-[0_25px_50px_rgba(0,0,0,0.4)] hover:border-primary/20 transition-all duration-700">
-                       <div className="space-y-6">
-                          <h4 className="text-gray-500 text-[0.625rem] font-black uppercase tracking-[0.2em]">Uplink Status</h4>
-                          <div className="flex items-center gap-10">
-                             {[
-                               { label: 'Protocol', value: 'AES-256 SECURE' },
-                               { label: 'Node', value: selectedServer?.name },
-                               { label: 'Discovery Cycle', value: isInterrogating ? "ONGOING" : "STANDBY", colorClass: isInterrogating ? "text-primary" : "text-gray-500" }
-                             ].map((item, idx) => (
-                               <div key={idx} className={cn("flex flex-col gap-2 transition-all duration-500", idx > 0 && "border-l border-white/10 pl-10")}>
-                                  <span className="text-[0.5625rem] font-code text-primary/60 uppercase">{item.label}</span>
-                                  <span className={cn("text-[0.875rem] font-bold uppercase tracking-wide transition-all", item.colorClass || "text-white")}>{item.value}</span>
-                               </div>
-                             ))}
+                    <div className="flex-1 min-h-0 z-10 relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={CHART_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                          <XAxis 
+                            dataKey="name" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                            dy={10}
+                          />
+                          <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                            tickFormatter={(val) => `$${val}`}
+                          />
+                          <RechartsTooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-[#12121a] border border-white/10 p-4 rounded-2xl shadow-glow">
+                                    <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Total: ${payload[0].value?.toLocaleString()}</p>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-glow" />
+                                      </div>
+                                      <p className="text-[1rem] font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="hsl(var(--primary))" 
+                            strokeWidth={3} 
+                            fillOpacity={1} 
+                            fill="url(#colorValue)" 
+                            animationDuration={2000}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="h-24 flex items-center gap-4 overflow-x-auto no-scrollbar shrink-0 px-1 pb-4">
+                    {WITHDRAW_CARDS.map((card) => (
+                      <div key={card.id} className="h-full min-w-[240px] glass-panel rounded-2xl border-white/5 hover:border-primary/40 hover:bg-white/[0.04] transition-all duration-500 flex items-center px-6 gap-4 group cursor-pointer">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center transition-all group-hover:scale-110">
+                          <img src={card.logo} alt={card.symbol} className="w-6 h-6 object-contain" />
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[0.75rem] font-black text-white">{card.amount} {card.symbol}</span>
+                            <span className="text-[0.625rem] font-bold text-gray-500">{card.usd}</span>
                           </div>
-                       </div>
-                       
-                       <Dialog>
-                         <DialogTrigger asChild>
-                            <Button disabled={!isOnline} className="bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 h-14 px-10 rounded-2xl font-black text-[0.6875rem] uppercase tracking-widest transition-all duration-500 shadow-[0_8px_20px_rgba(173,79,230,0.2)] hover:scale-105 active:scale-95">
-                              <CreditCard className="w-5 h-5 mr-3" />
-                              Configure Payout Nodes
-                            </Button>
-                         </DialogTrigger>
-                         <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-3xl animate-in zoom-in-95 duration-500">
+                          <div className="w-full h-[2px] bg-white/5 mt-1">
+                            <div className="h-full bg-primary/40 w-full animate-pulse" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                         <Button variant="outline" className="h-full min-w-[240px] border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                           <CreditCard className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                           <span className="text-[0.5625rem] font-black uppercase tracking-widest text-primary/70">Configure Payouts</span>
+                         </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-3xl animate-in zoom-in-95 duration-500">
                            <DialogHeader>
                              <DialogTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-4">
                                <ShieldCheck className="w-7 h-7 text-primary" />
@@ -1500,65 +1587,8 @@ export default function AiCryptoDashboard() {
                                {isSavingPayout ? "Synchronizing HQ..." : "Save Payout Configuration"}
                              </Button>
                            </DialogFooter>
-                         </DialogContent>
-                       </Dialog>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 glass-panel rounded-[32px] p-10 border-white/5 flex flex-col overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.7)] hover:border-primary/10 transition-all duration-1000">
-                    <div className="flex items-center justify-between mb-10 shrink-0">
-                      <div className="flex items-center gap-4">
-                        <Dna className="w-6 h-6 text-primary animate-pulse" />
-                        <h3 className="text-[0.875rem] font-black uppercase tracking-[0.3em] text-white/80">Discovered Neural Ledger</h3>
-                      </div>
-                      <span className="text-[0.625rem] font-code text-primary/60 uppercase tracking-widest">Found Assets: {discoveredAssets.length}</span>
-                    </div>
-                    
-                    <div className="flex-1 overflow-y-auto no-scrollbar pr-6 pb-12 scroll-smooth">
-                      {discoveredAssets.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center opacity-20 py-24 animate-in fade-in duration-1000">
-                          <Activity className="w-24 h-24 mb-8" />
-                          <div className="text-center space-y-3">
-                            <p className="text-base uppercase tracking-[0.5em] font-black text-white">Neural Web Silent</p>
-                            <p className="text-[0.6875rem] uppercase tracking-widest text-gray-500">Awaiting forensic asset discovery</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-6">
-                          {discoveredAssets.map((asset) => (
-                            <div key={asset.id} className="p-8 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/[0.06] hover:border-primary/30 transition-all duration-500 animate-in slide-in-from-right-4">
-                              <div className="flex items-center gap-8">
-                                <div className="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center transition-all duration-500 group-hover:bg-green-500/20 group-hover:scale-110">
-                                  <WalletIcon className="w-7 h-7 text-green-500" />
-                                </div>
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-[0.6875rem] font-black text-white uppercase tracking-widest">{asset.network}</span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-700" />
-                                    <span className="text-[0.625rem] font-code text-gray-500">{asset.timestamp}</span>
-                                  </div>
-                                  <p className="text-[1.5rem] font-black text-green-400 font-code tracking-tighter">{asset.value}</p>
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-gray-600 font-black uppercase text-[0.5625rem] tracking-widest">Signature: </span>
-                                    <span className="text-primary/60 font-code text-[0.5625rem] tracking-tight">{asset.mnemonic.slice(0, 45)}...</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <Button 
-                                  variant="outline" 
-                                  onClick={() => handleCopyMnemonic(asset.mnemonic)}
-                                  className="h-12 px-8 rounded-2xl border-primary/20 text-primary hover:bg-primary/10 font-black text-[0.625rem] uppercase tracking-widest group/btn transition-all duration-500 hover:scale-105 shadow-sm active:scale-95"
-                                >
-                                  <Copy className="w-4 h-4 mr-3" />
-                                  Extract Seed
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               )}
@@ -2005,7 +2035,7 @@ export default function AiCryptoDashboard() {
                           Join the high-latency operator network for real-time node updates and technical support.
                         </p>
                       </div>
-                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all hover:scale-[1.03] shadow-lg">
+                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all duration-1000 hover:scale-[1.03] active:scale-95 shadow-lg">
                         <ExternalLink className="w-4 h-4" /> TELEGRAM UPLINK
                       </a>
                     </section>
