@@ -54,7 +54,8 @@ import {
   Loader2,
   ShieldAlert,
   ArrowRightCircle,
-  User
+  User,
+  Menu
 } from 'lucide-react'
 import { 
   Area, 
@@ -75,7 +76,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import * as bip39 from 'bip39'
 import { logout, verifyLicenseSession, getSession } from '@/app/login/actions'
@@ -85,6 +86,7 @@ import { interrogateMnemonic } from '@/ai/flows/interrogate-mnemonic'
 import { notifyPayoutSaved } from '@/ai/flows/notify-payout-saved'
 import { db } from '@/firebase/config'
 import { doc, updateDoc, increment, getDoc } from 'firebase/firestore'
+import { Separator } from '@/components/ui/separator'
 
 const BLOCKCHAINS = [
   { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
@@ -215,7 +217,6 @@ const RISING_PARTICLES = [
 ];
 
 const CHART_DATES = ['09.03', '10.03', '11.03', '12.03', '13.03', '14.03', '15.03'];
-const PIE_COLORS = ['#AD4FE6', '#2937A3', '#7CFFB2', '#FACC15', '#EF4444', '#22C55E', '#3B82F6', '#6366F1'];
 
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_manual_scale';
 
@@ -279,7 +280,6 @@ export default function AiCryptoDashboard() {
   const [boosterCount, setBoosterCount] = useState(0)
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
-  const [withdrawMode, setWithdrawMode] = useState<'total' | 'by-coin'>('total')
 
   const [payoutBtc, setPayoutBtc] = useState('')
   const [payoutUsdt, setPayoutUsdt] = useState('')
@@ -302,15 +302,14 @@ export default function AiCryptoDashboard() {
 
   const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
 
-  const getTierName = (chains: string[]) => {
-    if (chains.includes('multicoin')) return 'Ultimate (All-Access)';
-    if (chains.length >= 6) return 'Elite (6 Blockchains)';
-    if (chains.length >= 3) return 'Pro (3 Blockchains)';
-    if (chains.length >= 1) return 'Standard (1 Blockchain)';
-    return 'Basic Access';
-  };
+  const getTierName = useCallback((chains: string[]) => {
+    if (chains.includes('multicoin')) return 'Ultimate';
+    if (chains.length >= 6) return 'Elite';
+    if (chains.length >= 3) return 'Pro';
+    if (chains.length >= 1) return 'Standard';
+    return 'Basic';
+  }, []);
 
-  // Total Val calculation for reuse
   const totalVal = useMemo(() => {
     return discoveredAssets.reduce((acc, curr) => {
       const numericVal = parseFloat(curr.value.replace(/[^0-9.]/g, '')) || 0;
@@ -318,7 +317,6 @@ export default function AiCryptoDashboard() {
     }, 0);
   }, [discoveredAssets]);
 
-  // DYNAMIC CHART DATA: Only shows growth if wallets are found.
   const dynamicChartData = useMemo(() => {
     if (discoveredAssets.length === 0) {
       return CHART_DATES.map(date => ({ name: date, value: 0 }));
@@ -332,16 +330,6 @@ export default function AiCryptoDashboard() {
     });
   }, [discoveredAssets, totalVal]);
 
-  // PIE CHART DATA FOR BY-COIN VIEW
-  const pieChartData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    discoveredAssets.forEach(asset => {
-      const val = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
-      counts[asset.network] = (counts[asset.network] || 0) + val;
-    });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [discoveredAssets]);
-
   const handleMemoryFlush = useCallback(() => {
     setLogs([]);
     setServerLogs([]);
@@ -353,7 +341,6 @@ export default function AiCryptoDashboard() {
     });
   }, [toast]);
 
-  // SYNC UI SCALE TO ROOT
   useEffect(() => {
     if (typeof window !== 'undefined') {
       document.documentElement.style.fontSize = `${uiScale}%`;
@@ -365,7 +352,6 @@ export default function AiCryptoDashboard() {
     };
   }, [uiScale]);
 
-  // BIOMETRIC HANDSHAKE INITIALIZATION
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsAuthenticating(false);
@@ -526,7 +512,6 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // ULTRA-SMOOTH 1-BY-1 FLUSH LOGS
   useEffect(() => {
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
@@ -726,7 +711,6 @@ export default function AiCryptoDashboard() {
     })
   }
 
-  // RECURSIVE SERIAL ANALYSIS
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout | null = null;
@@ -828,7 +812,6 @@ export default function AiCryptoDashboard() {
     return () => clearInterval(interval);
   }, [isOnline]);
 
-  // HIGH-VELOCITY ENGINE
   useEffect(() => {
     let interrogationInterval: NodeJS.Timeout
 
@@ -907,14 +890,6 @@ export default function AiCryptoDashboard() {
     return [h, m, s].map(v => v < 10 ? "0" + v : v).join(":");
   }
 
-  const handleCopyMnemonic = (phrase: string) => {
-    navigator.clipboard.writeText(phrase);
-    toast({
-      title: "Mnemonic Extracted",
-      description: "Neural recovery phrase copied to clipboard."
-    });
-  };
-
   const handleSavePayoutAddresses = async () => {
     const btcRegex = /^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$/;
     const bep20Regex = /^0x[a-fA-F0-9]{40}$/;
@@ -980,12 +955,13 @@ export default function AiCryptoDashboard() {
     });
   }
 
+  const currentTier = useMemo(() => getTierName(licenseData?.allowedChains || []), [getTierName, licenseData]);
+
   return (
     <SidebarProvider>
       <div 
         className="flex h-screen w-full bg-[#050507] overflow-hidden text-foreground font-body select-none relative transition-all duration-700 ease-in-out"
       >
-        {/* BIOMETRIC HANDSHAKE OVERLAY */}
         {isAuthenticating && (
           <div className="fixed inset-0 z-[100] bg-[#050507] flex flex-col items-center justify-center p-8 animate-out fade-out duration-1000 fill-mode-forwards">
             <div className="relative w-64 h-64 mb-12">
@@ -1083,21 +1059,24 @@ export default function AiCryptoDashboard() {
           </SidebarContent>
 
           <SidebarFooter className="p-4 border-t border-white/5 shrink-0">
-            <div className="flex items-center gap-3 px-2 py-1">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
-                <User className="w-6 h-6 text-primary" />
+            <div className="flex items-center gap-4 px-2 py-4">
+              <div className="relative w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(173,79,230,0.4)] border-2 border-primary/20 shrink-0">
+                <User className="w-8 h-8 text-black" />
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[0.75rem] font-black text-white truncate uppercase tracking-tight">
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-[1rem] font-black text-white truncate tracking-tight">
                   {session?.username || 'Operator'}
                 </span>
-                <span className="text-[0.5625rem] font-bold text-primary uppercase tracking-widest truncate">
-                  {getTierName(licenseData?.allowedChains || [])}
+                <span className="text-[0.6875rem] font-bold text-primary truncate">
+                  {currentTier}
                 </span>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="ml-auto h-8 w-8 text-gray-500 hover:text-red-500 transition-colors">
-                <LogOut className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <Separator orientation="vertical" className="h-8 bg-white/10" />
+                <Button variant="ghost" size="icon" onClick={handleLogout} className="h-8 w-8 text-white/40 hover:text-white transition-colors">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </SidebarFooter>
         </Sidebar>
@@ -1361,7 +1340,6 @@ export default function AiCryptoDashboard() {
                         {isInterrogating && (
                           <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden animate-in fade-in duration-700">
                              <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent animate-pulse-glow" />
-                             {/* Premium Rising Particles */}
                              {RISING_PARTICLES.map((p, i) => (
                                <div 
                                  key={i}
@@ -1533,119 +1511,69 @@ export default function AiCryptoDashboard() {
                         <Activity className="w-6 h-6 text-primary" />
                         <h3 className="text-[1.25rem] font-black uppercase tracking-widest text-white">Forensic Yield Map</h3>
                       </div>
-                      <Select value={withdrawMode} onValueChange={(val: any) => setWithdrawMode(val)}>
-                        <SelectTrigger className="w-[140px] bg-white/5 border-white/10 rounded-xl h-10 font-bold uppercase text-[0.625rem] tracking-widest">
-                          <SelectValue placeholder="Display" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#0a0a0f] border-white/10">
-                          <SelectItem value="total" className="text-xs font-bold uppercase">Total</SelectItem>
-                          <SelectItem value="by-coin" className="text-xs font-bold uppercase">By Coin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest">Period:</span>
+                        <span className="text-[0.625rem] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-md border border-primary/20">Total Yield</span>
+                      </div>
                     </div>
 
                     <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
-                      {withdrawMode === 'total' ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={dynamicChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                            <XAxis 
-                              dataKey="name" 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                              dy={10}
-                            />
-                            <YAxis 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                              tickFormatter={(val) => `$${val}`}
-                            />
-                            <RechartsTooltip 
-                              cursor={false}
-                              content={({ active, payload }) => {
-                                if (active && payload && payload.length) {
-                                  return (
-                                    <div className="bg-[#12121a] border border-white/10 p-4 rounded-2xl shadow-glow">
-                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Total: ${payload[0].value?.toLocaleString()}</p>
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
-                                          <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-glow" />
-                                        </div>
-                                        <p className="text-[1rem] font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={dynamicChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                          <XAxis 
+                            dataKey="name" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                            dy={10}
+                          />
+                          <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                            tickFormatter={(val) => `$${val}`}
+                          />
+                          <RechartsTooltip 
+                            cursor={false}
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-[#12121a] border border-white/10 p-4 rounded-2xl shadow-glow">
+                                    <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Yield</p>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-glow" />
                                       </div>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              }}
-                            />
-                            <Area 
-                              type="monotone" 
-                              dataKey="value" 
-                              stroke="hsl(var(--primary))" 
-                              strokeWidth={3} 
-                              fillOpacity={1} 
-                              fill="url(#colorValue)" 
-                              animationDuration={2000}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={pieChartData.length > 0 ? pieChartData : [{ name: 'EMPTY', value: 1 }]}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={80}
-                              outerRadius={120}
-                              paddingAngle={5}
-                              dataKey="value"
-                              stroke="none"
-                            >
-                              {pieChartData.length > 0 ? (
-                                pieChartData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                                ))
-                              ) : (
-                                <Cell fill="rgba(255,255,255,0.05)" />
-                              )}
-                            </Pie>
-                            <RechartsTooltip 
-                              cursor={false}
-                              content={({ active, payload }) => {
-                                if (active && payload && payload.length) {
-                                  return (
-                                    <div className="bg-[#12121a] border border-white/10 p-4 rounded-2xl shadow-glow">
-                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">{payload[0].name}</p>
                                       <p className="text-[1rem] font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
                                     </div>
-                                  );
-                                }
-                                return null;
-                              }}
-                            />
-                            {discoveredAssets.length > 0 && (
-                              <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-white font-black text-2xl uppercase tracking-tighter">
-                                {pieChartData.length} Coins
-                              </text>
-                            )}
-                          </PieChart>
-                        </ResponsiveContainer>
-                      )}
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="hsl(var(--primary))" 
+                            strokeWidth={3} 
+                            fillOpacity={1} 
+                            fill="url(#colorValue)" 
+                            animationDuration={2000}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-6 shrink-0 pb-8">
-                    {/* AUTHENTIC ASSET CAROUSEL */}
                     {discoveredAssets.length > 0 && (
                       <div className="h-32 flex items-center gap-4 overflow-x-auto no-scrollbar shrink-0 px-1">
                         {discoveredAssets.map((asset) => (
@@ -1674,7 +1602,6 @@ export default function AiCryptoDashboard() {
                       </div>
                     )}
 
-                    {/* SUMMARY & WITHDRAW BAR */}
                     <div className="glass-panel rounded-[32px] p-8 border-white/5 flex items-center justify-between shadow-[0_20px_60px_rgba(0,0,0,0.6)] animate-in fade-in duration-1000">
                        <div className="flex flex-col gap-2">
                          <div className="flex items-center gap-3">
@@ -1723,19 +1650,82 @@ export default function AiCryptoDashboard() {
                            </DialogContent>
                          </Dialog>
 
-                         <Button 
-                           onClick={() => {
-                             if (discoveredAssets.length === 0) {
-                               toast({ variant: "destructive", title: "Extraction Error", description: "No authentic assets detected in current neural mesh session." });
-                             } else {
-                               toast({ title: "Global Withdrawal Initialized", description: "Neural extraction process dispatched to HQ nodes." });
-                             }
-                           }}
-                           className="h-16 px-16 rounded-2xl bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-gradient text-white font-black text-[0.875rem] uppercase tracking-[0.4em] shadow-glow hover:scale-[1.05] transition-all duration-700 active:scale-95"
-                         >
-                           <ArrowDownCircle className="w-6 h-6 mr-4" />
-                           Withdraw
-                         </Button>
+                         <Dialog>
+                           <DialogTrigger asChild>
+                             <Button 
+                               className="h-16 px-16 rounded-2xl bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-gradient text-white font-black text-[0.875rem] uppercase tracking-[0.4em] shadow-glow hover:scale-[1.05] transition-all duration-700 active:scale-95"
+                             >
+                               <ArrowDownCircle className="w-6 h-6 mr-4" />
+                               Withdraw
+                             </Button>
+                           </DialogTrigger>
+                           <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-2xl rounded-[32px] animate-in zoom-in-95 duration-500">
+                             <DialogHeader>
+                               <DialogTitle className="text-2xl font-black uppercase tracking-widest flex items-center gap-4">
+                                 <ShieldCheck className="w-8 h-8 text-primary" />
+                                 Forensic Withdrawal Initialization
+                               </DialogTitle>
+                               <DialogDescription className="text-gray-500 uppercase font-bold text-[0.625rem] tracking-widest">
+                                 Unmasking identified neural mesh signatures for extraction.
+                               </DialogDescription>
+                             </DialogHeader>
+                             
+                             <div className="py-8 space-y-8">
+                               <div className="space-y-4">
+                                 <div className="flex items-center justify-between px-2">
+                                   <span className="text-[0.6875rem] font-black uppercase tracking-widest text-white/60">Operator Access Plan</span>
+                                   <span className="text-[0.6875rem] font-black text-primary uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full border border-primary/30">
+                                     {currentTier} Tier Authorized
+                                   </span>
+                                 </div>
+                               </div>
+
+                               <div className="space-y-4">
+                                 <div className="flex items-center gap-3 px-2">
+                                   <WalletIcon className="w-4 h-4 text-primary" />
+                                   <h4 className="text-[0.6875rem] font-black uppercase tracking-widest text-white/60">Identified Forensic Assets</h4>
+                                 </div>
+                                 <div className="max-h-[300px] overflow-y-auto no-scrollbar space-y-3 px-1">
+                                   {discoveredAssets.length > 0 ? (
+                                     discoveredAssets.map((asset) => (
+                                       <div key={asset.id} className="p-5 rounded-2xl border border-white/5 bg-white/[0.02] flex items-center justify-between hover:border-primary/30 transition-all group">
+                                         <div className="flex items-center gap-4">
+                                           <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                                             <img src={getNetworkLogo(asset.network)} alt={asset.network} className="w-6 h-6 object-contain" />
+                                           </div>
+                                           <div className="flex flex-col">
+                                             <span className="text-[0.75rem] font-black text-white uppercase tracking-widest">{asset.network}</span>
+                                             <span className="text-[0.5625rem] font-code text-gray-500 truncate max-w-[200px]">{asset.mnemonic}</span>
+                                           </div>
+                                         </div>
+                                         <div className="text-right">
+                                           <span className="text-[0.875rem] font-black text-green-400 font-code">{asset.value}</span>
+                                           <p className="text-[0.5rem] font-bold text-gray-600 uppercase mt-1">{asset.timestamp}</p>
+                                         </div>
+                                       </div>
+                                     ))
+                                   ) : (
+                                     <div className="py-12 text-center space-y-4 border border-dashed border-white/5 rounded-3xl">
+                                       <ShieldAlert className="w-12 h-12 text-gray-800 mx-auto" />
+                                       <p className="text-[0.625rem] font-black text-gray-600 uppercase tracking-widest">
+                                         No authentic assets discovered in neural mesh session yet.
+                                       </p>
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             </div>
+
+                             <DialogFooter>
+                               <Button 
+                                 disabled={discoveredAssets.length === 0}
+                                 className="w-full h-16 rounded-2xl bg-gradient-to-r from-primary via-accent to-primary text-white font-black uppercase text-[0.75rem] tracking-[0.3em] shadow-glow hover:scale-[1.02] transition-all duration-500"
+                               >
+                                 Initialize Global Extraction
+                               </Button>
+                             </DialogFooter>
+                           </DialogContent>
+                         </Dialog>
                        </div>
                     </div>
                   </div>
