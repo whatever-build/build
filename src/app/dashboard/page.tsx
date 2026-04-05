@@ -53,7 +53,8 @@ import {
   Fingerprint,
   Loader2,
   ShieldAlert,
-  ArrowRightCircle
+  ArrowRightCircle,
+  User
 } from 'lucide-react'
 import { 
   Area, 
@@ -62,7 +63,10 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip as RechartsTooltip, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
@@ -211,6 +215,7 @@ const RISING_PARTICLES = [
 ];
 
 const CHART_DATES = ['09.03', '10.03', '11.03', '12.03', '13.03', '14.03', '15.03'];
+const PIE_COLORS = ['#AD4FE6', '#2937A3', '#7CFFB2', '#FACC15', '#EF4444', '#22C55E', '#3B82F6', '#6366F1'];
 
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_manual_scale';
 
@@ -274,6 +279,7 @@ export default function AiCryptoDashboard() {
   const [boosterCount, setBoosterCount] = useState(0)
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
+  const [withdrawMode, setWithdrawMode] = useState<'total' | 'by-coin'>('total')
 
   const [payoutBtc, setPayoutBtc] = useState('')
   const [payoutUsdt, setPayoutUsdt] = useState('')
@@ -296,6 +302,14 @@ export default function AiCryptoDashboard() {
 
   const selectedServer = useMemo(() => SERVERS.find(s => s.id === selectedServerId), [selectedServerId]);
 
+  const getTierName = (chains: string[]) => {
+    if (chains.includes('multicoin')) return 'Ultimate (All-Access)';
+    if (chains.length >= 6) return 'Elite (6 Blockchains)';
+    if (chains.length >= 3) return 'Pro (3 Blockchains)';
+    if (chains.length >= 1) return 'Standard (1 Blockchain)';
+    return 'Basic Access';
+  };
+
   // Total Val calculation for reuse
   const totalVal = useMemo(() => {
     return discoveredAssets.reduce((acc, curr) => {
@@ -309,8 +323,6 @@ export default function AiCryptoDashboard() {
     if (discoveredAssets.length === 0) {
       return CHART_DATES.map(date => ({ name: date, value: 0 }));
     }
-
-    // Create a luxury growth curve
     return CHART_DATES.map((date, idx) => {
       const factor = (idx + 1) / CHART_DATES.length;
       return {
@@ -319,6 +331,16 @@ export default function AiCryptoDashboard() {
       };
     });
   }, [discoveredAssets, totalVal]);
+
+  // PIE CHART DATA FOR BY-COIN VIEW
+  const pieChartData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    discoveredAssets.forEach(asset => {
+      const val = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
+      counts[asset.network] = (counts[asset.network] || 0) + val;
+    });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [discoveredAssets]);
 
   const handleMemoryFlush = useCallback(() => {
     setLogs([]);
@@ -1061,10 +1083,22 @@ export default function AiCryptoDashboard() {
           </SidebarContent>
 
           <SidebarFooter className="p-4 border-t border-white/5 shrink-0">
-            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-gray-500 hover:text-red-500 hover:bg-red-500/10 h-10 px-4 transition-colors">
-              <LogOut className="w-4 h-4 mr-3" />
-              <span className="text-[0.625rem] font-bold uppercase tracking-widest">Terminate</span>
-            </Button>
+            <div className="flex items-center gap-3 px-2 py-1">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                <User className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[0.75rem] font-black text-white truncate uppercase tracking-tight">
+                  {session?.username || 'Operator'}
+                </span>
+                <span className="text-[0.5625rem] font-bold text-primary uppercase tracking-widest truncate">
+                  {getTierName(licenseData?.allowedChains || [])}
+                </span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="ml-auto h-8 w-8 text-gray-500 hover:text-red-500 transition-colors">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </SidebarFooter>
         </Sidebar>
 
@@ -1354,7 +1388,7 @@ export default function AiCryptoDashboard() {
                       <BrainCircuit className="w-4 h-4 text-primary" />
                       <h3 className="text-[0.6875rem] font-black uppercase tracking-[0.2em] text-white/60">AI Search</h3>
                     </div>
-                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative hover:border-primary/30 transition-all duration-700">
+                    <div className="flex-1 glass-panel rounded-2xl p-6 flex flex-col min-h-0 overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative hover:border-primary/10 transition-all duration-700">
                        {isBoosterActive && (
                          <div className="absolute top-0 right-0 p-3 z-20">
                             <div className="flex items-center gap-2 bg-primary/20 border border-primary/40 px-3 py-1 rounded-full animate-pulse shadow-glow">
@@ -1499,20 +1533,19 @@ export default function AiCryptoDashboard() {
                         <Activity className="w-6 h-6 text-primary" />
                         <h3 className="text-[1.25rem] font-black uppercase tracking-widest text-white">Forensic Yield Map</h3>
                       </div>
-                      <Select defaultValue="total">
+                      <Select value={withdrawMode} onValueChange={(val: any) => setWithdrawMode(val)}>
                         <SelectTrigger className="w-[140px] bg-white/5 border-white/10 rounded-xl h-10 font-bold uppercase text-[0.625rem] tracking-widest">
-                          <SelectValue placeholder="Period" />
+                          <SelectValue placeholder="Display" />
                         </SelectTrigger>
                         <SelectContent className="bg-[#0a0a0f] border-white/10">
                           <SelectItem value="total" className="text-xs font-bold uppercase">Total</SelectItem>
-                          <SelectItem value="daily" className="text-xs font-bold uppercase">Daily</SelectItem>
-                          <SelectItem value="weekly" className="text-xs font-bold uppercase">Weekly</SelectItem>
+                          <SelectItem value="by-coin" className="text-xs font-bold uppercase">By Coin</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div className="flex-1 min-h-0 z-10 relative flex flex-col">
-                      <div className="flex-1">
+                    <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
+                      {withdrawMode === 'total' ? (
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={dynamicChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                             <defs>
@@ -1536,6 +1569,7 @@ export default function AiCryptoDashboard() {
                               tickFormatter={(val) => `$${val}`}
                             />
                             <RechartsTooltip 
+                              cursor={false}
                               content={({ active, payload }) => {
                                 if (active && payload && payload.length) {
                                   return (
@@ -1564,7 +1598,49 @@ export default function AiCryptoDashboard() {
                             />
                           </AreaChart>
                         </ResponsiveContainer>
-                      </div>
+                      ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={pieChartData.length > 0 ? pieChartData : [{ name: 'EMPTY', value: 1 }]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={80}
+                              outerRadius={120}
+                              paddingAngle={5}
+                              dataKey="value"
+                              stroke="none"
+                            >
+                              {pieChartData.length > 0 ? (
+                                pieChartData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                ))
+                              ) : (
+                                <Cell fill="rgba(255,255,255,0.05)" />
+                              )}
+                            </Pie>
+                            <RechartsTooltip 
+                              cursor={false}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-[#12121a] border border-white/10 p-4 rounded-2xl shadow-glow">
+                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">{payload[0].name}</p>
+                                      <p className="text-[1rem] font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            {discoveredAssets.length > 0 && (
+                              <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-white font-black text-2xl uppercase tracking-tighter">
+                                {pieChartData.length} Coins
+                              </text>
+                            )}
+                          </PieChart>
+                        </ResponsiveContainer>
+                      )}
                     </div>
                   </div>
 
@@ -1598,7 +1674,7 @@ export default function AiCryptoDashboard() {
                       </div>
                     )}
 
-                    {/* SUMMARY & WITHDRAW BAR (Replaces text) */}
+                    {/* SUMMARY & WITHDRAW BAR */}
                     <div className="glass-panel rounded-[32px] p-8 border-white/5 flex items-center justify-between shadow-[0_20px_60px_rgba(0,0,0,0.6)] animate-in fade-in duration-1000">
                        <div className="flex flex-col gap-2">
                          <div className="flex items-center gap-3">
