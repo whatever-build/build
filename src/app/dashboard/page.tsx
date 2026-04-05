@@ -180,6 +180,21 @@ const BOOT_LOGS = [
   "[SYSTEM] Awaiting scan command"
 ];
 
+const RISING_PARTICLES = [
+  { left: '10%', delay: '0s', duration: '3s', size: '2px' },
+  { left: '25%', delay: '1.2s', duration: '4s', size: '3px' },
+  { left: '40%', delay: '0.5s', duration: '2.5s', size: '1px' },
+  { left: '55%', delay: '2.1s', duration: '3.5s', size: '2px' },
+  { left: '70%', delay: '1.8s', duration: '4.5s', size: '3px' },
+  { left: '85%', delay: '0.9s', duration: '3.2s', size: '2px' },
+  { left: '15%', delay: '2.5s', duration: '3.8s', size: '1px' },
+  { left: '35%', delay: '3.2s', duration: '4.2s', size: '2px' },
+  { left: '50%', delay: '0.2s', duration: '2.8s', size: '3px' },
+  { left: '65%', delay: '1.5s', duration: '3.6s', size: '2px' },
+  { left: '80%', delay: '2.8s', duration: '4.8s', size: '1px' },
+  { left: '95%', delay: '0.7s', duration: '3.1s', size: '2px' },
+];
+
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_manual_scale';
 
 interface LogEntry {
@@ -1248,9 +1263,24 @@ export default function AiCryptoDashboard() {
                             </div>
                           ))}
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32">
-                           <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-primary/10 to-transparent animate-pulse-glow" />
-                           <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary shadow-[0_0_35px_rgba(173,79,230,1)]" />
+                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden">
+                           <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent animate-pulse-glow" />
+                           {/* Premium Rising Particles */}
+                           {RISING_PARTICLES.map((p, i) => (
+                             <div 
+                               key={i}
+                               className="absolute bottom-0 bg-primary rounded-full blur-[1px] animate-particle-rise"
+                               style={{
+                                 left: p.left,
+                                 width: p.size,
+                                 height: p.size,
+                                 animationDelay: p.delay,
+                                 animationDuration: p.duration,
+                                 opacity: 0
+                               }}
+                             />
+                           ))}
+                           <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary shadow-[0_0_45px_rgba(173,79,230,1)]" />
                         </div>
                       </div>
                     </div>
