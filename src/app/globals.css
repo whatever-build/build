@@ -85,14 +85,14 @@
   }
 
   @keyframes pulse-glow {
-    0% { transform: scale(1); filter: brightness(1.2); opacity: 0.8; }
-    50% { transform: scale(1.01); filter: brightness(1.8); opacity: 1; }
-    100% { transform: scale(1); filter: brightness(1.2); opacity: 0.8; }
+    0% { transform: scaleY(1); filter: brightness(1.2); opacity: 0.9; }
+    50% { transform: scaleY(1.1); filter: brightness(2); opacity: 1; }
+    100% { transform: scaleY(1); filter: brightness(1.2); opacity: 0.9; }
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    transform-origin: center;
+    animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    transform-origin: bottom;
   }
 
   @keyframes smooth-spin {
@@ -283,9 +283,9 @@
 
   @keyframes particle-rise {
     0% { transform: translateY(0) scale(1); opacity: 0; }
-    20% { opacity: 0.8; }
-    80% { opacity: 0.4; }
-    100% { transform: translateY(-120px) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-160px) scale(0.2); opacity: 0; }
   }
 
   .animate-particle-rise {

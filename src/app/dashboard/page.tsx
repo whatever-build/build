@@ -193,6 +193,10 @@ const RISING_PARTICLES = [
   { left: '65%', delay: '1.5s', duration: '3.6s', size: '2px' },
   { left: '80%', delay: '2.8s', duration: '4.8s', size: '1px' },
   { left: '95%', delay: '0.7s', duration: '3.1s', size: '2px' },
+  { left: '20%', delay: '0.8s', duration: '3.4s', size: '1.5px' },
+  { left: '45%', delay: '1.4s', duration: '4.1s', size: '2.5px' },
+  { left: '60%', delay: '2.6s', duration: '3.9s', size: '1.2px' },
+  { left: '88%', delay: '0.3s', duration: '2.9s', size: '2.2px' },
 ];
 
 const SESSION_STORAGE_KEY = 'ai_crypto_session_state_v4_manual_scale';
@@ -1263,25 +1267,27 @@ export default function AiCryptoDashboard() {
                             </div>
                           ))}
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden">
-                           <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent animate-pulse-glow" />
-                           {/* Premium Rising Particles */}
-                           {RISING_PARTICLES.map((p, i) => (
-                             <div 
-                               key={i}
-                               className="absolute bottom-0 bg-primary rounded-full blur-[1px] animate-particle-rise"
-                               style={{
-                                 left: p.left,
-                                 width: p.size,
-                                 height: p.size,
-                                 animationDelay: p.delay,
-                                 animationDuration: p.duration,
-                                 opacity: 0
-                               }}
-                             />
-                           ))}
-                           <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary shadow-[0_0_45px_rgba(173,79,230,1)]" />
-                        </div>
+                        {isInterrogating && (
+                          <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden animate-in fade-in duration-700">
+                             <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent animate-pulse-glow" />
+                             {/* Premium Rising Particles */}
+                             {RISING_PARTICLES.map((p, i) => (
+                               <div 
+                                 key={i}
+                                 className="absolute bottom-0 bg-primary rounded-full blur-[1px] animate-particle-rise"
+                                 style={{
+                                   left: p.left,
+                                   width: p.size,
+                                   height: p.size,
+                                   animationDelay: p.delay,
+                                   animationDuration: p.duration,
+                                   opacity: 0
+                                 }}
+                               />
+                             ))}
+                             <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary shadow-[0_0_45px_rgba(173,79,230,1)]" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1999,7 +2005,7 @@ export default function AiCryptoDashboard() {
                           Join the high-latency operator network for real-time node updates and technical support.
                         </p>
                       </div>
-                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all duration-1000 hover:scale-[1.03] active:scale-95 shadow-lg">
+                      <a href="https://t.me/Ai_Crypto_Software" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-[11px] uppercase tracking-[0.3em] hover:shadow-glow transition-all hover:scale-[1.03] shadow-lg">
                         <ExternalLink className="w-4 h-4" /> TELEGRAM UPLINK
                       </a>
                     </section>
