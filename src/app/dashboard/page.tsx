@@ -29,8 +29,6 @@ import {
   Trash2,
   Gauge,
   AlertTriangle,
-  Type,
-  Palette,
   Info,
   ExternalLink,
   ChevronRight,
@@ -96,15 +94,6 @@ const BLOCKCHAINS = [
   { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
   { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
   { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
-]
-
-const SEED_COLORS = [
-  { name: 'Classic Silver', class: 'text-[#dcdcdc]' },
-  { name: 'Neural Violet', class: 'text-primary' },
-  { name: 'Matrix Green', class: 'text-[#7CFFB2]' },
-  { name: 'Cyber Cyan', class: 'text-cyan-400' },
-  { name: 'Gold Amber', class: 'text-amber-400' },
-  { name: 'Cyber RGB', class: 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 bg-clip-text text-transparent animate-gradient font-bold' },
 ]
 
 const ENTROPY_LANGUAGES = [
@@ -187,8 +176,6 @@ export default function AiCryptoDashboard() {
   const [sessionSeconds, setSessionSeconds] = useState(0)
   const [allocatedCores, setAllocatedCores] = useState([4])
   
-  const [seedPhraseColor, setSeedPhraseColor] = useState('text-[#dcdcdc]')
-  const [consoleFontSize, setConsoleFontSize] = useState([8])
   const [uiScale, setUiScale] = useState(100)
   const [mnemonicLanguage, setMnemonicLanguage] = useState<string>('english')
   
@@ -337,8 +324,6 @@ export default function AiCryptoDashboard() {
         setActiveBlockchains(parsed.activeBlockchains || []);
         setSystemIntensity(parsed.systemIntensity || [85]);
         setAllocatedCores(parsed.allocatedCores || [4]);
-        setSeedPhraseColor(parsed.seedPhraseColor || 'text-[#dcdcdc]');
-        setConsoleFontSize(parsed.consoleFontSize || [8]);
         setUiScale(parsed.uiScale || 100);
         setMnemonicLanguage(parsed.mnemonicLanguage || 'english');
         setDiscoveredAssets(parsed.discoveredAssets || []);
@@ -358,8 +343,6 @@ export default function AiCryptoDashboard() {
       activeBlockchains,
       systemIntensity,
       allocatedCores,
-      seedPhraseColor,
-      consoleFontSize,
       uiScale,
       mnemonicLanguage,
       discoveredAssets,
@@ -368,7 +351,7 @@ export default function AiCryptoDashboard() {
       payoutSol
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
-  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, seedPhraseColor, consoleFontSize, uiScale, mnemonicLanguage, discoveredAssets, payoutBtc, payoutUsdt, payoutSol]);
+  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, mnemonicLanguage, discoveredAssets, payoutBtc, payoutUsdt, payoutSol]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -521,8 +504,6 @@ export default function AiCryptoDashboard() {
     setActiveBlockchains([]);
     setSystemIntensity([85]);
     setAllocatedCores([4]);
-    setSeedPhraseColor('text-[#dcdcdc]');
-    setConsoleFontSize([8]);
     setUiScale(100);
     setMnemonicLanguage('english');
     setDiscoveredAssets([]);
@@ -1050,7 +1031,6 @@ export default function AiCryptoDashboard() {
                         <div 
                           ref={scrollRef} 
                           className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-2 z-10 flex flex-col scroll-smooth"
-                          style={{ fontSize: `${consoleFontSize[0] / 16}rem` }}
                         >
                           {logs.map((log) => (
                             <div key={log.id} className="console-line">
@@ -1059,7 +1039,7 @@ export default function AiCryptoDashboard() {
                                   <span className="balance">Balance: 0</span>
                                   <span className="text-gray-600 px-1 opacity-50">|</span>
                                   <span className="text-[#dcdcdc] shrink-0">Wallet check:</span>
-                                  <span className={cn("ml-1 transition-colors duration-500", seedPhraseColor)}>
+                                  <span className="ml-1 text-[#dcdcdc]">
                                     {log.message}
                                   </span>
                                 </div>
@@ -1342,60 +1322,28 @@ export default function AiCryptoDashboard() {
                 </div>
 
                 <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.6)] hover:border-primary/10 transition-all duration-1000">
-                   <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">Customization</h3>
-                   <div className="space-y-12">
-                    <div className="space-y-8">
-                      <div className="flex items-center gap-3 mb-2">
-                         <Palette className="w-5 h-5 text-primary" />
-                         <h4 className="text-[0.6875rem] font-black text-white/60 uppercase tracking-widest">Seed Phrase Color</h4>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {SEED_COLORS.map((color, idx) => (
-                          <button key={color.name} onClick={() => setSeedPhraseColor(color.class)} className={cn("flex items-center justify-between p-4 rounded-xl border text-left transition-all duration-500 shadow-md hover:scale-[1.06] animate-in slide-in-from-bottom-2", seedPhraseColor === color.class ? "bg-primary/15 border-primary/50 shadow-primary/10" : "bg-white/[0.02] border-white/5 hover:border-white/30")} style={{ animationDelay: `${idx * 50}ms` }}>
-                            <span className="text-[0.625rem] font-bold text-gray-400 uppercase leading-none">{color.name}</span>
-                            <div className={cn("w-4 h-4 rounded-full border border-white/10", color.class.includes('gradient') ? 'bg-gradient-to-tr from-red-500 via-green-500 to-blue-500' : color.class.split(' ')[0])} />
-                          </button>
-                        ))}
-                      </div>
+                   <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">Neural Entropy</h3>
+                    <div className="space-y-4">
+                       <div className="flex items-center justify-between">
+                         <label className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-3">
+                           <Languages className="w-5 h-5 text-primary" />
+                           Entropy Language
+                          </label>
+                         <Select value={mnemonicLanguage} onValueChange={setMnemonicLanguage} disabled={isInterrogating}>
+                           <SelectTrigger className="w-[200px] h-11 bg-white/[0.02] border-white/10 rounded-xl font-bold uppercase tracking-widest text-[0.6875rem] focus:ring-primary/20">
+                             <SelectValue placeholder="Select Language" />
+                           </SelectTrigger>
+                           <SelectContent className="bg-[#0a0a0f] border-white/10">
+                             {ENTROPY_LANGUAGES.map((lang) => (
+                               <SelectItem key={lang.id} value={lang.id} className="text-white uppercase font-bold text-[0.625rem] tracking-widest focus:bg-primary/10 focus:text-primary">
+                                  <span className="mr-3">{lang.flag}</span>
+                                  {lang.name}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       </div>
                     </div>
-                    <div className="space-y-8 pt-8 border-t border-white/10">
-                      <div className="flex items-center gap-3 mb-2">
-                         <Type className="w-5 h-5 text-primary" />
-                         <h4 className="text-[0.6875rem] font-black text-white/60 uppercase tracking-widest">Console Typography</h4>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-widest">Font Size</label>
-                          <span className="text-[0.875rem] font-code text-primary font-bold">{consoleFontSize[0]}px</span>
-                        </div>
-                        <Slider value={consoleFontSize} onValueChange={setConsoleFontSize} min={8} max={24} step={1} className="cursor-pointer" />
-                      </div>
-                    </div>
-                    <div className="space-y-8 pt-8 border-t border-white/10">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Languages className="w-5 h-5 text-primary" />
-                          <h4 className="text-[0.6875rem] font-black text-white/60 uppercase tracking-widest">Neural Entropy</h4>
-                        </div>
-                        <div className="space-y-4">
-                           <div className="flex items-center justify-between">
-                             <label className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-widest">Entropy Language</label>
-                             <Select value={mnemonicLanguage} onValueChange={setMnemonicLanguage} disabled={isInterrogating}>
-                               <SelectTrigger className="w-[200px] h-11 bg-white/[0.02] border-white/10 rounded-xl font-bold uppercase tracking-widest text-[0.6875rem] focus:ring-primary/20">
-                                 <SelectValue placeholder="Select Language" />
-                               </SelectTrigger>
-                               <SelectContent className="bg-[#0a0a0f] border-white/10">
-                                 {ENTROPY_LANGUAGES.map((lang) => (
-                                   <SelectItem key={lang.id} value={lang.id} className="text-white uppercase font-bold text-[0.625rem] tracking-widest focus:bg-primary/10 focus:text-primary">
-                                      <span className="mr-3">{lang.flag}</span>
-                                      {lang.name}
-                                   </SelectItem>
-                                 ))}
-                               </SelectContent>
-                             </Select>
-                           </div>
-                        </div>
-                      </div>
-                   </div>
                 </div>
 
                 <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.6)]">
