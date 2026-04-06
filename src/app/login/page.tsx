@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react'
@@ -110,7 +111,7 @@ export default function LoginPage() {
               <Cpu className="w-11 h-11 text-black animate-pulse duration-[3000ms]" />
             </div>
           </div>
-          <h1 className="text-3xl font-black tracking-tighter uppercase text-white mb-1 drop-shadow-sm">Ai Crypto</h1>
+          <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white/90 mb-4 text-center">Welcome to Ai Crypto !</h1>
           
         </div>
 
