@@ -1190,14 +1190,14 @@ export default function AiCryptoDashboard() {
                        <DialogTrigger asChild>
                           <Button variant="outline" className="h-12 px-6 rounded-xl border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 flex items-center gap-2 transition-all group">
                             <CreditCard className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                            <span className="text-[0.5625rem] font-black uppercase tracking-widest text-primary/70">Withdrawal Nodes</span>
+                            <span className="text-[0.5625rem] font-black uppercase tracking-widest text-primary/70">Configure</span>
                           </Button>
                        </DialogTrigger>
                        <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-3xl animate-in zoom-in-95 duration-500">
                             <DialogHeader>
                               <DialogTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-4">
                                 <ShieldCheck className="w-7 h-7 text-primary" />
-                                Withdrawal Nodes
+                                Configure
                               </DialogTitle>
                             </DialogHeader>
                             <div className="space-y-6 py-8">
@@ -1427,12 +1427,11 @@ export default function AiCryptoDashboard() {
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 w-full h-full transition-colors duration-300",
+              "flex flex-col items-center justify-center w-full h-full transition-colors duration-300",
               activeTab === item.id ? 'text-primary' : 'text-gray-500 hover:text-white'
             )}
           >
-            <item.icon className="w-6 h-6" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+            <item.icon className="w-7 h-7" />
           </button>
         ))}
       </nav>
