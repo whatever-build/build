@@ -838,7 +838,7 @@ export default function AiCryptoDashboard() {
   ];
 
   const ActionButtons = () => {
-    const commonClass = "h-16 px-24 rounded-2xl font-black text-[0.875rem] uppercase tracking-[0.3em] transition-all duration-500 hover:opacity-95 hover:scale-[1.05] active:scale-95 disabled:opacity-30";
+    const commonClass = "w-full h-16 rounded-2xl font-black text-[0.875rem] uppercase tracking-[0.3em] transition-all duration-500 hover:opacity-95 hover:scale-[1.05] active:scale-95 disabled:opacity-30";
     
     if (activeTab === 'home') {
       if (scanStep === 1) {
@@ -857,8 +857,8 @@ export default function AiCryptoDashboard() {
         );
       } else { // scanStep === 2
         return isInterrogating ? (
-          <Button onClick={stopInterrogation} variant="outline" className={`${commonClass} bg-red-500/10 border-red-500/40 hover:bg-red-500/20 text-red-500 shadow-[0_0_25px_rgba(239,68,68,0.2)]`}>
-            <Power className="w-5 h-5 mr-3" /> STOP SCAN
+          <Button onClick={stopInterrogation} variant="outline" className={`${commonClass} bg-black/50 border-red-500/60 hover:bg-black/70 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]`}>
+            <Power className="w-5 h-5 mr-3" /> STOP
           </Button>
         ) : (
           <Button onClick={startInterrogation} disabled={activeBlockchains.length === 0 || isBooting || !isOnline} className={cn(`${commonClass} bg-gradient-to-b from-gray-200 to-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]`)}>
@@ -1029,10 +1029,7 @@ export default function AiCryptoDashboard() {
                           <div key={log.id} className="console-line animate-in fade-in duration-700">
                             {log.type === 'ai' ? (
                               <div className="flex items-baseline font-code text-xs whitespace-nowrap">
-                                <span className="balance shrink-0">Balance: 0</span>
-                                <span className="text-gray-600 px-2 shrink-0">|</span>
-                                <span className="text-[#8df7b1] shrink-0">Wallet check:</span>
-                                <span className="text-[#dcdcdc] ml-2 truncate">{log.message}</span>
+                                <span className="text-[#dcdcdc] truncate">{log.message}</span>
                               </div>
                             ) : log.type === 'success' ? (
                               <div className="flex flex-col gap-2 font-code text-green-400 bg-green-500/10 p-4 rounded border border-green-500/20 shadow-[0_0_40px_rgba(34,197,94,0.4)] animate-in zoom-in-95 duration-500">
@@ -1411,7 +1408,7 @@ export default function AiCryptoDashboard() {
       </main>
       
       <div className="fixed bottom-20 left-0 right-0 z-40 flex justify-center items-center px-4">
-        <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-3xl p-2">
+        <div className="w-full bg-black/20 backdrop-blur-xl border border-white/10 rounded-3xl p-2">
             <ActionButtons />
         </div>
       </div>
