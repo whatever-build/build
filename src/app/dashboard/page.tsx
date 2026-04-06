@@ -6,14 +6,13 @@ import { useRouter } from 'next/navigation'
 import { 
   Cpu, 
   Activity, 
-  Wallet as WalletIcon,
   Power,
   Lock,
   ShieldCheck,
   LayoutDashboard,
   Settings,
   Zap,
-  SearchCode,
+  Search,
   ArrowDownCircle,
   Cloud,
   Timer,
@@ -834,8 +833,8 @@ export default function AiCryptoDashboard() {
   const currentTier = useMemo(() => getTierName(licenseData?.allowedChains || []), [getTierName, licenseData]);
 
   const navItems: { id: TabType; icon: React.ElementType }[] = [
-    { id: 'home', icon: SearchCode },
-    { id: 'withdraw', icon: WalletIcon },
+    { id: 'home', icon: Search },
+    { id: 'withdraw', icon: Activity },
     { id: 'settings', icon: Settings },
     { id: 'about', icon: Info },
   ];
@@ -1020,7 +1019,7 @@ export default function AiCryptoDashboard() {
                           <ChevronLeft className="w-4 h-4 mr-2" /> Back
                       </Button>
                       <div className="flex items-center gap-3">
-                          <SearchCode className="w-4 h-4 text-primary" />
+                          <Search className="w-4 h-4 text-primary" />
                           <h3 className="text-[0.6875rem] font-black uppercase tracking-[0.2em] text-white/60">Wallet search</h3>
                       </div>
                   </div>
