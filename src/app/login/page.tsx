@@ -113,13 +113,6 @@ export default function LoginPage() {
           </div>
           <h1 className="text-3xl font-black tracking-tighter uppercase text-white mb-1 drop-shadow-sm">Ai Crypto</h1>
           
-          <div className="flex items-center gap-4 text-[10px] text-[#8df7b1] font-code uppercase tracking-wider mt-2 opacity-80">
-            <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Security: Verified</span>
-            <span className="w-1 h-1 rounded-full bg-[#8df7b1]/30" />
-            <span>Encryption: AES-256</span>
-            <span className="w-1 h-1 rounded-full bg-[#8df7b1]/30" />
-            <span className="tabular-nums">Latency: {latency}ms</span>
-          </div>
         </div>
 
         <SnakeBorderCard processing={isLoading} className="shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-white/5 bg-[#0a0a0f]/80 backdrop-blur-3xl rounded-3xl">
