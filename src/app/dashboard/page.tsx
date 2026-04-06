@@ -1127,8 +1127,8 @@ export default function AiCryptoDashboard() {
                       </div>
                     </div>
                      {isInterrogating && (
-                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-48 overflow-hidden animate-in fade-in duration-700">
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent animate-pulse-glow" />
+                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden animate-in fade-in duration-700">
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent animate-pulse-glow" />
                             {RISING_PARTICLES.map((p, i) => (
                             <div 
                                 key={i}
@@ -1143,7 +1143,7 @@ export default function AiCryptoDashboard() {
                                 }}
                             />
                             ))}
-                            <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary shadow-[0_0_50px_8px_hsl(var(--primary))] animate-pulse" />
+                            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary shadow-[0_0_30px_5px_hsl(var(--primary))] animate-pulse" />
                         </div>
                     )}
                   </div>
