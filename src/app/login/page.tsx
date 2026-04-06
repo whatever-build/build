@@ -162,7 +162,7 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 disabled={isLoading}
-                className="w-full h-14 rounded-xl font-black text-xs uppercase tracking-[0.2em] text-white login-button-glow group"
+                className={cn("w-full h-14 rounded-xl font-black text-xs uppercase tracking-[0.2em] text-white group bg-gradient-to-r from-primary to-accent transition-all duration-300 ease-in-out shadow-[0_10px_30px_rgba(173,79,230,0.3)] hover:shadow-[0_15px_40px_rgba(173,79,230,0.5)] hover:scale-105 active:scale-95")}
               >
                 {isLoading ? (
                   <>

@@ -152,23 +152,6 @@
     100% { transform: scale(1); }
   }
 
-  @keyframes buttonPulse {
-    0% { box-shadow: 0 0 0 0px rgba(173, 79, 230, 0.4); }
-    50% { box-shadow: 0 0 25px 6px rgba(173, 79, 230, 0.6); }
-    100% { box-shadow: 0 0 0 0px rgba(173, 79, 230, 0.4); }
-  }
-
-  @keyframes lineFade {
-    from {
-      opacity: 0;
-      transform: translateY(8px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
   .login-background {
     position: fixed;
     inset: 0;
@@ -177,15 +160,6 @@
       radial-gradient(circle at 70% 80%, rgba(79, 172, 254, 0.12), transparent 40%),
       #050507;
     animation: bgFlow 25s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-
-  .login-button-glow {
-    animation: buttonPulse 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    @apply bg-gradient-to-r from-[#7c6cff] to-[#9b7bff] transition-all duration-700 ease-out shadow-[0_10px_30px_rgba(124,108,255,0.3)];
-  }
-  
-  .login-button-glow:hover {
-    @apply -translate-y-1;
   }
 
   .scan-console {
