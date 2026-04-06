@@ -393,6 +393,7 @@ export default function AiCryptoDashboard() {
   }, [isBooting]);
 
   useEffect(() => {
+    let animationFrameId: number;
     const flushLogs = () => {
       if (logBuffer.current.length > 0) {
         const newEntries = logBuffer.current;
@@ -414,11 +415,11 @@ export default function AiCryptoDashboard() {
           lastMnemonics.current = [...mnemonicsToConsider, ...lastMnemonics.current].slice(0, 5);
         }
       }
-      requestAnimationFrame(flushLogs);
+      animationFrameId = requestAnimationFrame(flushLogs);
     };
 
-    const animationId = requestAnimationFrame(flushLogs);
-    return () => cancelAnimationFrame(animationId);
+    animationFrameId = requestAnimationFrame(flushLogs);
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   useEffect(() => {
@@ -678,16 +679,16 @@ export default function AiCryptoDashboard() {
   }, [isAiSearchConnected, isInterrogating, isOnline, isBoosterActive, activeBlockchains, addAiLog, toast]);
   
   useEffect(() => {
-    let interrogationInterval: NodeJS.Timeout
+    let interrogationInterval: NodeJS.Timeout | null = null;
 
     if (isInterrogating && isOnline) {
       const intensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / 8;
       
-      const baseDelay = Math.max(10, (250 - (150 * intensity * coreFactor)));
+      const baseDelay = Math.max(5, (100 - (95 * intensity * coreFactor)));
 
-      interrogationInterval = setInterval(() => {
-        const batchSize = isBoosterActive ? 10 : 1;
+      const runInterrogation = () => {
+        const batchSize = isBoosterActive ? (isAiSearchConnected ? 20 : 10) : (isAiSearchConnected ? 5 : 1);
         
         for (let b = 0; b < batchSize; b++) {
           const wordlist = (bip39.wordlists as any)[mnemonicLanguage] || bip39.wordlists.english;
@@ -703,15 +704,22 @@ export default function AiCryptoDashboard() {
         }
 
         setCpuLoad(Math.min(100, (systemIntensity[0] * (allocatedCores[0] / 8)) + (Math.random() * 3) + (isBoosterActive ? 10 : 0)));
-      }, baseDelay);
+        
+        if (isInterrogating) {
+          interrogationInterval = setTimeout(runInterrogation, baseDelay);
+        }
+      };
+      
+      runInterrogation();
+
     } else {
       setCpuLoad(0)
     }
 
     return () => {
-      if (interrogationInterval) clearInterval(interrogationInterval)
+      if (interrogationInterval) clearTimeout(interrogationInterval)
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage, isAiSearchConnected]);
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return
@@ -842,7 +850,7 @@ export default function AiCryptoDashboard() {
   ];
 
   const ActionButtons = () => {
-    const commonClass = "w-full h-16 rounded-2xl font-black text-[0.875rem] uppercase tracking-[0.3em] transition-all duration-500 hover:opacity-95 active:scale-95 disabled:opacity-30";
+    const commonClass = "w-full h-16 rounded-2xl font-black text-[0.875rem] uppercase tracking-[0.3em] transition-all duration-500 hover:scale-[1.03] active:scale-95 disabled:opacity-30";
     
     if (activeTab === 'home') {
       if (scanStep === 1) {
@@ -855,17 +863,17 @@ export default function AiCryptoDashboard() {
                 setScanStep(2);
               }
             }}
-            className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)]`}>
+            className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)] hover:shadow-glow`}>
             Continue <ChevronRight className="w-5 h-5 ml-3" />
           </Button>
         );
       } else { // scanStep === 2
         return isInterrogating ? (
-          <Button onClick={stopInterrogation} className={cn(`${commonClass} bg-gradient-to-b from-gray-200 to-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]`)}>
+          <Button onClick={stopInterrogation} className={cn(`${commonClass} bg-gradient-to-b from-gray-200 to-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-lg`)}>
             STOP
           </Button>
         ) : (
-          <Button onClick={startInterrogation} disabled={activeBlockchains.length === 0 || isBooting || !isOnline} className={cn(`${commonClass} bg-gradient-to-b from-gray-200 to-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]`)}>
+          <Button onClick={startInterrogation} disabled={activeBlockchains.length === 0 || isBooting || !isOnline} className={cn(`${commonClass} bg-gradient-to-b from-gray-200 to-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-lg`)}>
              START
           </Button>
         );
@@ -876,7 +884,7 @@ export default function AiCryptoDashboard() {
       return (
         <Dialog>
           <DialogTrigger asChild>
-            <Button className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)]`}>
+            <Button className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)] hover:shadow-glow`}>
               Withdraw Assets <ChevronRight className="w-5 h-5 ml-3" />
             </Button>
           </DialogTrigger>
@@ -1084,7 +1092,7 @@ export default function AiCryptoDashboard() {
                           <div key={log.id} className="console-line animate-in fade-in duration-700">
                             {log.type === 'ai' ? (
                               <div className="flex items-baseline font-code text-xs whitespace-nowrap overflow-hidden">
-                                <span className="text-terminal-green">Balance: 0 | Wallet check: </span>
+                                <span className="text-white">Balance: 0 | Wallet check: </span>
                                 <span className="text-white truncate">{log.message}</span>
                               </div>
                             ) : log.type === 'success' ? (
@@ -1115,12 +1123,12 @@ export default function AiCryptoDashboard() {
                       </div>
                     </div>
                      {isInterrogating && (
-                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden animate-in fade-in duration-700">
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent animate-pulse-glow" />
+                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-48 overflow-hidden animate-in fade-in duration-700">
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent animate-pulse-glow" />
                             {RISING_PARTICLES.map((p, i) => (
                             <div 
                                 key={i}
-                                className="absolute bottom-0 bg-primary rounded-full blur-[1px] animate-particle-rise"
+                                className="absolute bottom-0 bg-primary rounded-full blur-[2px] animate-particle-rise"
                                 style={{
                                 left: p.left,
                                 width: p.size,
@@ -1244,7 +1252,7 @@ export default function AiCryptoDashboard() {
                     
                     <Dialog>
                         <DialogTrigger asChild>
-                           <Button variant="outline" className="h-12 px-6 rounded-xl border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 flex items-center gap-2 transition-all group">
+                           <Button variant="outline" className="h-12 px-6 rounded-xl border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 flex items-center gap-2 transition-all group active:scale-95 hover:scale-105">
                              <CreditCard className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                              <span className="text-[0.5625rem] font-black uppercase tracking-widest text-primary/70">Configure</span>
                            </Button>
@@ -1270,7 +1278,7 @@ export default function AiCryptoDashboard() {
                                ))}
                              </div>
                              <DialogFooter>
-                               <Button disabled={isSavingPayout} onClick={handleSavePayoutAddresses} className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase text-[0.6875rem] tracking-widest shadow-glow hover:scale-[1.03] transition-all duration-500">
+                               <Button disabled={isSavingPayout} onClick={handleSavePayoutAddresses} className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase text-[0.6875rem] tracking-widest shadow-glow hover:scale-[1.03] transition-all duration-500 active:scale-95">
                                  {isSavingPayout ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <Save className="w-5 h-5 mr-3" />}
                                  {isSavingPayout ? "Synchronizing HQ..." : "Save Withdrawal Configuration"}
                                </Button>
@@ -1368,21 +1376,21 @@ export default function AiCryptoDashboard() {
                                 <Trash2 className="w-5 h-5 text-primary" />
                                 <p className="text-sm font-bold text-white uppercase tracking-wider">Memory Flush</p>
                             </div>
-                            <Button variant="outline" size="sm" onClick={handleMemoryFlush} className="h-9 px-4 text-[0.625rem] uppercase font-black border-primary/30 text-primary hover:bg-primary/20 rounded-lg transition-all active:scale-95">Flush</Button>
+                            <Button variant="outline" size="sm" onClick={handleMemoryFlush} className="h-9 px-4 text-[0.625rem] uppercase font-black border-primary/30 text-primary hover:bg-primary/20 rounded-lg transition-all active:scale-95 hover:scale-105">Flush</Button>
                         </div>
                         <div className="flex items-center justify-between p-4 rounded-xl bg-red-500/[0.02] border border-red-500/10">
                             <div className="flex items-center gap-3">
                                 <RotateCcw className="w-5 h-5 text-red-400" />
                                 <p className="text-sm font-bold text-white uppercase tracking-wider">Reset Workstation</p>
                             </div>
-                            <Button variant="outline" size="sm" onClick={clearSession} className="h-9 px-4 text-[0.625rem] uppercase font-black border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-all active:scale-95">Reset</Button>
+                            <Button variant="outline" size="sm" onClick={clearSession} className="h-9 px-4 text-[0.625rem] uppercase font-black border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-lg transition-all active:scale-95 hover:scale-105">Reset</Button>
                         </div>
                          <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
                             <div className="flex items-center gap-3">
                                 <LogOut className="w-5 h-5 text-gray-500" />
                                 <p className="text-sm font-bold text-white uppercase tracking-wider">Operator Session</p>
                             </div>
-                            <Button variant="outline" size="sm" onClick={handleLogout} className="h-9 px-4 text-[0.625rem] uppercase font-black border-white/20 text-gray-400 hover:bg-white/10 hover:text-white rounded-lg transition-all active:scale-95">Logout</Button>
+                            <Button variant="outline" size="sm" onClick={handleLogout} className="h-9 px-4 text-[0.625rem] uppercase font-black border-white/20 text-gray-400 hover:bg-white/10 hover:text-white rounded-lg transition-all active:scale-95 hover:scale-105">Logout</Button>
                         </div>
                     </div>
                 </div>
