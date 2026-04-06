@@ -41,7 +41,6 @@ import {
   Wifi,
   BrainCircuit,
   Copy,
-  Eye,
   CheckCircle2,
   Coins,
   Rocket,
@@ -191,8 +190,6 @@ export default function AiCryptoDashboard() {
     boosters: number;
   } | null>(null)
 
-  const [showDiscoveredAssets, setShowDiscoveredAssets] = useState(false);
-
   const logBuffer = useRef<LogEntry[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null)
   const aiTerminalScrollRef = useRef<HTMLDivElement>(null)
@@ -201,7 +198,6 @@ export default function AiCryptoDashboard() {
 
   const changeTab = (tab: TabType) => {
     setActiveTab(tab);
-    setShowDiscoveredAssets(false);
   };
 
   const getTierName = useCallback((chains: string[]) => {
@@ -877,23 +873,57 @@ export default function AiCryptoDashboard() {
     }
   
     if (activeTab === 'withdraw') {
-      if (showDiscoveredAssets) {
-        return (
-          <Button 
-            onClick={handleWithdrawAllAssets}
-            disabled={discoveredAssets.length === 0}
-            className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)]`}>
-            Withdraw Assets <ChevronRight className="w-5 h-5 ml-3" />
-          </Button>
-        );
-      }
       return (
-        <Button
-          onClick={() => setShowDiscoveredAssets(true)}
-          className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)]`}>
-          View Assets <Eye className="w-5 h-5 ml-3" />
-        </Button>
-      )
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className={`${commonClass} bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white shadow-[0_0_40px_rgba(173,79,230,0.5)]`}>
+              Withdraw Assets <ChevronRight className="w-5 h-5 ml-3" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-3xl animate-in zoom-in-95 duration-500">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-4">
+                <Coins className="w-7 h-7 text-primary" />
+                Discovered Assets
+              </DialogTitle>
+            </DialogHeader>
+            <div className="max-h-[50vh] overflow-y-auto no-scrollbar py-4">
+              {discoveredAssets.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {discoveredAssets.map((asset) => (
+                    <div key={asset.id} className="min-w-full glass-panel rounded-2xl border-white/5 transition-all duration-500 flex items-center px-4 py-3 gap-4 relative overflow-hidden">
+                      <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                        <img src={getNetworkLogo(asset.network)} alt={asset.network} className="w-6 h-6 object-contain" />
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1 min-w-0">
+                        <span className="text-[0.8125rem] font-black text-white truncate uppercase tracking-widest">{asset.network}</span>
+                        <span className="text-[0.6875rem] font-bold text-green-400 font-code">{asset.value}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-12 text-center space-y-4 border border-dashed border-white/5 rounded-3xl">
+                  <ShieldAlert className="w-12 h-12 text-gray-800 mx-auto" />
+                  <p className="text-[0.625rem] font-black text-gray-600 uppercase tracking-widest">
+                    No authentic assets discovered yet.
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={handleWithdrawAllAssets}
+                disabled={discoveredAssets.length === 0}
+                className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase text-[0.6875rem] tracking-widest shadow-glow hover:scale-[1.03] transition-all duration-500"
+              >
+                <Rocket className="w-5 h-5 mr-3" />
+                Withdraw All Assets
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      );
     }
   
     return null;
@@ -1135,97 +1165,69 @@ export default function AiCryptoDashboard() {
 
             {activeTab === 'withdraw' && (
               <div className="flex-1 flex flex-col min-h-0 animate-in slide-in-from-bottom-4 duration-700">
-                <div className="flex-1 overflow-y-auto no-scrollbar p-4">
-                  {showDiscoveredAssets ? (
-                    <div className="flex flex-col gap-3">
-                      <h3 className="text-sm font-black uppercase tracking-widest text-white/80 px-2">Discovered Assets</h3>
-                        {discoveredAssets.length > 0 ? (
-                          <div className="flex flex-col gap-3">
-                            {discoveredAssets.map((asset) => (
-                              <div key={asset.id} className="min-w-full glass-panel rounded-2xl border-white/5 transition-all duration-500 flex items-center px-4 py-3 gap-4 relative overflow-hidden">
-                                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                                  <img src={getNetworkLogo(asset.network)} alt={asset.network} className="w-6 h-6 object-contain" />
-                                </div>
-                                <div className="flex flex-col gap-1 flex-1 min-w-0">
-                                    <span className="text-[0.8125rem] font-black text-white truncate uppercase tracking-widest">{asset.network}</span>
-                                    <span className="text-[0.6875rem] font-bold text-green-400 font-code">{asset.value}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="py-12 text-center space-y-4 border border-dashed border-white/5 rounded-3xl">
-                           <ShieldAlert className="w-12 h-12 text-gray-800 mx-auto" />
-                           <p className="text-[0.625rem] font-black text-gray-600 uppercase tracking-widest">
-                             No authentic assets discovered yet.
-                           </p>
-                         </div>
-                        )}
+                <div className="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col">
+                  <div className="flex-1 glass-panel rounded-[32px] p-4 border-white/5 relative overflow-hidden flex flex-col shadow-2xl">
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)]" />
                     </div>
-                  ) : (
-                    <div className="h-64 glass-panel rounded-[32px] p-4 border-white/5 relative overflow-hidden flex flex-col shadow-2xl shrink-0">
-                      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)]" />
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-4 z-10 shrink-0 px-2">
-                        <div className="flex items-center gap-4">
-                          <Activity className="w-5 h-5 text-primary" />
-                          <h3 className="text-sm font-black uppercase tracking-widest text-white">Statistics</h3>
-                        </div>
-                      </div>
-    
-                      <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={dynamicChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                            <XAxis 
-                              dataKey="name" 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                              dy={10}
-                            />
-                            <YAxis 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                              tickFormatter={(val) => `$${val/1000}k`}
-                            />
-                            <RechartsTooltip 
-                              cursor={false}
-                              content={({ active, payload }) => {
-                                if (active && payload && payload.length) {
-                                  return (
-                                    <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
-                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Yield</p>
-                                      <p className="text-sm font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
-                                    </div>
-                                  );
-                                }
-                                return null;
-                              }}
-                            />
-                            <Area 
-                              type="monotone" 
-                              dataKey="value" 
-                              stroke="hsl(var(--primary))" 
-                              strokeWidth={2} 
-                              fillOpacity={1} 
-                              fill="url(#colorValue)" 
-                              animationDuration={2000}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
+                    
+                    <div className="flex items-center justify-between mb-4 z-10 shrink-0 px-2">
+                      <div className="flex items-center gap-4">
+                        <Activity className="w-5 h-5 text-primary" />
+                        <h3 className="text-sm font-black uppercase tracking-widest text-white">Statistics</h3>
                       </div>
                     </div>
-                  )}
+  
+                    <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={dynamicChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                          <XAxis 
+                            dataKey="name" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                            dy={10}
+                          />
+                          <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                            tickFormatter={(val) => `$${val/1000}k`}
+                          />
+                          <RechartsTooltip 
+                            cursor={false}
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
+                                    <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Yield</p>
+                                    <p className="text-sm font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="hsl(var(--primary))" 
+                            strokeWidth={2} 
+                            fillOpacity={1} 
+                            fill="url(#colorValue)" 
+                            animationDuration={2000}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="shrink-0 p-4 pt-2">
@@ -1468,3 +1470,6 @@ export default function AiCryptoDashboard() {
     </div>
   )
 }
+
+
+    
