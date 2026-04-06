@@ -994,7 +994,7 @@ export default function AiCryptoDashboard() {
               <div className="flex flex-col flex-1 min-h-0 h-full">
               {scanStep === 1 ? (
                 <div className="flex flex-col flex-1 min-h-0 animate-in slide-in-from-bottom-4 duration-700">
-                  <h2 className="text-2xl font-black text-white/90 uppercase tracking-widest px-1 mb-4">Select Network Mesh</h2>
+                  <h2 className="text-2xl font-black text-white/90 uppercase tracking-widest px-1 mb-4">Select Blockchain</h2>
                   <p className="text-sm text-gray-500 px-1 mb-8">Choose one or more blockchain protocols to begin the forensic interrogation.</p>
                   <section className="space-y-4 shrink-0 flex-1 overflow-y-auto no-scrollbar pb-8">
                     <div className="blockchain-grid">
@@ -1483,6 +1483,8 @@ export default function AiCryptoDashboard() {
   )
 }
 
+
+    
 
     
 
