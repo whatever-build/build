@@ -1135,69 +1135,6 @@ export default function AiCryptoDashboard() {
 
             {activeTab === 'withdraw' && (
               <div className="flex-1 flex flex-col min-h-0 animate-in slide-in-from-bottom-4 duration-700">
-                <div className="h-64 glass-panel rounded-[32px] p-4 border-white/5 relative overflow-hidden flex flex-col shadow-2xl shrink-0">
-                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)]" />
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-4 z-10 shrink-0 px-2">
-                    <div className="flex items-center gap-4">
-                      <Activity className="w-5 h-5 text-primary" />
-                      <h3 className="text-sm font-black uppercase tracking-widest text-white">Forensic Yield Map</h3>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={dynamicChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                        <XAxis 
-                          dataKey="name" 
-                          axisLine={false} 
-                          tickLine={false} 
-                          tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                          dy={10}
-                        />
-                        <YAxis 
-                          axisLine={false} 
-                          tickLine={false} 
-                          tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                          tickFormatter={(val) => `$${val/1000}k`}
-                        />
-                        <RechartsTooltip 
-                          cursor={false}
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
-                                  <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Yield</p>
-                                  <p className="text-sm font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="hsl(var(--primary))" 
-                          strokeWidth={2} 
-                          fillOpacity={1} 
-                          fill="url(#colorValue)" 
-                          animationDuration={2000}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
                 <div className="flex-1 overflow-y-auto no-scrollbar p-4">
                   {showDiscoveredAssets ? (
                     <div className="flex flex-col gap-3">
@@ -1226,12 +1163,66 @@ export default function AiCryptoDashboard() {
                         )}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-center space-y-4">
-                        <ShieldAlert className="w-12 h-12 text-gray-800 mx-auto" />
-                           <p className="text-[0.625rem] font-black text-gray-600 uppercase tracking-widest">
-                             No authentic assets discovered yet.
-                           </p>
+                    <div className="h-64 glass-panel rounded-[32px] p-4 border-white/5 relative overflow-hidden flex flex-col shadow-2xl shrink-0">
+                      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_70%)]" />
+                      </div>
+                      
+                      <div className="flex items-center justify-between mb-4 z-10 shrink-0 px-2">
+                        <div className="flex items-center gap-4">
+                          <Activity className="w-5 h-5 text-primary" />
+                          <h3 className="text-sm font-black uppercase tracking-widest text-white">Statistics</h3>
+                        </div>
+                      </div>
+    
+                      <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={dynamicChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                            <XAxis 
+                              dataKey="name" 
+                              axisLine={false} 
+                              tickLine={false} 
+                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                              dy={10}
+                            />
+                            <YAxis 
+                              axisLine={false} 
+                              tickLine={false} 
+                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                              tickFormatter={(val) => `$${val/1000}k`}
+                            />
+                            <RechartsTooltip 
+                              cursor={false}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
+                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Yield</p>
+                                      <p className="text-sm font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="value" 
+                              stroke="hsl(var(--primary))" 
+                              strokeWidth={2} 
+                              fillOpacity={1} 
+                              fill="url(#colorValue)" 
+                              animationDuration={2000}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
                       </div>
                     </div>
                   )}
