@@ -1076,8 +1076,7 @@ export default function AiCryptoDashboard() {
                       <Button variant="ghost" onClick={() => setScanStep(1)} className="text-primary absolute left-4 top-1/2 -translate-y-1/2 px-2">
                           <ChevronLeft className="w-4 h-4 mr-2" /> Back
                       </Button>
-                      <div className="flex items-center gap-3">
-                          <Search className="w-4 h-4 text-primary" />
+                      <div>
                           <h3 className="text-[0.6875rem] font-black uppercase tracking-[0.2em] text-white/60">Wallet search</h3>
                       </div>
                   </div>
@@ -1129,11 +1128,11 @@ export default function AiCryptoDashboard() {
                     </div>
                      {isInterrogating && (
                         <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-48 overflow-hidden animate-in fade-in duration-700">
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent animate-pulse-glow" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/50 to-transparent animate-pulse-glow" />
                             {RISING_PARTICLES.map((p, i) => (
                             <div 
                                 key={i}
-                                className="absolute bottom-0 bg-primary rounded-full blur-[2px] animate-particle-rise"
+                                className="absolute bottom-0 bg-white rounded-full blur-[1.5px] animate-particle-rise"
                                 style={{
                                 left: p.left,
                                 width: p.size,
@@ -1144,7 +1143,7 @@ export default function AiCryptoDashboard() {
                                 }}
                             />
                             ))}
-                            <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary shadow-[0_0_45px_rgba(173,79,230,1)]" />
+                            <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary shadow-[0_0_50px_8px_hsl(var(--primary))] animate-pulse" />
                         </div>
                     )}
                   </div>
@@ -1484,6 +1483,8 @@ export default function AiCryptoDashboard() {
   )
 }
 
+
+    
 
     
 
