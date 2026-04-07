@@ -54,17 +54,17 @@ const BottomGlowEffect = () => {
     >
       {/* Layer 1: The "Ultra-Bright" white-hot core. This is the heart of the light. */}
       <div 
-        className="absolute bottom-0 left-1/2 h-16 w-[70%] -translate-x-1/2 animate-luxury-pulse-fast
-                   bg-[radial-gradient(ellipse_at_bottom,white_0%,hsl(var(--primary))_30%,transparent_60%)]
-                   opacity-90 blur-md"
+        className="absolute bottom-0 left-1/2 h-20 w-[80%] -translate-x-1/2 animate-luxury-pulse-fast
+                   bg-[radial-gradient(ellipse_at_bottom,white_30%,hsl(var(--primary))_50%,transparent_70%)]
+                   opacity-100 blur-lg"
         style={{ animationDuration: '4s' }}
       />
       
       {/* Layer 2: The main, intense primary color glow. This provides the volume and color. */}
       <div 
-        className="absolute bottom-0 left-1/2 h-28 w-[120%] -translate-x-1/2 animate-luxury-pulse
-                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_0%,transparent_65%)]
-                   opacity-100 blur-xl"
+        className="absolute bottom-0 left-1/2 h-32 w-[150%] -translate-x-1/2 animate-luxury-pulse
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_20%,transparent_65%)]
+                   opacity-100 blur-2xl"
         style={{ animationDuration: '6s' }}
       />
 
@@ -96,7 +96,7 @@ const BottomGlowEffect = () => {
         <div className="w-full h-full bg-white opacity-100" />
         <div 
           className="absolute top-full w-full h-16
-                     bg-[linear-gradient(to_top,hsl(var(--primary)/0.5)_0%,transparent_75%)]
+                     bg-[linear-gradient(to_top,hsl(var(--primary)/0.7)_0%,transparent_75%)]
                      blur-lg"
         />
       </div>
