@@ -86,7 +86,7 @@ const BottomGlowEffect = () => {
 
       {/* === Ultra Premium Reflective Scan Line === */}
       <div 
-        className="absolute left-1/2 top-[calc(100%-1.5rem)] w-[70%] h-0.5 -translate-x-1/2
+        className="absolute left-1/2 top-[calc(100%-1.2rem)] w-[70%] h-0.5 -translate-x-1/2
                   animate-scanline-glow"
         style={{ willChange: 'transform, box-shadow, opacity' }}
       >
