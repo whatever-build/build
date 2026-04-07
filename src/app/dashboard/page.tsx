@@ -373,7 +373,6 @@ export default function AiCryptoDashboard() {
 
   useEffect(() => {
     if (isBooting) {
-      // Short delay to allow UI to clear before enabling scan button
       const timer = setTimeout(() => {
         setIsBooting(false);
       }, 200);
@@ -423,10 +422,37 @@ export default function AiCryptoDashboard() {
       }
     }
 
-    setLogs([]);
-    setIsInterrogating(true)
+    // --- VELOCITY ENGINE UPGRADE ---
+    // Generate the first batch of mnemonics immediately.
+    // This creates a seamless transition from the boot screen to the live feed,
+    // eliminating any perceived "pause" or "lag" on starting the interrogation.
+    const initialIterations = isBoosterActive ? 5 : 2;
+    const newEntries: LogEntry[] = [];
+    const newMnemonics: string[] = [];
+    const wordlist = (bip39.wordlists as any)[mnemonicLanguage] || bip39.wordlists.english;
+
+    for (let i = 0; i < initialIterations; i++) {
+      const mnemonic = bip39.generateMnemonic(undefined, undefined, wordlist);
+      newMnemonics.push(mnemonic);
+      
+      newEntries.push({
+        id: `${Math.random().toString(36).substr(2, 9)}-${i}`,
+        message: mnemonic,
+        timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+        type: 'ai'
+      });
+    }
+
+    // Replace boot logs with the first batch and reset the counter in a single render.
+    setLogs(newEntries);
+    setDisplayCount(newEntries.length);
+    lastMnemonics.current = newMnemonics.slice(0, 5);
+
+    // Set interrogating to true AFTER the first batch is ready.
+    // The useEffect loop will pick up from the next frame.
+    setIsInterrogating(true);
     setIsBooting(false);
-  }, [activeBlockchains, isOnline, licenseData, toast])
+  }, [activeBlockchains, isOnline, licenseData, toast, isBoosterActive, mnemonicLanguage]);
 
   const stopInterrogation = useCallback(() => {
     setIsInterrogating(false)
