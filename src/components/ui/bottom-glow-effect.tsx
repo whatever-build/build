@@ -13,14 +13,15 @@ const BottomGlowEffect = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
+    // Client-side only effect
     const generateParticles = () => {
       const newParticles: Particle[] = [];
       for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const size = Math.random() * 3 + 1.5; // Slightly larger & brighter particles
-        const duration = Math.random() * 8 + 6; // 6s to 14s
-        const delay = Math.random() * 12; // 0s to 12s
+        const size = Math.random() * 2.5 + 1.5;
+        const duration = Math.random() * 8 + 6;
+        const delay = Math.random() * 12;
         const x = Math.random() * 100;
-        const drift = (Math.random() - 0.5) * 80;
+        const drift = (Math.random() - 0.5) * 120;
         
         newParticles.push({
           id: i,
@@ -32,8 +33,7 @@ const BottomGlowEffect = () => {
             height: `${size}px`,
             borderRadius: '50%',
             backgroundColor: 'hsl(var(--primary))',
-            // **Significantly brighter particle glow**
-            boxShadow: `0 0 10px hsl(var(--primary)), 0 0 18px hsl(var(--primary)), 0 0 28px hsl(var(--accent))`,
+            boxShadow: `0 0 12px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--accent))`,
             animation: `impressive-particle-rise ${duration}s ease-in-out ${delay}s infinite`,
             opacity: 0,
             willChange: 'transform, opacity',
@@ -43,23 +43,46 @@ const BottomGlowEffect = () => {
       }
       setParticles(newParticles);
     };
-
     generateParticles();
   }, []);
 
   return (
     <div
-      className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-[250px] overflow-hidden"
+      className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-[300px] overflow-hidden"
       aria-hidden="true"
     >
-      {/* Layer 1: Soft, wide base glow */}
-      <div className="absolute bottom-0 left-1/2 h-64 w-[300%] -translate-x-1/2 animate-luxury-pulse bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--accent)/0.25)_0%,transparent_100%)] opacity-90" style={{ animationDuration: '10s' }}/>
+      {/* === FADE LAYER 1 (BOTTOM / OBSCURES TEXT) === */}
+      {/* This is the brightest layer, designed to wash out text behind it completely. */}
+      <div 
+        className="absolute bottom-0 left-1/2 h-32 w-[150%] -translate-x-1/2 animate-luxury-pulse-fast
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_0%,transparent_80%)]
+                   opacity-100 blur-2xl"
+        style={{ animationDuration: '6s' }}
+      />
+      <div 
+        className="absolute bottom-0 left-1/2 h-24 w-[100%] -translate-x-1/2 animate-luxury-pulse-fast
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_10%,transparent_70%)]
+                   opacity-100 blur-xl"
+        style={{ animationDuration: '6s' }}
+      />
 
-      {/* Layer 2: Brighter primary color glow */}
-      <div className="absolute bottom-0 left-1/2 h-56 w-[220%] -translate-x-1/2 animate-luxury-pulse-fast bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--primary)/0.5)_0%,transparent_100%)]" style={{ animationDuration: '7s' }}/>
+      {/* === FADE LAYER 2 (MIDDLE / PARTIAL VISIBILITY) === */}
+      {/* This layer is semi-transparent, allowing text to start becoming visible. */}
+      <div 
+        className="absolute bottom-0 left-1/2 h-64 w-[250%] -translate-x-1/2 animate-luxury-pulse-fast
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary)/0.5)_0%,transparent_70%)]
+                   opacity-90"
+        style={{ animationDuration: '8s' }}
+      />
       
-      {/* Layer 3: **Intense, bright core pulse** - this is the source of the seeds */}
-      <div className="absolute bottom-0 left-1/2 h-48 w-[150%] -translate-x-1/2 animate-luxury-pulse-fast bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--primary)/0.9)_0%,transparent_100%)] opacity-100" style={{ animationDuration: '5s' }}/>
+      {/* === FADE LAYER 3 (TOP / AMBIENT GLOW) === */}
+      {/* The softest, widest glow for overall atmosphere. Text is fully visible here. */}
+      <div 
+        className="absolute bottom-0 left-1/2 h-80 w-[350%] -translate-x-1/2 animate-luxury-pulse
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--accent)/0.3)_0%,transparent_70%)]
+                   opacity-80"
+        style={{ animationDuration: '12s' }}
+      />
 
       {/* Particles shooting up from the bright core */}
       <div className="absolute inset-0">
