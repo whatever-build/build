@@ -1353,7 +1353,7 @@ export default function AiCryptoDashboard() {
                                 <Power className="w-5 h-5 text-primary" />
                                 <div className="flex flex-col">
                                   <p className="text-sm font-bold text-white uppercase tracking-wider">Background Operation</p>
-                                  <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Allows interrogation to continue when app is in background.</p>
+                                  <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Allows search to continue when app is in background.</p>
                                 </div>
                             </div>
                             <Switch
