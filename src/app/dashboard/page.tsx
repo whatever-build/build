@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -422,16 +423,18 @@ export default function AiCryptoDashboard() {
       }
     }
 
-    // --- VELOCITY ENGINE UPGRADE ---
-    // By removing the initial batch generation, the animation loop starts immediately,
-    // creating a seamless transition from boot screen to a smooth, 1-by-1 live feed.
+    // --- STUTTER-FREE IGNITION ---
+    // First, clear the state. This is synchronous but necessary.
     setLogs([]);
     setDisplayCount(0);
     lastMnemonics.current = [];
 
-    // Set interrogating to true to start the animation loop immediately.
-    setIsInterrogating(true);
-    setIsBooting(false);
+    // Then, use requestAnimationFrame to start the animation on the next paint cycle.
+    // This gives React time to process the state clearing and avoids a UI freeze on click.
+    requestAnimationFrame(() => {
+      setIsInterrogating(true);
+      setIsBooting(false);
+    });
   }, [activeBlockchains, isOnline, licenseData, toast]);
 
   const stopInterrogation = useCallback(() => {
