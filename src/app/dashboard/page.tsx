@@ -423,36 +423,16 @@ export default function AiCryptoDashboard() {
     }
 
     // --- VELOCITY ENGINE UPGRADE ---
-    // Generate the first batch of mnemonics immediately.
-    // This creates a seamless transition from the boot screen to the live feed,
-    // eliminating any perceived "pause" or "lag" on starting the interrogation.
-    const initialIterations = isBoosterActive ? 5 : 2;
-    const newEntries: LogEntry[] = [];
-    const newMnemonics: string[] = [];
-    const wordlist = (bip39.wordlists as any)[mnemonicLanguage] || bip39.wordlists.english;
+    // By removing the initial batch generation, the animation loop starts immediately,
+    // creating a seamless transition from boot screen to a smooth, 1-by-1 live feed.
+    setLogs([]);
+    setDisplayCount(0);
+    lastMnemonics.current = [];
 
-    for (let i = 0; i < initialIterations; i++) {
-      const mnemonic = bip39.generateMnemonic(undefined, undefined, wordlist);
-      newMnemonics.push(mnemonic);
-      
-      newEntries.push({
-        id: `${Math.random().toString(36).substr(2, 9)}-${i}`,
-        message: mnemonic,
-        timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-        type: 'ai'
-      });
-    }
-
-    // Replace boot logs with the first batch and reset the counter in a single render.
-    setLogs(newEntries);
-    setDisplayCount(newEntries.length);
-    lastMnemonics.current = newMnemonics.slice(0, 5);
-
-    // Set interrogating to true AFTER the first batch is ready.
-    // The useEffect loop will pick up from the next frame.
+    // Set interrogating to true to start the animation loop immediately.
     setIsInterrogating(true);
     setIsBooting(false);
-  }, [activeBlockchains, isOnline, licenseData, toast, isBoosterActive, mnemonicLanguage]);
+  }, [activeBlockchains, isOnline, licenseData, toast]);
 
   const stopInterrogation = useCallback(() => {
     setIsInterrogating(false)
@@ -1452,6 +1432,8 @@ export default function AiCryptoDashboard() {
   )
 }
 
+
+    
 
     
 
