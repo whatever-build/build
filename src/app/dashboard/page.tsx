@@ -1137,21 +1137,29 @@ export default function AiCryptoDashboard() {
                   <div className="flex-1 glass-panel rounded-[32px] p-4 border-white/5 relative overflow-hidden flex flex-col shadow-2xl">
                     <div className="absolute inset-0 pointer-events-none">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)_/_0.15)_0%,transparent_60%)]" />
-                      {Array.from({ length: 50 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="absolute rounded-full bg-primary/70 animate-pulse"
-                          style={{
-                            width: `${Math.random() * 3 + 1}px`,
-                            height: `${Math.random() * 3 + 1}px`,
-                            top: `${Math.random() * 100}%`,
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 8}s`,
-                            animationDuration: `${Math.random() * 8 + 5}s`,
-                            boxShadow: `0 0 12px hsl(var(--primary))`,
-                          }}
-                        />
-                      ))}
+                      {Array.from({ length: 20 }).map((_, i) => {
+                        const driftX = (Math.random() - 0.5) * 40;
+                        const driftY = (Math.random() - 0.5) * 40;
+                        const duration = Math.random() * 15 + 10;
+                        const delay = Math.random() * 15;
+
+                        return (
+                          <div
+                            key={i}
+                            className="absolute rounded-full bg-primary/70"
+                            style={{
+                              width: `${Math.random() * 2 + 1}px`,
+                              height: `${Math.random() * 2 + 1}px`,
+                              top: `${Math.random() * 100}%`,
+                              left: `${Math.random() * 100}%`,
+                              boxShadow: `0 0 10px hsl(var(--primary))`,
+                              animation: `subtle-drift ${duration}s ease-in-out ${delay}s infinite`,
+                              ['--drift-x' as any]: `${driftX}px`,
+                              ['--drift-y' as any]: `${driftY}px`,
+                            }}
+                          />
+                        )
+                      })}
                     </div>
                     
                     <div className="flex items-center justify-between mb-4 z-10 shrink-0 px-2">

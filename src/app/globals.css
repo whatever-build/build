@@ -21,6 +21,20 @@
   }
 }
 
+@keyframes subtle-drift {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  25%, 75% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--drift-x, 20px), var(--drift-y, -20px));
+    opacity: 0;
+  }
+}
+
 @layer base {
   :root {
     --background: 240 10% 3.9%;
@@ -311,6 +325,7 @@
 
 
     
+
 
 
 
