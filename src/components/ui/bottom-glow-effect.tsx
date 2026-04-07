@@ -21,7 +21,7 @@ const BottomGlowEffect = () => {
         const duration = Math.random() * 8 + 6;
         const delay = Math.random() * 12;
         const x = Math.random() * 100;
-        const drift = (Math.random() - 0.5) * 120;
+        const drift = (Math.random() - 0.5) * 150; // Increased horizontal drift
         
         newParticles.push({
           id: i,
@@ -55,15 +55,15 @@ const BottomGlowEffect = () => {
       {/* This is the brightest layer, designed to wash out text behind it completely. */}
       <div 
         className="absolute bottom-0 left-1/2 h-32 w-[150%] -translate-x-1/2 animate-luxury-pulse-fast
-                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_0%,transparent_80%)]
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_0%,transparent_75%)]
                    opacity-100 blur-2xl"
         style={{ animationDuration: '6s' }}
       />
       <div 
-        className="absolute bottom-0 left-1/2 h-24 w-[100%] -translate-x-1/2 animate-luxury-pulse-fast
-                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_10%,transparent_70%)]
-                   opacity-100 blur-xl"
-        style={{ animationDuration: '6s' }}
+        className="absolute bottom-0 left-1/2 h-24 w-[80%] -translate-x-1/2 animate-luxury-pulse-fast
+                   bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary))_10%,transparent_65%)]
+                   opacity-100 blur-lg"
+        style={{ animationDuration: '5s' }}
       />
 
       {/* === FADE LAYER 2 (MIDDLE / PARTIAL VISIBILITY) === */}
@@ -99,7 +99,7 @@ const BottomGlowEffect = () => {
         {/* The reflection below */}
         <div 
           className="absolute top-full w-full h-12
-                     bg-[linear-gradient(to_top,hsl(var(--primary)/0.15)_0%,transparent_75%)]
+                     bg-[linear-gradient(to_top,hsl(var(--primary)/0.25)_0%,transparent_75%)]
                      blur-md"
         />
       </div>
