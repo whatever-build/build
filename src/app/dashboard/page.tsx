@@ -153,6 +153,7 @@ export default function AiCryptoDashboard() {
   
   const [uiScale, setUiScale] = useState(100)
   const [mnemonicLanguage, setMnemonicLanguage] = useState<string>('english')
+  const [backgroundRunEnabled, setBackgroundRunEnabled] = useState(false)
   
   const [isOnline, setIsOnline] = useState(true)
   const [wasInterrogatingBeforeOffline, setWasInterrogatingBeforeOffline] = useState(false)
@@ -304,6 +305,7 @@ export default function AiCryptoDashboard() {
         setAllocatedCores(parsed.allocatedCores || [4]);
         setUiScale(parsed.uiScale || 100);
         setMnemonicLanguage(parsed.mnemonicLanguage || 'english');
+        setBackgroundRunEnabled(parsed.backgroundRunEnabled || false);
         setDiscoveredAssets(parsed.discoveredAssets || []);
         setPayoutBtc(parsed.payoutBtc || '');
         setPayoutUsdt(parsed.payoutUsdt || '');
@@ -326,10 +328,11 @@ export default function AiCryptoDashboard() {
       discoveredAssets,
       payoutBtc,
       payoutUsdt,
-      payoutSol
+      payoutSol,
+      backgroundRunEnabled,
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
-  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, mnemonicLanguage, discoveredAssets, payoutBtc, payoutUsdt, payoutSol]);
+  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, mnemonicLanguage, discoveredAssets, payoutBtc, payoutUsdt, payoutSol, backgroundRunEnabled]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -638,19 +641,27 @@ export default function AiCryptoDashboard() {
   }, [isAiSearchConnected, isInterrogating, isOnline, isBoosterActive, activeBlockchains, addAiLog, toast]);
   
   useEffect(() => {
-    let animationFrameId: number;
-  
+    let active = true;
+
     if (!isInterrogating || !isOnline) {
       setCpuLoad(0);
       return;
     }
-  
-    const runSmoothInterrogation = () => {
-      // --- ENTERPRISE SMOOTHNESS ENGINE ---
-      // By processing exactly one mnemonic per animation frame, we guarantee
-      // enterprise-level smoothness. This eliminates batch-induced jitter and
-      // provides a true 1-by-1 feel, even at high speeds.
-      const iterations = 1;
+
+    const runLoop = () => {
+      if (!active) {
+        return;
+      }
+      
+      const isBackground = document.visibilityState === 'hidden';
+      
+      if (isBackground && !backgroundRunEnabled) {
+        setTimeout(runLoop, 1000); // Check again in 1s
+        return;
+      }
+
+      // --- ADAPTIVE THROUGHPUT ENGINE ---
+      const iterations = isBackground ? 15 : 1;
       const newEntries: LogEntry[] = [];
       const newMnemonics: string[] = [];
   
@@ -659,26 +670,26 @@ export default function AiCryptoDashboard() {
         const mnemonic = bip39.generateMnemonic(undefined, undefined, wordlist);
         newMnemonics.push(mnemonic);
         
-        newEntries.push({
-          id: `${Math.random().toString(36).substr(2, 9)}-${i}`,
-          message: mnemonic,
-          timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-          type: 'ai'
-        });
+        if (!isBackground) {
+          newEntries.push({
+            id: `${Math.random().toString(36).substr(2, 9)}-${i}`,
+            message: mnemonic,
+            timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+            type: 'ai'
+          });
+        }
       }
   
-      // Single state update with the small batch for this frame.
-      setLogs(prevLogs => [...prevLogs, ...newEntries].slice(-50));
-      setDisplayCount(prevCount => prevCount + newEntries.length);
+      if (newEntries.length > 0) {
+        setLogs(prevLogs => [...prevLogs, ...newEntries].slice(-50));
+      }
+      setDisplayCount(prevCount => prevCount + iterations);
   
-      // Update ref for AI analysis without causing re-renders.
-      const mnemonicsToConsider = newMnemonics.filter(() => Math.random() < 0.05); // 5% chance per mnemonic
+      const mnemonicsToConsider = newMnemonics.filter(() => Math.random() < 0.05);
       if (mnemonicsToConsider.length > 0) {
         lastMnemonics.current = [...mnemonicsToConsider, ...lastMnemonics.current].slice(0, 5);
       }
       
-      // Update telemetry.
-      // Keep the booster's effect on CPU load for visual feedback, but fix the generation rate for smoothness.
       const baseIntensity = systemIntensity[0] / 100;
       const coreFactor = allocatedCores[0] / 8;
       const boosterLoad = isBoosterActive ? 25 + (Math.random() * 10) : 0;
@@ -686,16 +697,19 @@ export default function AiCryptoDashboard() {
       const totalLoad = (baseIntensity * 60) + (coreFactor * 25) + boosterLoad + randomJitter;
       setCpuLoad(Math.min(100, totalLoad));
       
-      // Continue the loop.
-      animationFrameId = requestAnimationFrame(runSmoothInterrogation);
+      if (isBackground) {
+        setTimeout(runLoop, 1000);
+      } else {
+        requestAnimationFrame(runLoop);
+      }
     };
     
-    animationFrameId = requestAnimationFrame(runSmoothInterrogation);
-  
+    runLoop();
+
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      active = false;
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage, backgroundRunEnabled]);
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return
@@ -836,9 +850,6 @@ export default function AiCryptoDashboard() {
               if (activeBlockchains.length === 0) {
                 toast({ variant: 'destructive', title: 'Selection Required', description: 'Please select at least one blockchain protocol.' });
               } else {
-                // Reset logs for new session, but keep count for continuity
-                setLogs([]);
-                lastMnemonics.current = [];
                 setScanStep(2);
               }
             }}
@@ -1337,6 +1348,19 @@ export default function AiCryptoDashboard() {
                 <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.6)]">
                     <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">System</h3>
                     <div className="space-y-6">
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                            <div className="flex items-center gap-4">
+                                <Power className="w-5 h-5 text-primary" />
+                                <div className="flex flex-col">
+                                  <p className="text-sm font-bold text-white uppercase tracking-wider">Background Operation</p>
+                                  <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Allows interrogation to continue when app is in background.</p>
+                                </div>
+                            </div>
+                            <Switch
+                              checked={backgroundRunEnabled}
+                              onCheckedChange={setBackgroundRunEnabled}
+                            />
+                        </div>
                         <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
                             <div className="flex items-center gap-3">
                                 <Trash2 className="w-5 h-5 text-primary" />
