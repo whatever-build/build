@@ -35,7 +35,7 @@ const BottomGlowEffect = () => {
             backgroundColor: 'hsl(var(--primary))',
             // More intense particle glow
             boxShadow: `0 0 18px hsl(var(--primary)), 0 0 30px hsl(var(--primary)), 0 0 50px hsl(var(--accent))`,
-            animation: `impressive-particle-rise ${duration}s ease-in-out ${delay}s infinite`,
+            animation: `impressive-particle-rise ${duration}s cubic-bezier(0.25, 0.1, 0.25, 1) ${delay}s infinite`,
             opacity: 0,
             willChange: 'transform, opacity',
             ['--particle-drift' as any]: `${drift}px`,

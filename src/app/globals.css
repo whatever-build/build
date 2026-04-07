@@ -262,8 +262,8 @@
   }
 
   @keyframes luxury-pulse-fast {
-    0%, 100% { transform: scale(1) translateX(-50%); opacity: 0.75; }
-    50% { transform: scale(1.1) translateX(-50%); opacity: 1; }
+    0%, 100% { transform: scale(1) translateX(-50%); opacity: 0.85; }
+    50% { transform: scale(1.15) translateX(-50%); opacity: 1; }
   }
   .animate-luxury-pulse-fast {
     animation: luxury-pulse-fast 5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
@@ -311,6 +311,7 @@
 
 
     
+
 
 
 
