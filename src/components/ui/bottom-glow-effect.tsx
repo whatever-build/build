@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const PARTICLE_COUNT = 60; // Increased for a denser, more premium feel
+const PARTICLE_COUNT = 75; // Increased for a denser, more impressive flow
 
 interface Particle {
   id: number;
@@ -16,11 +16,11 @@ const BottomGlowEffect = () => {
     const generateParticles = () => {
       const newParticles: Particle[] = [];
       for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const size = Math.random() * 2.5 + 1; // 1px to 3.5px
-        const duration = Math.random() * 11 + 7; // 7s to 18s (slower, more elegant)
-        const delay = Math.random() * 15; // 0s to 15s
-        const x = Math.random() * 100; // 0% to 100%
-        const drift = (Math.random() - 0.5) * 60; // Increased horizontal drift for more movement
+        const size = Math.random() * 3 + 1.5; // Slightly larger & brighter particles
+        const duration = Math.random() * 8 + 6; // 6s to 14s
+        const delay = Math.random() * 12; // 0s to 12s
+        const x = Math.random() * 100;
+        const drift = (Math.random() - 0.5) * 80;
         
         newParticles.push({
           id: i,
@@ -32,12 +32,11 @@ const BottomGlowEffect = () => {
             height: `${size}px`,
             borderRadius: '50%',
             backgroundColor: 'hsl(var(--primary))',
-            // Brighter, more complex glow
-            boxShadow: `0 0 8px hsl(var(--primary)), 0 0 14px hsl(var(--primary)), 0 0 22px hsl(var(--accent))`,
+            // **Significantly brighter particle glow**
+            boxShadow: `0 0 10px hsl(var(--primary)), 0 0 18px hsl(var(--primary)), 0 0 28px hsl(var(--accent))`,
             animation: `impressive-particle-rise ${duration}s ease-in-out ${delay}s infinite`,
             opacity: 0,
             willChange: 'transform, opacity',
-            // CSS custom property for the animation
             ['--particle-drift' as any]: `${drift}px`,
           },
         });
@@ -53,16 +52,16 @@ const BottomGlowEffect = () => {
       className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-[250px] overflow-hidden"
       aria-hidden="true"
     >
-      {/* Layer 1: Wider, brighter accent color base for a luxurious foundation */}
-      <div className="absolute bottom-0 left-1/2 h-64 w-[300%] -translate-x-1/2 animate-luxury-pulse bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--accent)/0.2)_0%,transparent_100%)] opacity-90" style={{ animationDuration: '10s' }}/>
+      {/* Layer 1: Soft, wide base glow */}
+      <div className="absolute bottom-0 left-1/2 h-64 w-[300%] -translate-x-1/2 animate-luxury-pulse bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--accent)/0.25)_0%,transparent_100%)] opacity-90" style={{ animationDuration: '10s' }}/>
 
-      {/* Layer 2: Main primary color glow - now brighter */}
-      <div className="absolute bottom-0 left-1/2 h-56 w-[220%] -translate-x-1/2 animate-luxury-pulse-fast bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--primary)/0.35)_0%,transparent_100%)]" style={{ animationDuration: '8s' }}/>
+      {/* Layer 2: Brighter primary color glow */}
+      <div className="absolute bottom-0 left-1/2 h-56 w-[220%] -translate-x-1/2 animate-luxury-pulse-fast bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--primary)/0.5)_0%,transparent_100%)]" style={{ animationDuration: '7s' }}/>
       
-      {/* Layer 3: Brighter, more focused core pulse for that "wow" factor */}
-      <div className="absolute bottom-0 left-1/2 h-48 w-[120%] -translate-x-1/2 animate-luxury-pulse-fast bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--primary)/0.65)_0%,transparent_100%)] opacity-100" style={{ animationDuration: '6s' }}/>
+      {/* Layer 3: **Intense, bright core pulse** - this is the source of the seeds */}
+      <div className="absolute bottom-0 left-1/2 h-48 w-[150%] -translate-x-1/2 animate-luxury-pulse-fast bg-[radial-gradient(50%_50%_at_50%_100%,hsl(var(--primary)/0.9)_0%,transparent_100%)] opacity-100" style={{ animationDuration: '5s' }}/>
 
-      {/* Particles */}
+      {/* Particles shooting up from the bright core */}
       <div className="absolute inset-0">
         {particles.map(p => (
           <div key={p.id} style={p.style} />
