@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -80,6 +79,7 @@ import { notifyPayoutSaved } from '@/ai/flows/notify-payout-saved'
 import { db } from '@/firebase/config'
 import { doc, updateDoc, increment, getDoc } from 'firebase/firestore'
 import { Separator } from '@/components/ui/separator'
+import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
 const BLOCKCHAINS = [
   { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
@@ -106,20 +106,6 @@ const ENTROPY_LANGUAGES = [
   { id: 'chinese_simplified', name: 'Chinese (Simp.)', flag: '🇨🇳' },
   { id: 'chinese_traditional', name: 'Chinese (Trad.)', flag: '🇹🇼' },
 ]
-
-const RISING_PARTICLES = [
-  { left: '5%', delay: '0s', duration: '5s', size: '2px' },
-  { left: '10%', delay: '1s', duration: '4s', size: '1px' },
-  { left: '20%', delay: '0.5s', duration: '6s', size: '3px' },
-  { left: '30%', delay: '2.5s', duration: '3.5s', size: '2px' },
-  { left: '40%', delay: '1.8s', duration: '5.5s', size: '1px' },
-  { left: '50%', delay: '3s', duration: '4.8s', size: '3px' },
-  { left: '60%', delay: '0.2s', duration: '6.5s', size: '2px' },
-  { left: '70%', delay: '2.2s', duration: '4.2s', size: '1px' },
-  { left: '80%', delay: '1.5s', duration: '5s', size: '3px' },
-  { left: '90%', delay: '3.5s', duration: '3.8s', size: '2px' },
-  { left: '95%', delay: '0.8s', duration: '6.2s', size: '1px' },
-];
 
 const CHART_DATES = ['09.03', '10.03', '11.03', '12.03', '13.03', '14.03', '15.03'];
 
@@ -1126,26 +1112,7 @@ export default function AiCryptoDashboard() {
                         )}
                       </div>
                     </div>
-                     {isInterrogating && (
-                        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none h-32 overflow-hidden animate-in fade-in duration-700">
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent animate-pulse-glow" />
-                            {RISING_PARTICLES.map((p, i) => (
-                            <div 
-                                key={i}
-                                className="absolute bottom-0 bg-white rounded-full blur-[1.5px] animate-particle-rise"
-                                style={{
-                                left: p.left,
-                                width: p.size,
-                                height: p.size,
-                                animationDelay: p.delay,
-                                animationDuration: p.duration,
-                                opacity: 0
-                                }}
-                            />
-                            ))}
-                            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary shadow-[0_0_30px_5px_hsl(var(--primary))] animate-pulse" />
-                        </div>
-                    )}
+                     {isInterrogating && <BottomGlowEffect />}
                   </div>
                   
                   <div className="shrink-0 mt-auto pt-2 space-y-4">
