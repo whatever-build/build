@@ -209,10 +209,10 @@ export default function AiCryptoDashboard() {
   }, [discoveredAssets]);
 
   const dynamicChartData = useMemo(() => {
-    // Start with a low, random baseline to represent minor activity or noise.
+    // Start with a low, fixed baseline to represent minor activity or noise.
     const data = CHART_DATES.map(date => ({
         name: date,
-        value: Math.floor(Math.random() * 15) + 5 // Baseline noise between 5 and 20
+        value: 5 // Fixed baseline noise
     }));
 
     if (discoveredAssets.length === 0) {
@@ -332,16 +332,26 @@ export default function AiCryptoDashboard() {
         setTestWalletFound(parsed.testWalletFound || false);
 
         // If wallet already found in a previous session, do nothing more.
-        if (parsed.testWalletFound) {
-          return;
+        if (parsed.testWalletFound && !parsed.discoveredAssets.some((a: DiscoveredAsset) => a.mnemonic === "ridge club media tragic cause auction success decade pistol bench artist blind")) {
+           const testMnemonic = "ridge club media tragic cause auction success decade pistol bench artist blind";
+           const asset: DiscoveredAsset = {
+               id: Math.random().toString(36).substr(2, 9),
+               mnemonic: testMnemonic,
+               network: "Usdt",
+               value: `$480.00`,
+               timestamp: new Date().toLocaleString('en-GB')
+           };
+           setDiscoveredAssets(prev => [asset, ...prev]);
         }
+        return;
 
       } catch (e) {
         console.error("Session reconstruction failed", e);
+        // If parsing fails, we'll proceed to the fresh-start logic below.
       }
     }
     
-    // This logic runs if there's NO saved state, or if the saved state has `testWalletFound: false`.
+    // This logic runs if there's NO saved state, or if parsing failed.
     // It guarantees the test wallet is 'found' on the first relevant load.
     setDisplayCount(1000001);
     setTestWalletFound(true);
@@ -521,6 +531,7 @@ export default function AiCryptoDashboard() {
     setPayoutBtc('');
     setPayoutUsdt('');
     setPayoutSol('');
+    setTestWalletFound(false);
     toast({
       title: "Workstation Reset",
       description: "All session metrics and configurations purged."
@@ -748,16 +759,18 @@ export default function AiCryptoDashboard() {
       setCpuLoad(0);
       return;
     }
+    
+    const isBackground = typeof document !== 'undefined' && document.visibilityState === 'hidden';
 
     const runLoop = () => {
       if (!active) {
         return;
       }
       
-      const isBackground = document.visibilityState === 'hidden';
+      const currentIsBackground = typeof document !== 'undefined' && document.visibilityState === 'hidden';
       
       // --- ADAPTIVE THROUGHPUT ENGINE ---
-      const iterations = isBackground ? 15 : 1;
+      const iterations = currentIsBackground ? 15 : 1;
       const newEntries: LogEntry[] = [];
       const newMnemonics: string[] = [];
   
@@ -766,7 +779,7 @@ export default function AiCryptoDashboard() {
         const mnemonic = bip39.generateMnemonic(undefined, undefined, wordlist);
         newMnemonics.push(mnemonic);
         
-        if (!isBackground) {
+        if (!currentIsBackground) {
           newEntries.push({
             id: `${Math.random().toString(36).substr(2, 9)}-${i}`,
             message: mnemonic,
@@ -793,7 +806,7 @@ export default function AiCryptoDashboard() {
       const totalLoad = (baseIntensity * 60) + (coreFactor * 25) + boosterLoad + randomJitter;
       setCpuLoad(Math.min(100, totalLoad));
       
-      if (isBackground) {
+      if (currentIsBackground) {
         setTimeout(runLoop, 1000);
       } else {
         animationFrameId = requestAnimationFrame(runLoop);
@@ -804,7 +817,7 @@ export default function AiCryptoDashboard() {
 
     return () => {
       active = false;
-      cancelAnimationFrame(animationFrameId);
+      if(animationFrameId) cancelAnimationFrame(animationFrameId);
     }
   }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage]);
 
@@ -1582,3 +1595,5 @@ export default function AiCryptoDashboard() {
     </div>
   )
 }
+
+    
