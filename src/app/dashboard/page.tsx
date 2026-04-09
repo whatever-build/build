@@ -313,14 +313,55 @@ export default function AiCryptoDashboard() {
         setPayoutUsdt(parsed.payoutUsdt || '');
         setPayoutSol(parsed.payoutSol || '');
         setTestWalletFound(parsed.testWalletFound || false);
+
+        // If wallet already found in a previous session, do nothing more.
+        if (parsed.testWalletFound) {
+          return;
+        }
+
       } catch (e) {
         console.error("Session reconstruction failed", e);
       }
-    } else {
-        // For demo purposes, start near the 1M mark if no session exists
-        setDisplayCount(999950);
     }
-  }, []);
+    
+    // This logic runs if there's NO saved state, or if the saved state has `testWalletFound: false`.
+    // It guarantees the test wallet is 'found' on the first relevant load.
+    setDisplayCount(1000001);
+    setTestWalletFound(true);
+
+    const testMnemonic = "ridge club media tragic cause auction success decade pistol bench artist blind";
+    setFoundWallets(prev => prev + 1);
+
+    const asset: DiscoveredAsset = {
+        id: Math.random().toString(36).substr(2, 9),
+        mnemonic: testMnemonic,
+        network: "Usdt",
+        value: `$480.00`,
+        timestamp: new Date().toLocaleString('en-GB')
+    };
+    
+    setDiscoveredAssets(prev => {
+        // Prevent adding duplicates if this effect somehow re-runs.
+        const assetExists = prev.some(a => a.mnemonic === testMnemonic);
+        return assetExists ? prev : [asset, ...prev];
+    });
+    setLastFounded(asset);
+    
+    const successLog: LogEntry = {
+        id: `success-${asset.id}`,
+        message: `[SUCCESS] FORENSIC HIT: USDT | VALUE: $480.00 | SEED: ${testMnemonic}`,
+        timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+        type: 'success'
+    };
+    
+    setLogs(prevLogs => [...prevLogs.slice(-49), successLog]);
+
+    toast({
+        title: "Asset Discovered",
+        description: `Neural mesh found active balance on USDT. Recovery unmasked.`,
+    });
+  }, [toast]);
+
 
   useEffect(() => {
     const state = {
@@ -571,40 +612,6 @@ export default function AiCryptoDashboard() {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout | null = null;
 
-    if (isInterrogating && displayCount > 1000000 && !testWalletFound) {
-      setTestWalletFound(true); // Mark as found to prevent re-triggering
-
-      const testMnemonic = "ridge club media tragic cause auction success decade pistol bench artist blind";
-      setFoundWallets(prev => prev + 1);
-      const asset: DiscoveredAsset = {
-          id: Math.random().toString(36).substr(2, 9),
-          mnemonic: testMnemonic,
-          network: "Usdt",
-          value: `$480.00`,
-          timestamp: new Date().toLocaleString('en-GB')
-      };
-      setDiscoveredAssets(prev => [asset, ...prev]);
-      setLastFounded(asset);
-      
-      const successLog: LogEntry = {
-          id: `success-${asset.id}`,
-          message: `[SUCCESS] FORENSIC HIT: USDT | VALUE: $480.00 | SEED: ${testMnemonic}`,
-          timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-          type: 'success'
-      };
-      
-      setLogs(prevLogs => [...prevLogs.slice(-49), successLog]);
-
-      toast({
-          title: "Asset Discovered",
-          description: `Neural mesh found active balance on USDT. Recovery unmasked.`,
-      });
-
-      if (isAiSearchConnected) {
-          addAiLog(`[ALERT] AUTHENTIC DISCOVERY UNMASKED: ${asset.network}`);
-      }
-    }
-
     const performAnalysis = async () => {
       if (!isInterrogating || !isOnline || !isMounted) {
         if (isMounted) timeoutId = setTimeout(performAnalysis, 2000);
@@ -717,7 +724,7 @@ export default function AiCryptoDashboard() {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [isInterrogating, isOnline, isBoosterActive, toast, isAiSearchConnected, addAiLog, displayCount, testWalletFound]);
+  }, [isInterrogating, isOnline, isBoosterActive, toast, isAiSearchConnected, addAiLog]);
   
   useEffect(() => {
     let active = true;
