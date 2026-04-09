@@ -169,7 +169,6 @@ export default function AiCryptoDashboard() {
   const [boosterCount, setBoosterCount] = useState(0)
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
-  const [lastFounded, setLastFounded] = useState<DiscoveredAsset | null>(null);
 
   const [payoutBtc, setPayoutBtc] = useState('')
   const [payoutUsdt, setPayoutUsdt] = useState('')
@@ -210,17 +209,35 @@ export default function AiCryptoDashboard() {
   }, [discoveredAssets]);
 
   const dynamicChartData = useMemo(() => {
-    if (discoveredAssets.length === 0) {
-      return CHART_DATES.map(date => ({ name: date, value: 0 }));
-    }
-    return CHART_DATES.map((date, idx) => {
-      const factor = (idx + 1) / CHART_DATES.length;
-      return {
+    // Start with a low, random baseline to represent minor activity or noise.
+    const data = CHART_DATES.map(date => ({
         name: date,
-        value: Math.floor(totalVal * factor)
-      };
+        value: Math.floor(Math.random() * 15) + 5 // Baseline noise between 5 and 20
+    }));
+
+    if (discoveredAssets.length === 0) {
+        return data;
+    }
+
+    // This ensures we don't modify the same index twice and overwrite a big spike
+    const availableIndexes = CHART_DATES.map((_, i) => i);
+
+    // For each discovered asset, create a spike at a unique point in the chart.
+    discoveredAssets.forEach(asset => {
+        if (availableIndexes.length === 0) return; // No more space for spikes
+
+        const assetValue = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
+        
+        // Pick a random available index for the spike
+        const randomIndex = Math.floor(Math.random() * availableIndexes.length);
+        const spikeIndex = availableIndexes.splice(randomIndex, 1)[0];
+        
+        // Add the asset value to the baseline to create the spike
+        data[spikeIndex].value += assetValue;
     });
-  }, [discoveredAssets, totalVal]);
+
+    return data;
+}, [discoveredAssets]);
 
   const handleMemoryFlush = useCallback(() => {
     setLogs([]);
@@ -345,7 +362,6 @@ export default function AiCryptoDashboard() {
         const assetExists = prev.some(a => a.mnemonic === testMnemonic);
         return assetExists ? prev : [asset, ...prev];
     });
-    setLastFounded(asset);
     
     const successLog: LogEntry = {
         id: `success-${asset.id}`,
@@ -502,7 +518,6 @@ export default function AiCryptoDashboard() {
     setUiScale(100);
     setMnemonicLanguage('english');
     setDiscoveredAssets([]);
-    setLastFounded(null);
     setPayoutBtc('');
     setPayoutUsdt('');
     setPayoutSol('');
@@ -673,7 +688,6 @@ export default function AiCryptoDashboard() {
               timestamp: new Date().toLocaleString('en-GB')
             };
             setDiscoveredAssets(prev => [asset, ...prev]);
-            setLastFounded(asset);
             
             const successLog: LogEntry = {
               id: `success-${asset.id}`,
@@ -910,7 +924,6 @@ export default function AiCryptoDashboard() {
     });
     
     setDiscoveredAssets([]);
-    setLastFounded(null);
   }, [discoveredAssets, payoutBtc, payoutUsdt, payoutSol, toast]);
 
   const currentTier = useMemo(() => getTierName(licenseData?.allowedChains || []), [getTierName, licenseData]);
@@ -1256,15 +1269,6 @@ export default function AiCryptoDashboard() {
                         </div>
                     </div>
 
-                    {lastFounded && (
-                        <div className="glass-panel rounded-2xl p-4 border-white/5 animate-in fade-in duration-300">
-                          <p className="text-xs text-white/50 mb-2">Last founded</p>
-                          <div className="flex justify-between items-center">
-                            <span className="font-code text-sm text-green-400">{lastFounded.value}</span>
-                            <span className="text-xs text-white/50">{lastFounded.network}</span>
-                          </div>
-                        </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -1578,5 +1582,3 @@ export default function AiCryptoDashboard() {
     </div>
   )
 }
-
-    
