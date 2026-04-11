@@ -36,7 +36,7 @@ export async function authenticateUser(formData: { username: string; licenseKey:
     session.isLoggedIn = true;
     session.allowedChains = data.allowed_chains || [];
     session.aiSearchEnabled = data.ai_search_enabled || false;
-    session.boosters = data.boosters || 0;
+    session.boosterEnabled = data.booster_enabled || false;
     await session.save();
     
     return { success: true };
@@ -88,6 +88,6 @@ export async function getSession() {
     isLoggedIn: !!session.isLoggedIn,
     allowedChains: session.allowedChains || [],
     aiSearchEnabled: !!session.aiSearchEnabled,
-    boosters: session.boosters || 0,
+    boosterEnabled: !!session.boosterEnabled,
   };
 }

@@ -23,9 +23,9 @@
           "type": "boolean",
           "description": "Enables Enterprise Tier AI heuristic search modules."
         },
-        "boosters": {
-          "type": "number",
-          "description": "Remaining forensic overclock units."
+        "booster_enabled": {
+          "type": "boolean",
+          "description": "Authorizes the use of the Neural Booster overclock module."
         }
       },
       "required": ["licenseKey", "active"]

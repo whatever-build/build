@@ -79,7 +79,7 @@ import { filterMnemonicsHeuristically } from '@/ai/flows/filter-mnemonics-heuris
 import { interrogateMnemonic } from '@/ai/flows/interrogate-mnemonic'
 import { notifyPayoutSaved } from '@/ai/flows/notify-payout-saved'
 import { db } from '@/firebase/config'
-import { doc, updateDoc, increment, getDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { Separator } from '@/components/ui/separator'
 import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
@@ -166,7 +166,6 @@ export default function AiCryptoDashboard() {
   
   const [isBoosterActive, setIsBoosterActive] = useState(false)
   const [boosterTimeRemaining, setBoosterTimeRemaining] = useState(3600) 
-  const [boosterCount, setBoosterCount] = useState(0)
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
   const [historicalAssets, setHistoricalAssets] = useState<DiscoveredAsset[]>([])
@@ -181,7 +180,7 @@ export default function AiCryptoDashboard() {
   const [licenseData, setLicenseData] = useState<{
     allowedChains: string[];
     aiSearchEnabled: boolean;
-    boosters: number;
+    boosterEnabled: boolean;
   } | null>(null)
 
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -298,10 +297,9 @@ export default function AiCryptoDashboard() {
           const authoritativeLicense = {
             allowedChains: data.allowed_chains || [],
             aiSearchEnabled: data.ai_search_enabled || false,
-            boosters: data.boosters || 0,
+            boosterEnabled: data.booster_enabled || false,
           };
           setLicenseData(authoritativeLicense);
-          setBoosterCount(authoritativeLicense.boosters);
         }
       }
     }
@@ -430,23 +428,11 @@ export default function AiCryptoDashboard() {
       return
     }
 
-    if (activeBlockchains.includes('multicoin')) {
-      const isMulticoinAuthorized = licenseData?.allowedChains?.includes('multicoin');
-      if (!isMulticoinAuthorized) {
-         toast({
-           variant: "destructive",
-           title: "License Insufficient",
-           description: "Multicoin search requires a premium license key."
-         });
-         return;
-      }
-    }
-
     requestAnimationFrame(() => {
       setIsInterrogating(true);
       setIsBooting(false);
     });
-  }, [activeBlockchains, isOnline, licenseData, toast]);
+  }, [activeBlockchains, isOnline, toast]);
 
   const stopInterrogation = useCallback(() => {
     setIsInterrogating(false)
@@ -500,32 +486,22 @@ export default function AiCryptoDashboard() {
       })
       return
     }
-    if (boosterCount <= 0) {
+    if (!licenseData?.boosterEnabled) {
       toast({
         variant: "destructive",
-        title: "Booster Depleted",
-        description: "Zero booster units detected in neural vault."
+        title: "Booster Locked",
+        description: "Your license does not authorize use of the Neural Booster."
       })
       return
     }
 
-    if (session?.username) {
-      const userRef = doc(db, 'licenses', session.username);
-      updateDoc(userRef, {
-        boosters: increment(-1)
-      }).catch(err => {
-        console.error("Forensic booster sync failed", err);
-      });
-    }
-
     setIsBoosterActive(true)
     setBoosterTimeRemaining(3600)
-    setBoosterCount(prev => prev - 1)
     toast({
       title: "Neural Booster Engaged",
       description: "Forensic velocity pushed to maximum depth for 1 hour."
     })
-  }, [isOnline, isInterrogating, boosterCount, session, toast])
+  }, [isOnline, isInterrogating, licenseData, toast])
 
   const deactivateBooster = useCallback(() => {
     setIsBoosterActive(false);
@@ -771,23 +747,24 @@ export default function AiCryptoDashboard() {
   }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage]);
 
   const toggleBlockchain = (id: string) => {
-    if (isInterrogating) return
+    if (isInterrogating) return;
+
+    const isAllowed = licenseData?.allowedChains?.includes(id);
+    if (!isAllowed) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: `Your license does not permit access to the ${BLOCKCHAINS.find(c => c.id === id)?.name} network.`
+      });
+      return;
+    }
     
     if (id === 'multicoin') {
-      const isMulticoinAuthorized = licenseData?.allowedChains?.includes('multicoin');
-      if (!isMulticoinAuthorized) {
-        toast({
-          variant: "destructive",
-          title: "Access Denied",
-          description: "Multicoin search requires an Enterprise Tier license."
-        });
-        return;
-      }
-
       if (activeBlockchains.includes('multicoin')) {
         setActiveBlockchains([]);
       } else {
-        setActiveBlockchains(BLOCKCHAINS.map(c => c.id));
+        // Select all *allowed* blockchains
+        setActiveBlockchains(BLOCKCHAINS.map(c => c.id).filter(cId => licenseData?.allowedChains?.includes(cId)));
       }
       return;
     }
@@ -1082,12 +1059,12 @@ export default function AiCryptoDashboard() {
                   <section className="space-y-4 shrink-0 flex-1 overflow-y-auto no-scrollbar pb-8">
                     <div className="blockchain-grid">
                       {BLOCKCHAINS.map((chain) => {
-                        const isActive = activeBlockchains.includes(chain.id)
-                        const isMulticoinActive = activeBlockchains.includes('multicoin')
-                        const isLockedByMulticoin = isMulticoinActive && chain.id !== 'multicoin'
+                        const isActive = activeBlockchains.includes(chain.id);
+                        const isMulticoinActive = activeBlockchains.includes('multicoin');
+                        const isLockedByMulticoin = isMulticoinActive && chain.id !== 'multicoin';
+                        const isAllowed = licenseData?.allowedChains?.includes(chain.id) ?? false;
                         
                         if (chain.id === 'multicoin') {
-                          const isMulticoinLocked = !licenseData?.allowedChains?.includes('multicoin');
                           return (
                             <div 
                               key={chain.id} 
@@ -1099,24 +1076,25 @@ export default function AiCryptoDashboard() {
                                   ? "bg-gradient-to-r from-yellow-400 to-amber-600 text-black shadow-[0_0_40px_rgba(251,191,36,0.5)] border border-yellow-500/50" 
                                   : "glass-panel border-white/10 hover:border-primary/40 hover:scale-[1.02]", 
                                 (isInterrogating || !isOnline) && "cursor-not-allowed pointer-events-none opacity-50",
-                                isMulticoinLocked && "opacity-60 grayscale-[0.5] !bg-black/20"
+                                !isAllowed && "opacity-50 grayscale !bg-black/20 cursor-not-allowed"
                               )}
                             >
                               <div className="flex items-center gap-4">
                                 <div className={cn(
                                   "w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-inner border", 
-                                  isActive ? "bg-black/10 text-white border-white/30" : "bg-white/5 text-primary border-white/10"
+                                  isActive ? "bg-black/10 text-white border-white/30" : "bg-white/5 text-primary border-white/10",
+                                  !isAllowed && "!text-gray-600 !bg-gray-800/20 !border-gray-700"
                                 )}>
-                                  {isMulticoinLocked ? <Lock className="w-6 h-6" /> : <Layers className="w-6 h-6" />}
+                                  {!isAllowed ? <Lock className="w-6 h-6" /> : <Layers className="w-6 h-6" />}
                                 </div>
                                 <div>
                                   <span className={cn("text-sm font-black uppercase tracking-[0.2em]", isActive ? "text-black" : "text-white")}>{chain.name}</span>
-                                  {isMulticoinLocked && <p className="text-[0.625rem] text-yellow-400/80 font-bold uppercase tracking-widest">Requires Elite Tier</p>}
+                                  {!isAllowed && <p className="text-[0.625rem] text-yellow-400/80 font-bold uppercase tracking-widest">Requires Elite Tier</p>}
                                 </div>
                               </div>
                               
                               <div className="flex items-center gap-2">
-                                {!isMulticoinLocked && (
+                                {isAllowed && (
                                   <span className={cn(
                                     "text-[0.5rem] font-black px-2.5 py-1 rounded-md border uppercase tracking-wider",
                                     isActive ? "bg-black/20 text-white border-white/30" : "bg-primary text-black border-primary/30 shadow-glow"
@@ -1124,7 +1102,7 @@ export default function AiCryptoDashboard() {
                                     ELITE
                                   </span>
                                 )}
-                                {!isMulticoinLocked && <ChevronRight className={cn("w-5 h-5 transition-transform", isActive ? "text-black" : "text-gray-600 group-hover:translate-x-1")} />}
+                                {isAllowed && <ChevronRight className={cn("w-5 h-5 transition-transform", isActive ? "text-black" : "text-gray-600 group-hover:translate-x-1")} />}
                               </div>
                             </div>
                           )
@@ -1137,11 +1115,14 @@ export default function AiCryptoDashboard() {
                             className={cn(
                               "blockchain-card group relative overflow-hidden transition-all duration-300", 
                               isActive && "active", 
-                              (isInterrogating || !isOnline || isLockedByMulticoin) && "cursor-not-allowed pointer-events-none opacity-50",
-                              !isActive && "hover:scale-[1.05]"
+                              (isInterrogating || !isOnline || isLockedByMulticoin || !isAllowed) && "cursor-not-allowed pointer-events-none opacity-50",
+                              !isActive && !isAllowed && "grayscale !bg-black/20",
+                              !isActive && isAllowed && "hover:scale-[1.05]"
                             )}
                           >
-                            {chain.logo ? (
+                            {!isAllowed ? (
+                              <div className="w-6 h-6 flex items-center justify-center text-gray-600"><Lock className="w-5 h-5" /></div>
+                            ) : chain.logo ? (
                               <img src={chain.logo} alt={`${chain.name} logo`} className="w-6 h-6 object-contain" />
                             ) : (
                               <div className="w-6 h-6 flex items-center justify-center text-primary"><Coins className="w-5 h-5" /></div>
@@ -1406,34 +1387,35 @@ export default function AiCryptoDashboard() {
                         {!licenseData?.aiSearchEnabled && (
                           <p className="text-xs text-yellow-500/70 font-bold uppercase tracking-wider text-center">Requires Enterprise Tier License</p>
                         )}
-                        {licenseData?.aiSearchEnabled && (
-                          <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                              <div className="flex items-center gap-4">
-                                  <Zap className="w-6 h-6 text-primary" />
-                                  <div className="flex flex-col">
-                                    <p className="text-sm font-bold text-white uppercase tracking-wider">Neural Booster</p>
-                                    <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Overclocks forensic velocity for 1 hour. ({boosterCount} units remaining)</p>
-                                  </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                {isBoosterActive && (
-                                  <span className="font-code text-primary text-sm font-bold w-16 text-right">
-                                      {`${String(Math.floor(boosterTimeRemaining / 60)).padStart(2, '0')}:${String(boosterTimeRemaining % 60).padStart(2, '0')}`}
-                                  </span>
-                                )}
-                                <Switch
-                                  checked={isBoosterActive}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      activateBooster();
-                                    } else {
-                                      deactivateBooster();
-                                    }
-                                  }}
-                                  disabled={!isBoosterActive && (boosterCount <= 0 || !isInterrogating)}
-                                />
-                              </div>
-                          </div>
+                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                            <div className="flex items-center gap-4">
+                                <Zap className="w-6 h-6 text-primary" />
+                                <div className="flex flex-col">
+                                  <p className="text-sm font-bold text-white uppercase tracking-wider">Neural Booster</p>
+                                  <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Overclocks forensic velocity for 1 hour.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {isBoosterActive && (
+                                <span className="font-code text-primary text-sm font-bold w-16 text-right">
+                                    {`${String(Math.floor(boosterTimeRemaining / 60)).padStart(2, '0')}:${String(boosterTimeRemaining % 60).padStart(2, '0')}`}
+                                </span>
+                              )}
+                              <Switch
+                                checked={isBoosterActive}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    activateBooster();
+                                  } else {
+                                    deactivateBooster();
+                                  }
+                                }}
+                                disabled={!isBoosterActive && (!licenseData?.boosterEnabled || !isInterrogating)}
+                              />
+                            </div>
+                        </div>
+                        {!licenseData?.boosterEnabled && (
+                            <p className="text-xs text-yellow-500/70 font-bold uppercase tracking-wider text-center">Booster module requires license authorization.</p>
                         )}
                     </div>
                 </div>
@@ -1573,5 +1555,3 @@ export default function AiCryptoDashboard() {
     </div>
   )
 }
-
-    
