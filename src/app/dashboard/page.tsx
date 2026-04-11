@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -206,14 +207,14 @@ export default function AiCryptoDashboard() {
     }, 0);
   }, [discoveredAssets]);
 
-  const dynamicChartData = useMemo(() => {
+  const { chartData: dynamicChartData, chartDomainMax } = useMemo(() => {
     const data = CHART_DATES.map(date => ({
         name: date,
-        value: 5
+        value: 0
     }));
 
     if (historicalAssets.length === 0) {
-        return data;
+        return { chartData: data, chartDomainMax: 1000 };
     }
 
     const availableIndexes = CHART_DATES.map((_, i) => i);
@@ -229,8 +230,11 @@ export default function AiCryptoDashboard() {
         data[spikeIndex].value += assetValue;
     });
 
-    return data;
-}, [historicalAssets]);
+    const maxSpikeValue = Math.max(...data.map(d => d.value));
+    const domainMax = Math.max(1000, Math.ceil((maxSpikeValue * 1.2) / 1000) * 1000);
+
+    return { chartData: data, chartDomainMax: domainMax };
+  }, [historicalAssets]);
 
   const handleMemoryFlush = useCallback(() => {
     setLogs([]);
@@ -1233,6 +1237,7 @@ export default function AiCryptoDashboard() {
                             dy={10}
                           />
                           <YAxis 
+                            domain={[0, chartDomainMax]}
                             axisLine={false} 
                             tickLine={false} 
                             tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
@@ -1532,3 +1537,4 @@ export default function AiCryptoDashboard() {
     </div>
   )
 }
+
