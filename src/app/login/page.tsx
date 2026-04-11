@@ -34,7 +34,6 @@ export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const [authLogs, setAuthLogs] = useState<string[]>([])
   const [latency, setLatency] = useState(14)
 
   // Real-time Latency Telemetry
@@ -57,44 +56,31 @@ export default function LoginPage() {
   })
 
   const onSubmit = async (values: LoginFormValues) => {
-    setIsLoading(true)
-    setAuthLogs(["Authenticating user..."])
-    
-    await new Promise(r => setTimeout(r, 600))
-    setAuthLogs(prev => [...prev, "Verifying license key..."])
-    
-    await new Promise(r => setTimeout(r, 600))
-    setAuthLogs(prev => [...prev, "Establishing secure session..."])
+    setIsLoading(true);
 
     try {
-      const result = await authenticateUser(values)
+      const result = await authenticateUser(values);
 
       if (result.success) {
-        setAuthLogs(prev => [...prev, "Access granted."])
         toast({
-          title: "Handshake Verified",
-          description: `Neural link established for ${values.username}. Welcome, Operator.`
-        })
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 800)
+          title: "Logged in successfully",
+        });
+        window.location.href = '/dashboard';
       } else {
-        setAuthLogs([])
-        setIsLoading(false)
+        setIsLoading(false);
         toast({
           variant: "destructive",
           title: "Authentication Failed",
-          description: result.message
-        })
+          description: result.message,
+        });
       }
     } catch (error) {
-      setAuthLogs([])
-      setIsLoading(false)
+      setIsLoading(false);
       toast({
         variant: "destructive",
         title: "Connection Timed Out",
-        description: "The neural uplink could not be reached."
-      })
+        description: "The neural uplink could not be reached.",
+      });
     }
   }
 
@@ -145,18 +131,6 @@ export default function LoginPage() {
                 {errors.licenseKey && <p className="text-[9px] text-red-500 font-bold uppercase pl-1">{errors.licenseKey.message}</p>}
               </div>
             </div>
-
-            {isLoading && authLogs.length > 0 && (
-              <div className="space-y-1.5 p-4 rounded-xl bg-black/40 border border-white/5 font-code text-[10px] animate-in fade-in slide-in-from-top-2 duration-300">
-                {authLogs.map((log, i) => (
-                  <div key={i} className={cn("flex items-center gap-2", i === authLogs.length - 1 ? "text-primary" : "text-gray-500")}>
-                    <span className="opacity-50">&gt;</span>
-                    {log}
-                    {i === authLogs.length - 1 && log !== "Access granted." && <Loader2 className="w-2.5 h-2.5 animate-spin ml-auto" />}
-                  </div>
-                ))}
-              </div>
-            )}
 
             <div className="pt-2">
               <Button 
