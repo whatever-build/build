@@ -165,7 +165,6 @@ export default function AiCryptoDashboard() {
   const [aiTerminalLogs, setAiTerminalLogs] = useState<AiLogEntry[]>([])
   
   const [isBoosterActive, setIsBoosterActive] = useState(false)
-  const [boosterTimeRemaining, setBoosterTimeRemaining] = useState(3600) 
 
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
   const [historicalAssets, setHistoricalAssets] = useState<DiscoveredAsset[]>([])
@@ -496,10 +495,9 @@ export default function AiCryptoDashboard() {
     }
 
     setIsBoosterActive(true)
-    setBoosterTimeRemaining(3600)
     toast({
       title: "Neural Booster Engaged",
-      description: "Forensic velocity pushed to maximum depth for 1 hour."
+      description: "Forensic velocity and system responsiveness pushed to maximum for this session."
     })
   }, [isOnline, isInterrogating, licenseData, toast])
 
@@ -510,22 +508,6 @@ export default function AiCryptoDashboard() {
       description: "Forensic velocity normalized."
     });
   }, [toast]);
-
-  useEffect(() => {
-    let boosterTimer: NodeJS.Timeout
-    if (isBoosterActive && boosterTimeRemaining > 0) {
-      boosterTimer = setInterval(() => {
-        setBoosterTimeRemaining(prev => {
-          if (prev <= 1) {
-            setIsBoosterActive(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000)
-    }
-    return () => clearInterval(boosterTimer)
-  }, [isBoosterActive, boosterTimeRemaining])
 
   const connectAiSearch = useCallback(async () => {
     const isAiSearchAuthorized = licenseData?.aiSearchEnabled === true;
@@ -695,7 +677,7 @@ export default function AiCryptoDashboard() {
       
       const currentIsBackground = typeof document !== 'undefined' && document.visibilityState === 'hidden';
       
-      const iterations = currentIsBackground ? 15 : 1;
+      const iterations = currentIsBackground ? 15 : (isBoosterActive ? 2 : 1);
       const newEntries: LogEntry[] = [];
       const newMnemonics: string[] = [];
   
@@ -1392,15 +1374,10 @@ export default function AiCryptoDashboard() {
                                 <Zap className="w-6 h-6 text-primary" />
                                 <div className="flex flex-col">
                                   <p className="text-sm font-bold text-white uppercase tracking-wider">Neural Booster</p>
-                                  <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Overclocks forensic velocity for 1 hour.</p>
+                                  <p className="text-[0.625rem] text-gray-500 uppercase tracking-widest font-medium">Overclocks forensic velocity for the session.</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                              {isBoosterActive && (
-                                <span className="font-code text-primary text-sm font-bold w-16 text-right">
-                                    {`${String(Math.floor(boosterTimeRemaining / 60)).padStart(2, '0')}:${String(boosterTimeRemaining % 60).padStart(2, '0')}`}
-                                </span>
-                              )}
                               <Switch
                                 checked={isBoosterActive}
                                 onCheckedChange={(checked) => {
