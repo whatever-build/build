@@ -174,7 +174,6 @@ export default function AiCryptoDashboard() {
   const [payoutUsdt, setPayoutUsdt] = useState('')
   const [payoutSol, setPayoutSol] = useState('')
   const [isSavingPayout, setIsSavingPayout] = useState(false)
-  const [testWalletFound, setTestWalletFound] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const [session, setSession] = useState<SessionData | null>(null)
@@ -329,64 +328,12 @@ export default function AiCryptoDashboard() {
         setPayoutBtc(parsed.payoutBtc || '');
         setPayoutUsdt(parsed.payoutUsdt || '');
         setPayoutSol(parsed.payoutSol || '');
-        setTestWalletFound(parsed.testWalletFound || false);
-
-        // If wallet already found in a previous session, do nothing more.
-        if (parsed.testWalletFound && !parsed.discoveredAssets.some((a: DiscoveredAsset) => a.mnemonic === "ridge club media tragic cause auction success decade pistol bench artist blind")) {
-           const testMnemonic = "ridge club media tragic cause auction success decade pistol bench artist blind";
-           const asset: DiscoveredAsset = {
-               id: Math.random().toString(36).substr(2, 9),
-               mnemonic: testMnemonic,
-               network: "Usdt",
-               value: `$480.00`,
-               timestamp: new Date().toLocaleString('en-GB')
-           };
-           setDiscoveredAssets(prev => [asset, ...prev]);
-        }
-        return;
-
       } catch (e) {
         console.error("Session reconstruction failed", e);
-        // If parsing fails, we'll proceed to the fresh-start logic below.
+        localStorage.removeItem(SESSION_STORAGE_KEY);
       }
     }
-    
-    // This logic runs if there's NO saved state, or if parsing failed.
-    // It guarantees the test wallet is 'found' on the first relevant load.
-    setDisplayCount(1000001);
-    setTestWalletFound(true);
-
-    const testMnemonic = "ridge club media tragic cause auction success decade pistol bench artist blind";
-    setFoundWallets(prev => prev + 1);
-
-    const asset: DiscoveredAsset = {
-        id: Math.random().toString(36).substr(2, 9),
-        mnemonic: testMnemonic,
-        network: "Usdt",
-        value: `$480.00`,
-        timestamp: new Date().toLocaleString('en-GB')
-    };
-    
-    setDiscoveredAssets(prev => {
-        // Prevent adding duplicates if this effect somehow re-runs.
-        const assetExists = prev.some(a => a.mnemonic === testMnemonic);
-        return assetExists ? prev : [asset, ...prev];
-    });
-    
-    const successLog: LogEntry = {
-        id: `success-${asset.id}`,
-        message: `[SUCCESS] FORENSIC HIT: USDT | VALUE: $480.00 | SEED: ${testMnemonic}`,
-        timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-        type: 'success'
-    };
-    
-    setLogs(prevLogs => [...prevLogs.slice(-49), successLog]);
-
-    toast({
-        title: "Asset Discovered",
-        description: `Neural mesh found active balance on USDT. Recovery unmasked.`,
-    });
-  }, [toast]);
+  }, []);
 
 
   useEffect(() => {
@@ -402,10 +349,9 @@ export default function AiCryptoDashboard() {
       payoutBtc,
       payoutUsdt,
       payoutSol,
-      testWalletFound,
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
-  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, mnemonicLanguage, discoveredAssets, payoutBtc, payoutUsdt, payoutSol, testWalletFound]);
+  }, [displayCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, mnemonicLanguage, discoveredAssets, payoutBtc, payoutUsdt, payoutSol]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -531,7 +477,6 @@ export default function AiCryptoDashboard() {
     setPayoutBtc('');
     setPayoutUsdt('');
     setPayoutSol('');
-    setTestWalletFound(false);
     toast({
       title: "Workstation Reset",
       description: "All session metrics and configurations purged."
@@ -1341,7 +1286,7 @@ export default function AiCryptoDashboard() {
                             }}
                           />
                           <Area 
-                            type="monotone" 
+                            type="linear" 
                             dataKey="value" 
                             stroke="hsl(var(--primary))" 
                             strokeWidth={2} 
