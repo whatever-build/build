@@ -54,7 +54,8 @@ import {
   User,
   Key,
   Languages,
-  Server
+  Server,
+  Check
 } from 'lucide-react'
 import { 
   Area, 
@@ -1463,8 +1464,15 @@ export default function AiCryptoDashboard() {
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-4">
-                              <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", isSelected ? "bg-black/20" : "bg-white/5")}>
-                                <Server className={cn("w-6 h-6", isSelected ? "text-primary" : "text-white/60")} />
+                              <div className="relative">
+                                <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", isSelected ? "bg-black/20" : "bg-white/5")}>
+                                  <Server className={cn("w-6 h-6", isSelected ? "text-primary" : "text-white/60")} />
+                                </div>
+                                {isSelected && (
+                                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center text-black border-2 border-[#0f0f16]">
+                                        <Check className="w-3 h-3" />
+                                    </div>
+                                )}
                               </div>
                               <div>
                                 <p className="font-bold text-white uppercase tracking-wider">{server.name}</p>
@@ -1649,3 +1657,4 @@ export default function AiCryptoDashboard() {
     
 
     
+
