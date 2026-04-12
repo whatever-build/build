@@ -113,12 +113,12 @@ const ENTROPY_LANGUAGES = [
 
 const CHART_DATES = ['09.03', '10.03', '11.03', '12.03', '13.03', '14.03', '15.03'];
 
-const SERVERS = [
-  { id: 'geneva', name: 'Neural Core Prime', location: 'Geneva Hub', tier: 'ELITE-CORE', ip: '45.13.252.1', velocity: 2.4, isElite: true },
-  { id: 'luxembourg', name: 'Luxembourg Uplink', location: 'Luxembourg Hub', tier: 'STANDARD', ip: '102.13.4.88', velocity: 5.2, isElite: false },
-  { id: 'virginia', name: 'Virginia Hub', location: 'N. America Hub', tier: 'BASIC', ip: '34.2.145.11', velocity: 28.1, isElite: false },
-  { id: 'singapore', name: 'Singapore Node', location: 'S.E. Asia Hub', tier: 'BASIC', ip: '172.10.45.9', velocity: 56.2, isElite: false },
-  { id: 'tokyo', name: 'Tokyo Cluster', location: 'N.E. Asia Hub', tier: 'BASIC', ip: '113.45.2.10', velocity: 62.4, isElite: false },
+const SERVERS_DATA = [
+  { id: 'geneva', name: 'Neural Core Prime', location: 'Geneva Hub', tier: 'ELITE-CORE', ip: '45.13.252.1', baseVelocity: 2.4, baseHealth: 99, isElite: true },
+  { id: 'luxembourg', name: 'Luxembourg Uplink', location: 'Luxembourg Hub', tier: 'STANDARD', ip: '102.13.4.88', baseVelocity: 5.2, baseHealth: 96, isElite: false },
+  { id: 'virginia', name: 'Virginia Hub', location: 'N. America Hub', tier: 'BASIC', ip: '34.2.145.11', baseVelocity: 28.1, baseHealth: 92, isElite: false },
+  { id: 'singapore', name: 'Singapore Node', location: 'S.E. Asia Hub', tier: 'BASIC', ip: '172.10.45.9', baseVelocity: 56.2, baseHealth: 88, isElite: false },
+  { id: 'tokyo', name: 'Tokyo Cluster', location: 'N.E. Asia Hub', tier: 'BASIC', ip: '113.45.2.10', baseVelocity: 62.4, baseHealth: 85, isElite: false },
 ];
 
 const SESSION_STORAGE_KEY = 'ai_crypto_session_v4_multi_lang';
@@ -166,6 +166,7 @@ export default function AiCryptoDashboard() {
   const [uiScale, setUiScale] = useState(100)
   const [mnemonicLanguage, setMnemonicLanguage] = useState<string>('english')
   const [selectedServer, setSelectedServer] = useState('luxembourg');
+  const [servers, setServers] = useState(SERVERS_DATA.map(s => ({ ...s, velocity: s.baseVelocity, health: s.baseHealth })));
   
   const [isOnline, setIsOnline] = useState(true)
   const [wasInterrogatingBeforeOffline, setWasInterrogatingBeforeOffline] = useState(false)
@@ -254,6 +255,32 @@ export default function AiCryptoDashboard() {
       description: "Neural interrogation cache cleared automatically.",
     });
   }, [toast]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setServers(currentServers =>
+        currentServers.map(server => {
+          // Fluctuate velocity by up to 10% of its base
+          const velocityFluctuation = (Math.random() - 0.5) * (server.baseVelocity * 0.1);
+          let newVelocity = server.baseVelocity + velocityFluctuation;
+          newVelocity = Math.max(1, newVelocity); // Ensure velocity is at least 1ms
+
+          // Fluctuate health within a +/- 2 range of its base
+          const healthFluctuation = (Math.random() - 0.5) * 4;
+          let newHealth = server.baseHealth + healthFluctuation;
+          newHealth = Math.max(80, Math.min(100, newHealth)); // Clamp between 80-100
+
+          return {
+            ...server,
+            velocity: parseFloat(newVelocity.toFixed(1)),
+            health: Math.round(newHealth),
+          };
+        })
+      );
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1421,7 +1448,7 @@ export default function AiCryptoDashboard() {
                     Network Cluster
                   </h3>
                   <div className="space-y-4">
-                    {SERVERS.map((server) => {
+                    {servers.map((server) => {
                       const isSelected = selectedServer === server.id;
                       const isLocked = server.isElite && !licenseData?.aiSearchEnabled;
                       return (
@@ -1472,9 +1499,9 @@ export default function AiCryptoDashboard() {
                             <div>
                               <div className="flex justify-between items-center text-[0.625rem] uppercase font-bold tracking-widest text-gray-500 mb-1">
                                 <span>Mesh Health</span>
-                                <span className="text-primary font-code">Optimal</span>
+                                <span className="text-primary font-code">{server.health}%</span>
                               </div>
-                              <Progress value={95} className="h-1 bg-primary/10 [&>div]:bg-primary" />
+                              <Progress value={server.health} className="h-1 bg-primary/10 [&>div]:bg-primary" />
                             </div>
                           </div>
                         </div>
@@ -1618,5 +1645,7 @@ export default function AiCryptoDashboard() {
     </div>
   )
 }
+
+    
 
     
