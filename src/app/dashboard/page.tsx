@@ -1093,7 +1093,7 @@ export default function AiCryptoDashboard() {
               <div className="relative flex-1 flex flex-col min-h-0">
                 {/* Step 1: Protocol Selection */}
                 <div className={cn(
-                    "absolute inset-0 flex flex-col transition-all duration-500 ease-in-out",
+                    "absolute inset-0 flex flex-col transition-all duration-500 ease-in-out will-change-[opacity,transform]",
                     scanStep === 1 ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8 pointer-events-none"
                 )}>
                   <h2 className="text-2xl font-black text-white/90 uppercase tracking-widest px-1 mb-4">Select Blockchain</h2>
@@ -1186,7 +1186,7 @@ export default function AiCryptoDashboard() {
 
                 {/* Step 2: Forensic Console */}
                 <div className={cn(
-                    "absolute inset-0 flex flex-col h-full transition-all duration-500 ease-in-out",
+                    "absolute inset-0 flex flex-col h-full transition-all duration-500 ease-in-out will-change-[opacity,transform]",
                     scanStep === 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"
                 )}>
                   <div className="relative flex items-center justify-center shrink-0 px-4 h-14">
@@ -1684,3 +1684,4 @@ export default function AiCryptoDashboard() {
 }
     
     
+
