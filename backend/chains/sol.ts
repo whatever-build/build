@@ -9,7 +9,8 @@ export async function getSolanaBalance(address: string): Promise<number> {
         const balance = await connection.getBalance(publicKey);
         return balance / LAMPORTS_PER_SOL;
     } catch (error) {
-        console.error(`Error getting Solana balance for ${address}:`, error);
+        // Suppress logs for 24/7 operation
+        // console.error(`Error getting Solana balance for ${address}:`, error);
         return 0;
     }
 }

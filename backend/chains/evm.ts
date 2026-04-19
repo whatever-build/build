@@ -32,7 +32,8 @@ async function getNativeBalance(provider: ethers.JsonRpcProvider, address: strin
         const balance = await provider.getBalance(address);
         return parseFloat(ethers.formatEther(balance));
     } catch (error) {
-        console.error(`Error getting native balance for ${address}:`, error);
+        // Suppress logs for 24/7 operation
+        // console.error(`Error getting native balance for ${address}:`, error);
         return 0;
     }
 }
@@ -46,7 +47,8 @@ async function getTokenBalance(provider: ethers.JsonRpcProvider, tokenAddress: s
         ]);
         return parseFloat(ethers.formatUnits(balance, Number(decimals)));
     } catch (error) {
-        console.error(`Error getting token balance for ${userAddress} on contract ${tokenAddress}:`, error);
+        // Suppress logs for 24/7 operation
+        // console.error(`Error getting token balance for ${userAddress} on contract ${tokenAddress}:`, error);
         return 0;
     }
 }

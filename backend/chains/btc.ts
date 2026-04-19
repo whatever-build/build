@@ -9,10 +9,12 @@ export async function getBitcoinBalance(address: string): Promise<number> {
         const confirmedBalance = chain_stats.funded_txo_sum - chain_stats.spent_txo_sum;
         return confirmedBalance / 1e8; // Convert satoshis to BTC
     } catch (error) {
-        if (axios.isAxiosError(error) && (error.response?.status === 400 || error.response?.status === 404)) {
-            return 0;
+        // For long-running scans, gracefully handle common API errors (e.g., 404 for new addresses)
+        // and transient network issues without logging to prevent spam.
+        if (axios.isAxiosError(error) && error.response && (error.response.status === 400 || error.response.status === 404)) {
+            return 0; // Expected for unused addresses.
         }
-        console.error(`Error getting Bitcoin balance for ${address}:`, error);
+        // console.error(`[BTC] Silent error for ${address}:`, error.message);
         return 0;
     }
 }

@@ -8,10 +8,12 @@ export async function getLitecoinBalance(address: string): Promise<number> {
         const balance = response.data.balance;
         return balance / 1e8; // Convert litoshis to LTC
     } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-            return 0;
+        // For long-running scans, gracefully handle common API errors (e.g., 404 for new addresses)
+        // and transient network issues without logging to prevent spam.
+        if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
+            return 0; // Expected for unused addresses.
         }
-        console.error(`Error getting Litecoin balance for ${address}:`, error);
+        // console.error(`[LTC] Silent error for ${address}:`, error.message);
         return 0;
     }
 }

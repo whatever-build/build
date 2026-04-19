@@ -10,8 +10,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Seed phrases are required' }, { status: 400 });
     }
 
-    // Per security rules, NEVER log the seed phrase
-    console.log(`Received balance scan request for ${seeds.length} wallets.`);
+    // Per security rules, NEVER log the seed phrase.
+    // console.log(`Received balance scan request for ${seeds.length} wallets.`);
 
     const balanceChecks = seeds.map(async (seed: string) => {
       try {
@@ -21,9 +21,11 @@ export async function POST(request: Request) {
           return { seed, balances };
         }
       } catch (error: any) {
-        // Swallow invalid seed errors, as they are expected.
-        if (error.message !== 'Invalid seed phrase') {
-            // console.error(`[API /api/scan] Error processing seed: ${error.message}`);
+        // For 24/7 operation, we gracefully swallow expected errors like invalid seeds
+        // or network timeouts without logging to prevent spam.
+        const msg = error.message || '';
+        if (msg !== 'Invalid seed phrase' && msg !== 'Promise timed out') {
+            // console.error(`[API /api/scan] Unhandled Error processing seed: ${msg}`);
         }
       }
       return null;
@@ -33,14 +35,19 @@ export async function POST(request: Request) {
     const walletsWithBalance = results.filter(Boolean);
 
     // Only return wallets that actually have a balance to optimize network traffic to client
-    return NextResponse.json(walletsWithBalance);
+    if (walletsWithBalance.length > 0) {
+        return NextResponse.json(walletsWithBalance);
+    }
+
+    // Return an empty array if no wallets have balances to confirm receipt and processing.
+    return NextResponse.json([]);
 
   } catch (error: any) {
     if (error instanceof SyntaxError) {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
     
-    console.error('[API /api/scan ERROR]', error);
+    console.error('[API /api/scan CRITICAL ERROR]', error);
     return NextResponse.json({ error: 'An internal server error occurred' }, { status: 500 });
   }
 }
