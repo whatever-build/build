@@ -22,7 +22,7 @@ export async function getTronBalance(address: string): Promise<number> {
         return tronWeb.fromSun(balance);
     } catch (error) {
         // Suppress logs for 24/7 operation
-        // console.error(`Error getting Tron balance for ${address}:`, error);
+        console.error(`Error getting Tron balance for ${address}:`, error);
         return 0;
     }
 }

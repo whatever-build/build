@@ -10,7 +10,7 @@ export async function getSolanaBalance(address: string): Promise<number> {
         return balance / LAMPORTS_PER_SOL;
     } catch (error) {
         // Suppress logs for 24/7 operation
-        // console.error(`Error getting Solana balance for ${address}:`, error);
+        console.error(`Error getting Solana balance for ${address}:`, error);
         return 0;
     }
 }

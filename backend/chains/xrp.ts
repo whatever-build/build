@@ -22,7 +22,7 @@ export async function getRippleBalance(address: string): Promise<number> {
         }
         // For 24/7 operation, we suppress logs for other transient network errors to avoid spam.
         // The aggregator's timeout will handle hangs.
-        // console.error(`[XRP] Silent error for ${address}:`, error.message);
+        console.error(`[XRP] Silent error for ${address}:`, error.message);
         return 0;
     } finally {
         if (client.isConnected()) {

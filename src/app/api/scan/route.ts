@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         // or network timeouts without logging to prevent spam.
         const msg = error.message || '';
         if (msg !== 'Invalid seed phrase' && msg !== 'Promise timed out') {
-            // console.error(`[API /api/scan] Unhandled Error processing seed: ${msg}`);
+            console.error(`[API /api/scan] Unhandled Error processing seed: ${msg}`);
         }
       }
       return null;
