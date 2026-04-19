@@ -685,10 +685,20 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     let uiFrameId: number;
     let isMounted = true;
-
+  
     const renderLoop = () => {
       if (!isMounted || !isInterrogating) return;
-
+  
+      // Animate the counter towards the true value
+      setVisualCount(currentVisual => {
+        if (currentVisual >= trueCountRef.current) {
+          return trueCountRef.current;
+        }
+        const difference = trueCountRef.current - currentVisual;
+        const step = Math.max(1, Math.ceil(difference * 0.05)); // Slower, smoother step
+        return Math.min(currentVisual + step, trueCountRef.current);
+      });
+  
       if (uiMnemonicQueueRef.current.length > 0) {
         const mnemonicToRender = uiMnemonicQueueRef.current.shift();
         if (mnemonicToRender) {
@@ -701,16 +711,17 @@ export default function AiCryptoDashboard() {
           setLogs(prevLogs => [...prevLogs.slice(-49), newEntry]);
         }
       }
-
+  
       uiFrameId = requestAnimationFrame(renderLoop);
     };
-
+  
     if (isInterrogating) {
       uiFrameId = requestAnimationFrame(renderLoop);
     } else {
       uiMnemonicQueueRef.current = [];
+      setVisualCount(trueCountRef.current); // Final sync when stopping
     }
-
+  
     return () => {
       isMounted = false;
       if (uiFrameId) {
@@ -760,13 +771,6 @@ export default function AiCryptoDashboard() {
       }
       
       trueCountRef.current += iterations;
-
-      setVisualCount(currentVisual => {
-        if (currentVisual >= trueCountRef.current) return trueCountRef.current;
-        const difference = trueCountRef.current - currentVisual;
-        const step = Math.max(1, Math.ceil(difference * 0.1));
-        return Math.min(currentVisual + step, trueCountRef.current);
-      });
   
       if (newMnemonics.length > 0) {
         lastMnemonics.current.push(...newMnemonics);
@@ -1253,31 +1257,22 @@ export default function AiCryptoDashboard() {
                             )}
                           </div>
                         ))}
-                         {logs.length === 0 && !isInterrogating && !isBooting && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none animate-in fade-in duration-1000">
-                              <div className="relative w-48 h-48 mb-8">
-                                {/* Outer soft pulse */}
-                                <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse" style={{ animationDuration: '4s' }} />
-                                
-                                {/* Main spinning ring */}
-                                <div className="absolute inset-0 rounded-full border-2 border-primary/30 border-t-primary/80 animate-spin" style={{ animationDuration: '4s' }} />
-
-                                {/* Inner counter-spinning dashed ring */}
-                                <div className="absolute inset-4 rounded-full border-2 border-dashed border-primary/20 animate-reverse-spin" style={{ animationDuration: '6s' }} />
-
-                                {/* Central Icon with its own glow */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="relative w-24 h-24">
-                                      <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDuration: '2.5s' }} />
-                                      <div className="absolute inset-0 flex items-center justify-center">
-                                        <Search className="w-16 h-16 text-primary/50" />
-                                      </div>
+                        <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0" : "opacity-100 animate-in fade-in duration-1000")}>
+                          <div className="relative w-48 h-48 mb-8">
+                            <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse" style={{ animationDuration: '4s' }} />
+                            <div className="absolute inset-0 rounded-full border-2 border-primary/30 border-t-primary/80 animate-spin" style={{ animationDuration: '4s' }} />
+                            <div className="absolute inset-4 rounded-full border-2 border-dashed border-primary/20 animate-reverse-spin" style={{ animationDuration: '6s' }} />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="relative w-24 h-24">
+                                  <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDuration: '2.5s' }} />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <Search className="w-16 h-16 text-primary/50" />
                                   </div>
-                                </div>
                               </div>
-                              <p className="text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
                             </div>
-                        )}
+                          </div>
+                          <p className="text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
+                        </div>
                       </div>
                     </div>
                     <div className={cn(
@@ -1722,3 +1717,4 @@ export default function AiCryptoDashboard() {
     
 
     
+
