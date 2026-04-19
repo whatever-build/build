@@ -1090,9 +1090,12 @@ export default function AiCryptoDashboard() {
             )}
 
             {activeTab === 'home' && (
-              <div className="flex flex-col flex-1 min-h-0 h-full">
-              {scanStep === 1 ? (
-                <div className="flex flex-col flex-1 min-h-0 animate-in slide-in-from-bottom-4 duration-300">
+              <div className="relative flex-1 flex flex-col min-h-0">
+                {/* Step 1: Protocol Selection */}
+                <div className={cn(
+                    "absolute inset-0 flex flex-col transition-all duration-500 ease-in-out",
+                    scanStep === 1 ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8 pointer-events-none"
+                )}>
                   <h2 className="text-2xl font-black text-white/90 uppercase tracking-widest px-1 mb-4">Select Blockchain</h2>
                   <p className="text-sm text-gray-500 px-1 mb-8">Choose one or more blockchain to begin the search</p>
                   <section className="space-y-4 shrink-0 flex-1 overflow-y-auto no-scrollbar pb-8">
@@ -1180,8 +1183,12 @@ export default function AiCryptoDashboard() {
                     </div>
                   </section>
                 </div>
-              ) : ( // scanStep === 2
-                <div className="flex flex-col flex-1 min-h-0 h-full animate-in slide-in-from-bottom-4 duration-300">
+
+                {/* Step 2: Forensic Console */}
+                <div className={cn(
+                    "absolute inset-0 flex flex-col h-full transition-all duration-500 ease-in-out",
+                    scanStep === 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none"
+                )}>
                   <div className="relative flex items-center justify-center shrink-0 px-4 h-14">
                       <Button variant="ghost" onClick={() => setScanStep(1)} className="text-primary absolute left-4 top-1/2 -translate-y-1/2 px-2">
                           <ChevronLeft className="w-4 h-4 mr-2" /> Back
@@ -1264,8 +1271,7 @@ export default function AiCryptoDashboard() {
 
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
             )}
 
             {activeTab === 'withdraw' && (
