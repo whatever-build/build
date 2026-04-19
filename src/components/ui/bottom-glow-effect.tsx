@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -49,7 +50,7 @@ const BottomGlowEffect = () => {
 
   return (
     <div
-      className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-[300px] overflow-hidden"
+      className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-[300px] overflow-hidden animate-in fade-in duration-500"
       aria-hidden="true"
     >
       {/* Layer 1: The "Ultra-Bright" white-hot core. This is the heart of the light. */}
@@ -113,3 +114,5 @@ const BottomGlowEffect = () => {
 };
 
 export default BottomGlowEffect;
+
+    

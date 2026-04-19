@@ -1198,7 +1198,7 @@ export default function AiCryptoDashboard() {
                         )}
                       </div>
                     </div>
-                     {isInterrogating && <div className="animate-in fade-in duration-500"><BottomGlowEffect /></div>}
+                     {isInterrogating && <BottomGlowEffect />}
                   </div>
                   
                   <div className="shrink-0 mt-auto pt-2 space-y-4">
@@ -1639,3 +1639,6 @@ export default function AiCryptoDashboard() {
 
     
 
+
+
+    
