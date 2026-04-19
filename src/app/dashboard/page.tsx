@@ -664,7 +664,7 @@ export default function AiCryptoDashboard() {
         }
 
       } catch (e: any) {
-        console.error(e);
+        console.error(`[SCAN ERROR] ${e.message}`);
       } finally {
         isAnalyzingRef.current = false;
         if (isMounted) {
@@ -1666,6 +1666,17 @@ export default function AiCryptoDashboard() {
                   </div>
                 </section>
                 
+                <section className="glass-panel rounded-[32px] p-8 border-white/5 text-center shadow-xl group hover:border-primary/30 transition-all duration-300">
+                  <div className="space-y-2">
+                    <h4 className="text-[0.6875rem] font-black uppercase tracking-[0.3em] text-white/40">
+                      Creator & Owner
+                    </h4>
+                    <p className="text-xl font-black text-white tracking-wider">
+                      Alex Mercer
+                    </p>
+                  </div>
+                </section>
+
                 <section className="glass-panel rounded-[32px] p-8 border-white/5 flex flex-col justify-between shadow-xl group hover:border-primary/30 transition-all duration-300">
                   <div className="space-y-3">
                     <h4 className="text-[0.6875rem] font-black uppercase tracking-[0.3em] text-white/40 flex items-center gap-3">
@@ -1717,4 +1728,5 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
