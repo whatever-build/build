@@ -1671,9 +1671,14 @@ export default function AiCryptoDashboard() {
                     <h4 className="text-[0.6875rem] font-black uppercase tracking-[0.3em] text-white/40">
                       Creator & Owner
                     </h4>
-                    <p className="text-xl font-black text-white tracking-wider">
+                    <a
+                      href="https://t.me/CMS_OWNER"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xl font-black text-white tracking-wider inline-block transition-all duration-300 hover:text-primary hover:scale-110 hover:[text-shadow:0_0_15px_hsl(var(--primary))]"
+                    >
                       Alex Mercer
-                    </p>
+                    </a>
                   </div>
                 </section>
 
@@ -1728,5 +1733,6 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
 
