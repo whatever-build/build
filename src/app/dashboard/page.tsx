@@ -196,6 +196,7 @@ export default function AiCryptoDashboard() {
   const lastMnemonics = useRef<string[]>([])
   const isAnalyzingRef = useRef(false);
   const trueCountRef = useRef(0);
+  const uiMnemonicQueueRef = useRef<string[]>([]);
 
   const changeTab = (tab: TabType) => {
     setActiveTab(tab);
@@ -431,13 +432,11 @@ export default function AiCryptoDashboard() {
   }, [isInterrogating, wasInterrogatingBeforeOffline, toast]);
 
   useEffect(() => {
-    if (isBooting) {
-      const timer = setTimeout(() => {
-        setIsBooting(false);
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isBooting]);
+    const timer = setTimeout(() => {
+      setIsBooting(false);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
 
   useLayoutEffect(() => {
     if (scrollRef.current) {
@@ -665,6 +664,43 @@ export default function AiCryptoDashboard() {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [isInterrogating, isOnline, isBoosterActive, toast]);
+
+  useEffect(() => {
+    let uiFrameId: number;
+    let isMounted = true;
+
+    const renderLoop = () => {
+      if (!isMounted || !isInterrogating) return;
+
+      if (uiMnemonicQueueRef.current.length > 0) {
+        const mnemonicToRender = uiMnemonicQueueRef.current.shift();
+        if (mnemonicToRender) {
+          const newEntry: LogEntry = {
+            id: `${Math.random().toString(36).substr(2, 9)}`,
+            message: mnemonicToRender,
+            timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
+            type: 'ai'
+          };
+          setLogs(prevLogs => [...prevLogs.slice(-49), newEntry]);
+        }
+      }
+
+      uiFrameId = requestAnimationFrame(renderLoop);
+    };
+
+    if (isInterrogating) {
+      uiFrameId = requestAnimationFrame(renderLoop);
+    } else {
+      uiMnemonicQueueRef.current = [];
+    }
+
+    return () => {
+      isMounted = false;
+      if (uiFrameId) {
+        cancelAnimationFrame(uiFrameId);
+      }
+    };
+  }, [isInterrogating]);
   
   useEffect(() => {
     let active = true;
@@ -682,7 +718,6 @@ export default function AiCryptoDashboard() {
       const currentIsBackground = typeof document !== 'undefined' && document.visibilityState === 'hidden';
       
       const iterations = currentIsBackground ? 100 : (isBoosterActive ? 20 : 10);
-      const newEntries: LogEntry[] = [];
       const newMnemonics: string[] = [];
   
       for (let i = 0; i < iterations; i++) {
@@ -691,17 +726,8 @@ export default function AiCryptoDashboard() {
         newMnemonics.push(mnemonic);
         
         if (!currentIsBackground) {
-          newEntries.push({
-            id: `${Math.random().toString(36).substr(2, 9)}-${i}`,
-            message: mnemonic,
-            timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
-            type: 'ai'
-          });
+          uiMnemonicQueueRef.current.push(mnemonic);
         }
-      }
-  
-      if (newEntries.length > 0) {
-        setLogs(prevLogs => [...prevLogs, ...newEntries].slice(-50));
       }
       
       trueCountRef.current += iterations;
@@ -1151,7 +1177,7 @@ export default function AiCryptoDashboard() {
                   <div className="flex-1 min-h-0 relative mb-4">
                     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col-reverse" ref={scrollRef}>
                       <div className="p-6 space-y-2">
-                        {isBooting && (
+                        {isBooting && !isInterrogating && (
                           <div className="font-code text-xs space-y-1">
                             <p className="text-terminal-cyan">[BOOT] Initializing AI Crypto Engine v4.0 Elite...</p>
                             <p className="text-terminal-cyan">[BOOT] Verifying system modules...</p>
@@ -1642,5 +1668,7 @@ export default function AiCryptoDashboard() {
     
 
 
+
+    
 
     
