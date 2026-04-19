@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react'
@@ -1212,7 +1211,7 @@ export default function AiCryptoDashboard() {
                           <div key={log.id} className="console-line">
                             {log.type === 'ai' ? (
                               <div className="flex items-baseline font-code text-xs whitespace-nowrap overflow-hidden">
-                                <span className="text-white/40">Balance: 0 | Wallet check: </span>
+                                <span className="text-white/80">Balance: 0 | Wallet check: </span>
                                 <span className="text-white/80 truncate">{log.message}</span>
                               </div>
                             ) : log.type === 'success' ? (
