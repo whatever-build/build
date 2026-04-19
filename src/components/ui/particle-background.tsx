@@ -82,13 +82,13 @@ export function ParticleBackground() {
           },
         },
         move: {
-          direction: "none",
+          direction: "top",
           enable: true,
           outModes: {
             default: "out",
           },
           random: false,
-          speed: 0.5,
+          speed: 0.8,
           straight: false,
         },
         number: {
@@ -96,10 +96,10 @@ export function ParticleBackground() {
             enable: true,
             area: 800,
           },
-          value: 70,
+          value: 80,
         },
         opacity: {
-          value: 0.6,
+          value: { min: 0.1, max: 0.5 },
         },
         shape: {
           type: "circle",
