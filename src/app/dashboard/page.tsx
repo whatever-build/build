@@ -1241,17 +1241,23 @@ export default function AiCryptoDashboard() {
                             )}
                           </div>
                         ))}
-                         {logs.length === 0 && !isInterrogating && isBooting && (
-                            <div className="absolute inset-0 flex items-center justify-center text-center">
-                                <p className="text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
+                         {logs.length === 0 && !isInterrogating && !isBooting && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none animate-in fade-in duration-1000">
+                              <div className="relative w-48 h-48 mb-8">
+                                <div className="absolute inset-0 rounded-full border border-primary/10 animate-pulse" style={{ animationDuration: '3s' }}/>
+                                <div className="absolute inset-2 rounded-full border-2 border-primary/20 border-t-primary/50 animate-spin" style={{ animationDuration: '5s' }}/>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <Search className="w-16 h-16 text-primary/30" />
+                                </div>
+                              </div>
+                              <p className="text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
                             </div>
                         )}
                       </div>
                     </div>
                     <div className={cn(
-                        'transition-opacity duration-500', 
-                        isInterrogating ? 'opacity-100' : 'opacity-0',
-                        isBooting && !isInterrogating && 'opacity-0'
+                        'transition-opacity duration-500 will-change-[opacity]', 
+                        isInterrogating ? 'opacity-100' : 'opacity-0'
                       )}>
                       <BottomGlowEffect />
                     </div>
@@ -1684,4 +1690,5 @@ export default function AiCryptoDashboard() {
 }
     
     
+
 
