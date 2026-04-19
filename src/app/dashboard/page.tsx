@@ -229,21 +229,32 @@ export default function AiCryptoDashboard() {
         return { chartData: data, chartDomainMax: 1000 };
     }
 
-    const availableIndexes = CHART_DATES.map((_, i) => i);
-
-    historicalAssets.forEach(asset => {
-        if (availableIndexes.length === 0) return;
-
-        const assetValue = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
-        
-        const randomIndex = Math.floor(Math.random() * availableIndexes.length);
-        const spikeIndex = availableIndexes.splice(randomIndex, 1)[0];
-        
-        data[spikeIndex].value += assetValue;
+    // Sort assets from oldest to newest for a chronological progression
+    const sortedAssets = [...historicalAssets].reverse();
+    
+    // Calculate the cumulative value of assets over time
+    let cumulativeValue = 0;
+    const cumulativeValues = sortedAssets.map(asset => {
+      const assetValue = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
+      cumulativeValue += assetValue;
+      return cumulativeValue;
     });
 
-    const maxSpikeValue = Math.max(...data.map(d => d.value));
-    const domainMax = Math.max(1000, Math.ceil((maxSpikeValue * 1.2) / 1000) * 1000);
+    const numAssets = cumulativeValues.length;
+    const numDays = data.length;
+
+    // Distribute cumulative earnings across chart days
+    for (let i = 0; i < numDays; i++) {
+        const assetRatio = (i + 1) / numDays;
+        const assetIndex = Math.ceil(assetRatio * numAssets) - 1;
+
+        if (assetIndex >= 0) {
+            data[i].value = cumulativeValues[assetIndex];
+        }
+    }
+    
+    const maxValue = data.length > 0 ? Math.max(...data.map(d => d.value)) : 0;
+    const domainMax = Math.max(1000, Math.ceil((maxValue * 1.2) / 1000) * 1000);
 
     return { chartData: data, chartDomainMax: domainMax };
   }, [historicalAssets]);
