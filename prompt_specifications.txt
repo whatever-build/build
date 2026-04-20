@@ -18,7 +18,7 @@ The format for the scrolling seed phrases is simple but specific to achieve the 
 
 *   **Structure**: Each log entry is a dynamically generated string within the main generation loop.
 *   **Format**: The precise string format is: `"Balance: 0 | Wallet check: {mnemonic}"` where `{mnemonic}` is the 12-word BIP39 phrase.
-*   **Styling**: The entry is rendered within a `div` that uses a monospace font (`font-code`). The text is broken into two parts: the static label (`Balance: 0 | Wallet check: `) and the dynamic mnemonic. This allows for specific styling if needed and ensures the mnemonic itself can be truncated with `truncate` to prevent line wrapping and maintain the clean, single-line format.
+*   **Styling**: The entry is rendered within a `div` that uses a monospace font (`font-code`). The text is explicitly colored `text-white` and is broken into two parts: the static label (`Balance: 0 | Wallet check: `) and the dynamic mnemonic. This allows for specific styling if needed and ensures the mnemonic itself can be truncated with `truncate` to prevent line wrapping and maintain the clean, single-line format.
 
 ### 3. Performance & UI Smoothness (`AiCryptoDashboard.tsx`)
 
@@ -26,5 +26,25 @@ The smoothness of the animation and scrolling is achieved through two key techni
 
 *   **UI-Friendly Generation Loop**: The continuous generation of new seed phrases is handled inside a `requestAnimationFrame` loop. This is critical for performance because it ensures that the UI-blocking work (generating mnemonics, updating React state) only happens right before the browser's next paint. This prevents UI stuttering and keeps the entire application responsive, even during intense operation.
 *   **Smooth Log Scrolling**: The console log feed is a `div` with `overflow-y-auto`. A React `useRef` (`scrollRef`) is attached to this container. A `useEffect` hook, which runs every time the `logs` array is updated, programmatically sets the scroll position to the very bottom using the logic: `scrollRef.current.scrollTop = scrollRef.current.scrollHeight;`. This creates the seamless, automatic scrolling effect as new entries are rapidly added to the feed.
+
+### 4. About Tab Structure & Styling (`AiCryptoDashboard.tsx`)
+
+The "About" tab provides key information about the software and its creator, styled to match the workstation's premium aesthetic. It is composed of three main sections within a container.
+
+*   **Main Information Card**:
+    *   **Container**: A `glass-panel` with a `border-primary/20` and a semi-transparent `bg-primary/[0.02]`.
+    *   **Atmospherics**: A decorative `BrainCircuit` icon is placed in the background with low opacity, which increases on hover.
+    *   **Header**: Features the software title (`Ai Crypto v4.0 Elite`) and a pulsing `Cpu` icon within a gradient-filled container.
+    *   **Content**: Two descriptive sections for "High-Entropy Synthesis" and "Automated Discovery," each with its own icon (`Layers`, `ShieldCheck`) and descriptive text. Text has a subtle color transition on hover.
+
+*   **Creator & Owner Card**:
+    *   **Container**: A centered `glass-panel`.
+    *   **Content**: Displays "Creator & Owner". The name "Alex Mercer" is a hyperlink (`<a>` tag) pointing to `https://t.me/CMS_OWNER`.
+    *   **Styling**: The name is styled to be interactive and premium. On hover, it gains a text glow (`text-shadow`), changes color to `hsl(var(--primary))`, and scales up slightly (`scale-110`).
+
+*   **Communications Card**:
+    *   **Container**: A `glass-panel` for contact information.
+    *   **Content**: Contains a brief description and a prominent button.
+    *   **Button**: A large call-to-action button linking to the Telegram channel `https://t.me/Ai_Crypto_Software`. It features a gradient background from `hsl(var(--primary))` to `hsl(var(--accent))` and has a `hover:scale` effect.
 
 This detailed breakdown should give you everything you need to replicate these core features with high fidelity.
