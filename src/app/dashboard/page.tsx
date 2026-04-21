@@ -1634,8 +1634,8 @@ export default function AiCryptoDashboard() {
                   </div>
                   <div className="relative z-10 space-y-8">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-glow animate-pulse duration-[3000ms]">
-                        <Image src="/logos/icon.png" alt="AI Crypto Logo" width={40} height={40} />
+                      <div className="w-14 h-14 rounded-2xl shadow-glow animate-pulse duration-[3000ms]">
+                        <Image src="/logos/icon.png" alt="AI Crypto Logo" width={56} height={56} />
                       </div>
                       <div>
                         <h2 className="text-xl font-black uppercase tracking-widest text-white">Ai Crypto</h2>
@@ -1731,6 +1731,7 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
 
 
