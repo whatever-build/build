@@ -1,11 +1,9 @@
-
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { 
-  Cpu, 
   Activity, 
   Power,
   Lock,
@@ -1637,7 +1635,7 @@ export default function AiCryptoDashboard() {
                   <div className="relative z-10 space-y-8">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-glow animate-pulse duration-[3000ms]">
-                        <Cpu className="w-8 h-8 text-black" />
+                        <Image src="/logos/icon.png" alt="AI Crypto Logo" width={40} height={40} />
                       </div>
                       <div>
                         <h2 className="text-xl font-black uppercase tracking-widest text-white">Ai Crypto</h2>
@@ -1733,6 +1731,7 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
 
 

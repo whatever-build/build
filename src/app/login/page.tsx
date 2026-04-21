@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { 
-  Cpu, 
   ShieldCheck, 
   ChevronRight, 
   Fingerprint,
@@ -99,7 +99,7 @@ export default function LoginPage() {
           <div className="relative mb-6 group animate-in zoom-in duration-1000">
             <div className="absolute inset-0 bg-primary/40 blur-[25px] rounded-full group-hover:blur-[35px] transition-all duration-1000" />
             <div className="relative w-20 h-20 rounded-[28px] bg-gradient-to-tr from-primary via-accent to-primary flex items-center justify-center shadow-[0_0_50px_rgba(173,79,230,0.7)] border border-primary/50 group-hover:scale-110 transition-transform duration-700">
-              <Cpu className="w-11 h-11 text-black animate-pulse duration-[3000ms]" />
+              <Image src="/logos/icon.png" alt="AI Crypto Logo" width={56} height={56} />
             </div>
           </div>
           <h1 className="text-2xl font-black tracking-[0.2em] text-white/90 mb-4 text-center">Welcome to Ai Crypto !</h1>
