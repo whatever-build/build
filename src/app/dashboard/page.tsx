@@ -1634,7 +1634,7 @@ export default function AiCryptoDashboard() {
                   </div>
                   <div className="relative z-10 space-y-8">
                     <div className="flex items-center gap-4">
-                      <Image src="/logos/icon.png" alt="AI Crypto Logo" width={56} height={56} />
+                      <Image src="/logos/icon.png" alt="AI Crypto Logo" width={80} height={80} />
                       <div>
                         <h2 className="text-xl font-black uppercase tracking-widest text-white">Ai Crypto</h2>
                         <p className="text-[0.6rem] font-bold text-primary uppercase tracking-[0.4em] mt-1">v4.0 Elite</p>
