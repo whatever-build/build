@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react'
@@ -1225,21 +1226,17 @@ export default function AiCryptoDashboard() {
                             )}
                           </div>
                         ))}
-                        <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0" : "opacity-100 animate-in fade-in duration-1000")}>
-                          <div className="relative w-48 h-48 mb-8">
-                            <div className="absolute inset-0 rounded-full bg-primary/5 animate-pulse" style={{ animationDuration: '4s' }} />
-                            <div className="absolute inset-0 rounded-full border-2 border-primary/30 border-t-primary/80 animate-spin" style={{ animationDuration: '4s' }} />
-                            <div className="absolute inset-4 rounded-full border-2 border-dashed border-primary/20 animate-reverse-spin" style={{ animationDuration: '6s' }} />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="relative w-24 h-24">
-                                  <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl animate-pulse" style={{ animationDuration: '2.5s' }} />
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <Search className="w-16 h-16 text-primary/50" />
-                                  </div>
-                              </div>
+                        <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0 pointer-events-none" : "opacity-100 animate-in fade-in duration-1000")}>
+                            <div className="group">
+                                <Image
+                                    src="/logos/icon.png"
+                                    alt="AI Crypto Logo"
+                                    width={256}
+                                    height={256}
+                                    className="w-56 h-56 opacity-20 group-hover:opacity-40 group-hover:scale-105 group-hover:drop-shadow-[0_0_30px_hsl(var(--primary)_/_0.4)] transition-all duration-300"
+                                />
                             </div>
-                          </div>
-                          <p className="text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
+                            <p className="mt-8 text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
                         </div>
                       </div>
                     </div>
@@ -1695,6 +1692,8 @@ export default function AiCryptoDashboard() {
 
 
 
+
+    
 
     
 
