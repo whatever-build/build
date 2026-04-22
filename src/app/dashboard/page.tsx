@@ -1227,16 +1227,13 @@ export default function AiCryptoDashboard() {
                           </div>
                         ))}
                         <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0 pointer-events-none" : "opacity-100 animate-in fade-in duration-1000")}>
-                            <div className="group">
-                                <Image
-                                    src="/logos/icon.png"
-                                    alt="AI Crypto Logo"
-                                    width={256}
-                                    height={256}
-                                    className="w-56 h-56 opacity-20 group-hover:opacity-40 group-hover:scale-105 group-hover:drop-shadow-[0_0_30px_hsl(var(--primary)_/_0.4)] transition-all duration-300"
-                                />
-                            </div>
-                            <p className="mt-8 text-gray-700 font-code text-sm animate-pulse">Awaiting scan command...</p>
+                            <Image
+                                src="/logos/icon.png"
+                                alt="AI Crypto Logo"
+                                width={256}
+                                height={256}
+                                className="w-56 h-56 animate-idle-logo-pulse hover:!opacity-100 hover:scale-110 hover:drop-shadow-[0_0_40px_hsl(var(--primary)_/_0.6)] transition-all duration-300"
+                            />
                         </div>
                       </div>
                     </div>
