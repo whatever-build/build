@@ -397,10 +397,6 @@ export default function AiCryptoDashboard() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      toast({
-        title: "Connection Restored",
-        description: "Neural mesh reconnection successful. Resuming system...",
-      });
       if (wasInterrogatingBeforeOffline) {
         setIsInterrogating(true);
         setWasInterrogatingBeforeOffline(false);
@@ -1232,7 +1228,7 @@ export default function AiCryptoDashboard() {
                                 alt="AI Crypto Logo"
                                 width={256}
                                 height={256}
-                                className="w-56 h-56 opacity-30 hover:!opacity-100 hover:scale-110 hover:drop-shadow-[0_0_40px_hsl(var(--primary)_/_0.6)] transition-all duration-300"
+                                className="w-56 h-56 opacity-100 scale-110 drop-shadow-[0_0_40px_hsl(var(--primary)_/_0.6)] transition-all duration-300"
                             />
                         </div>
                       </div>
