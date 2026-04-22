@@ -13,7 +13,7 @@ export async function getLitecoinBalance(address: string): Promise<number> {
         if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
             return 0; // Expected for unused addresses.
         }
-        console.error(`[LTC] Silent error for ${address}:`, error.message);
+        // All other errors are silenced to maintain operational integrity and prevent log flooding.
         return 0;
     }
 }

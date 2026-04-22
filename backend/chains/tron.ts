@@ -7,22 +7,21 @@ try {
         fullHost: 'https://api.trongrid.io',
     });
 } catch (e) {
-    // This initialization error should be logged as it's a critical setup failure.
-    console.error("Failed to initialize TronWeb", e)
+    // This initialization error is critical and should be logged.
+    console.error("FATAL: Failed to initialize TronWeb. TRON balance checks will fail.", e)
 }
 
 
 export async function getTronBalance(address: string): Promise<number> {
     if (!tronWeb) {
-        // This would be too spammy if called repeatedly.
+        // TronWeb failed to initialize, so we can't proceed.
         return 0;
     }
     try {
         const balance = await tronWeb.trx.getBalance(address);
         return tronWeb.fromSun(balance);
     } catch (error) {
-        // Suppress logs for 24/7 operation
-        console.error(`Error getting Tron balance for ${address}:`, error);
+        // Silently fail on purpose to prevent log spam from network errors or invalid addresses.
         return 0;
     }
 }
