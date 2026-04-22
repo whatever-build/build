@@ -92,22 +92,11 @@ export default {
           '0%, 100%': { opacity: '0.2' },
           '50%': { opacity: '0.4' },
         },
-        'idle-logo-pulse': {
-          '0%, 100%': {
-            transform: 'scale(1)',
-            opacity: '0.3',
-          },
-          '50%': {
-            transform: 'scale(1.02)',
-            opacity: '0.4',
-          },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'grid-pulse': 'grid-pulse 10s ease-in-out infinite',
-        'idle-logo-pulse': 'idle-logo-pulse 8s ease-in-out infinite',
       },
     },
   },
