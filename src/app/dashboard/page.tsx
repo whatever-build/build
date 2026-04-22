@@ -45,7 +45,6 @@ import {
   Rocket,
   Save,
   CreditCard,
-  Fingerprint,
   Loader2,
   ShieldAlert,
   ArrowRightCircle,
@@ -150,7 +149,6 @@ export default function AiCryptoDashboard() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [isInterrogating, setIsInterrogating] = useState(false)
   const [isBooting, setIsBooting] = useState(true)
-  const [isAuthenticating, setIsAuthenticating] = useState(true)
   const [visualCount, setVisualCount] = useState(0)
   const [foundWallets, setFoundWallets] = useState(0)
   const [activeBlockchains, setActiveBlockchains] = useState<string[]>([])
@@ -301,13 +299,6 @@ export default function AiCryptoDashboard() {
       }
     };
   }, [uiScale]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAuthenticating(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     const checkLicense = async () => {
@@ -1058,27 +1049,6 @@ export default function AiCryptoDashboard() {
 
   return (
     <div className="flex flex-col h-screen bg-[#050507] text-foreground font-body relative transition-all duration-300 ease-in-out">
-      {isAuthenticating && (
-        <div className="fixed inset-0 z-[100] bg-[#050507] flex flex-col items-center justify-center p-8 animate-out fade-out duration-500 fill-mode-forwards">
-          <div className="relative w-64 h-64 mb-12">
-            <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping" />
-            <div className="absolute inset-4 rounded-full border-2 border-primary/40 border-t-primary animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Fingerprint className="w-24 h-24 text-primary animate-pulse" />
-            </div>
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary/60 shadow-glow animate-scan-line" />
-          </div>
-          <div className="text-center space-y-4">
-            <h2 className="text-xl font-black text-white uppercase tracking-[0.4em] animate-pulse">Neural Identity Handshake</h2>
-            <div className="flex flex-col gap-2 font-code text-[10px] text-primary/60 uppercase">
-              <span>&gt; Calibrating Retinal Mesh...</span>
-              <span>&gt; Verifying Forensic Signature...</span>
-              <span>&gt; Uplink Established.</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       <main className="flex-1 overflow-y-auto p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(9rem+env(safe-area-inset-bottom))] min-h-0">
           <div className="w-full flex-1 flex flex-col min-h-0 animate-in fade-in duration-300 h-full">
             
