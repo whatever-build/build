@@ -97,7 +97,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-1000">
         <div className="flex flex-col items-center mb-10 text-center">
           <div className="mb-6">
-            <Image src="/logos/icon.png" alt="AI Crypto Logo" width={120} height={120} className="animate-in zoom-in duration-1000" />
+            <Image src="/logos/logo.png" alt="AI Crypto Logo" width={120} height={120} className="animate-in zoom-in duration-1000" />
           </div>
           <h1 className="text-2xl font-black tracking-[0.2em] text-white/90 mb-4 text-center">Welcome to Ai Crypto !</h1>
           

@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react'
@@ -1224,7 +1223,7 @@ export default function AiCryptoDashboard() {
                         ))}
                         <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0 pointer-events-none" : "opacity-100 animate-in fade-in duration-1000")}>
                             <Image
-                                src="/logos/icon.png"
+                                src="/logos/logo.png"
                                 alt="AI Crypto Logo"
                                 width={256}
                                 height={256}
@@ -1594,7 +1593,7 @@ export default function AiCryptoDashboard() {
                   </div>
                   <div className="relative z-10 space-y-8">
                     <div className="flex items-center gap-4">
-                      <Image src="/logos/icon.png" alt="AI Crypto Logo" width={80} height={80} />
+                      <Image src="/logos/logo.png" alt="AI Crypto Logo" width={80} height={80} />
                       <div>
                         <h2 className="text-xl font-black uppercase tracking-widest text-white">Ai Crypto</h2>
                         <p className="text-[0.6rem] font-bold text-primary uppercase tracking-[0.4em] mt-1">v4.0 Elite</p>
