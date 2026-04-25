@@ -106,8 +106,6 @@ const ENTROPY_LANGUAGES = [
   { id: 'chinese_traditional', name: 'Chinese (Trad.)', flag: '🇹🇼' },
 ]
 
-const CHART_DATES = ['09.03', '10.03', '11.03', '12.03', '13.03', '14.03', '15.03'];
-
 const SERVERS_DATA = [
   { id: 'geneva', name: 'Neural Core Prime', location: 'Geneva Hub', tier: 'ELITE-CORE', ip: '45.13.252.1', baseVelocity: 2.4, baseHealth: 99, isElite: true },
   { id: 'luxembourg', name: 'Luxembourg Uplink', location: 'Luxembourg Hub', tier: 'STANDARD', ip: '102.13.4.88', baseVelocity: 5.2, baseHealth: 96, isElite: false },
@@ -216,43 +214,42 @@ export default function AiCryptoDashboard() {
   }, [discoveredAssets]);
 
   const { chartData: dynamicChartData, chartDomainMax } = useMemo(() => {
-    const data = CHART_DATES.map(date => ({
-        name: date,
-        value: 0
-    }));
-
     if (historicalAssets.length === 0) {
-        return { chartData: data, chartDomainMax: 1000 };
+        // Create a flat line with 20 points for an initial empty state
+        const now = new Date();
+        const initialData = Array.from({ length: 20 }, (_, i) => {
+            const time = new Date(now.getTime() - (19 - i) * 60000); // Minutes ago
+            return {
+                name: time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                value: 0
+            };
+        });
+        return { chartData: initialData, chartDomainMax: 1000 };
     }
 
     // Sort assets from oldest to newest for a chronological progression
     const sortedAssets = [...historicalAssets].reverse();
     
-    // Calculate the cumulative value of assets over time
+    // Calculate the cumulative value of assets over time, creating a data point for each asset
     let cumulativeValue = 0;
-    const cumulativeValues = sortedAssets.map(asset => {
+    const dataPoints = sortedAssets.map(asset => {
       const assetValue = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
       cumulativeValue += assetValue;
-      return cumulativeValue;
+      const timePart = asset.timestamp.split(', ')[1];
+      return {
+          name: timePart ? timePart.substring(0, 5) : '00:00', // Format: HH:mm
+          value: cumulativeValue
+      };
     });
 
-    const numAssets = cumulativeValues.length;
-    const numDays = data.length;
+    // Limit to the last 30 data points for clarity
+    const chartData = dataPoints.slice(-30);
 
-    // Distribute cumulative earnings across chart days
-    for (let i = 0; i < numDays; i++) {
-        const assetRatio = (i + 1) / numDays;
-        const assetIndex = Math.ceil(assetRatio * numAssets) - 1;
-
-        if (assetIndex >= 0) {
-            data[i].value = cumulativeValues[assetIndex];
-        }
-    }
-    
-    const maxValue = data.length > 0 ? Math.max(...data.map(d => d.value)) : 0;
+    const maxValue = chartData.length > 0 ? Math.max(...chartData.map(d => d.value)) : 0;
+    // Set a dynamic ceiling for the Y-axis, with a minimum of 1000
     const domainMax = Math.max(1000, Math.ceil((maxValue * 1.2) / 1000) * 1000);
 
-    return { chartData: data, chartDomainMax: domainMax };
+    return { chartData, chartDomainMax };
   }, [historicalAssets]);
 
   const handleMemoryFlush = useCallback(() => {
@@ -1690,3 +1687,4 @@ export default function AiCryptoDashboard() {
     
 
     
+
