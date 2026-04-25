@@ -268,23 +268,6 @@
     animation: luxury-pulse-fast 5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   }
   
-  @keyframes data-packet-rise {
-    0% {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    10% {
-      opacity: 1;
-    }
-    90% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(-180px);
-      opacity: 0;
-    }
-  }
-
   .animate-scanline-glow {
     animation: scanline-glow 6s ease-in-out infinite;
   }
@@ -310,6 +293,7 @@
 
 
     
+
 
 
 

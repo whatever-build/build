@@ -1,51 +1,8 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-
-// More subtle, "data packet" style particles
-const PARTICLE_COUNT = 75; 
-
-interface Particle {
-  id: number;
-  style: React.CSSProperties;
-}
+import React from 'react';
 
 const BottomGlowEffect = () => {
-  const [particles, setParticles] = useState<Particle[]>([]);
-
-  useEffect(() => {
-    // Client-side only effect
-    const generateParticles = () => {
-      const newParticles: Particle[] = [];
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const width = Math.random() > 0.7 ? 2 : 1;
-        const height = Math.random() * 8 + 3;
-        const duration = Math.random() * 5 + 3; // Faster, more direct
-        const delay = Math.random() * 8;
-        const x = Math.random() * 100;
-        
-        newParticles.push({
-          id: i,
-          style: {
-            position: 'absolute',
-            bottom: 0,
-            left: `${x}%`,
-            width: `${width}px`,
-            height: `${height}px`,
-            borderRadius: '2px',
-            backgroundColor: 'hsl(var(--primary))',
-            boxShadow: `0 0 10px hsl(var(--primary))`,
-            animation: `data-packet-rise ${duration}s ease-in ${delay}s infinite`,
-            opacity: 0,
-            willChange: 'transform, opacity',
-          },
-        });
-      }
-      setParticles(newParticles);
-    };
-    generateParticles();
-  }, []);
-
   return (
     <div
       className="pointer-events-none absolute bottom-0 left-0 right-0 z-20 h-[300px] overflow-hidden"
@@ -105,14 +62,6 @@ const BottomGlowEffect = () => {
         }}
       >
         <div className="w-full h-full bg-white opacity-90" />
-      </div>
-
-
-      {/* Particles shooting up from the bright core */}
-      <div className="absolute inset-0">
-        {particles.map(p => (
-          <div key={p.id} style={p.style} />
-        ))}
       </div>
     </div>
   );
