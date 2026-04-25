@@ -241,7 +241,7 @@ export default function AiCryptoDashboard() {
 
     const chartData = dataPoints.slice(-30);
     const maxValue = chartData.length > 0 ? Math.max(...chartData.map(d => d.value)) : 0;
-    const domainMax = Math.max(1000, Math.ceil((maxValue * 1.2) / 1000) * 1000);
+    const chartDomainMax = Math.max(1000, Math.ceil((maxValue * 1.2) / 1000) * 1000);
 
     return { chartData, chartDomainMax };
   }, [historicalAssets]);
@@ -313,7 +313,7 @@ export default function AiCryptoDashboard() {
   }, [uiScale]);
 
   useEffect(() => {
-    const checkLicense = async () => {
+    const interval = setInterval(async () => {
       const result = await verifyLicenseSession();
       if (!result.success) {
         toast({
@@ -323,9 +323,7 @@ export default function AiCryptoDashboard() {
         });
         window.location.href = '/login';
       }
-    };
-
-    const interval = setInterval(checkLicense, 30000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [toast]);
 
@@ -1172,7 +1170,7 @@ export default function AiCryptoDashboard() {
                                {['Bitcoin (BTC) Address', 'Tether USDT (BEP-20)', 'Solana (SOL)'].map((label, i) => (
                                  <div key={i} className="space-y-3">
                                    <label className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest">{label}</label>
-                                   <Input value={i === 0 ? payoutBtc : i === 1 ? payoutUsdt : payoutSol} onChange={(e) => i === 0 ? setPayoutBtc(e.target.value) : i === 1 ? setPayoutUsdt(e.target.value) : setDebugInjectValue(e.target.value)} placeholder={`Enter ${label.split(' ')[0]} address...`} className="bg-white/[0.02] border-white/5 h-14 rounded-xl font-code text-xs" />
+                                   <Input value={i === 0 ? payoutBtc : i === 1 ? payoutUsdt : payoutSol} onChange={(e) => i === 0 ? setPayoutBtc(e.target.value) : i === 1 ? setPayoutUsdt(e.target.value) : setPayoutSol(e.target.value)} placeholder={`Enter ${label.split(' ')[0]} address...`} className="bg-white/[0.02] border-white/5 h-14 rounded-xl font-code text-xs" />
                                  </div>
                                ))}
                              </div>
