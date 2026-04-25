@@ -490,8 +490,8 @@ export default function AiCryptoDashboard() {
     await logout();
     localStorage.removeItem(SESSION_STORAGE_KEY);
     toast({
-      title: "Neural Core Severed",
-      description: "Operator session terminated."
+      title: "Logged Out",
+      description: "You have been successfully logged out."
     })
     router.push('/login')
   }
@@ -1727,6 +1727,7 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
 
 

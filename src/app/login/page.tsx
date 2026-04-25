@@ -67,8 +67,8 @@ export default function LoginPage() {
 
       if (result.success) {
         toast({
-          title: "Uplink Established",
-          description: "Access credentials verified. Welcome, Operator.",
+          title: "Successfully logged in",
+          description: `Welcome, ${values.username}!`,
         });
         window.location.href = '/dashboard';
       } else {
