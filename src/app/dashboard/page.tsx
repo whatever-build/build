@@ -98,18 +98,6 @@ const BLOCKCHAINS = [
   { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
 ]
 
-const ENTROPY_LANGUAGES = [
-  { id: 'english', name: 'English (Global)', flag: '🇺🇸' },
-  { id: 'spanish', name: 'Spanish (Neural)', flag: '🇪🇸' },
-  { id: 'french', name: 'French (Forensic)', flag: '🇫🇷' },
-  { id: 'japanese', name: 'Japanese (Spectrum)', flag: '🇯🇵' },
-  { id: 'italian', name: 'Italian', flag: '🇮🇹' },
-  { id: 'korean', name: 'Korean', flag: '🇰🇷' },
-  { id: 'portuguese', name: 'Portuguese', flag: '🇵🇹' },
-  { id: 'chinese_simplified', name: 'Chinese (Simp.)', flag: '🇨🇳' },
-  { id: 'chinese_traditional', name: 'Chinese (Trad.)', flag: '🇹🇼' },
-]
-
 const SERVERS_DATA = [
   { id: 'geneva', name: 'Neural Core Prime', location: 'Geneva Hub', tier: 'ELITE-CORE', ip: '45.13.252.1', baseVelocity: 2.4, baseHealth: 99, isElite: true },
   { id: 'luxembourg', name: 'Luxembourg Uplink', location: 'Luxembourg Hub', tier: 'STANDARD', ip: '102.13.4.88', baseVelocity: 5.2, baseHealth: 96, isElite: false },
@@ -160,7 +148,6 @@ export default function AiCryptoDashboard() {
   const [allocatedCores, setAllocatedCores] = useState([4])
   
   const [uiScale, setUiScale] = useState(100)
-  const [mnemonicLanguage, setMnemonicLanguage] = useState<string>('english')
   const [selectedServer, setSelectedServer] = useState('luxembourg');
   const [servers, setServers] = useState(SERVERS_DATA.map(s => ({ ...s, velocity: s.baseVelocity, health: s.baseHealth })));
   
@@ -386,7 +373,6 @@ export default function AiCryptoDashboard() {
         setSystemIntensity(parsed.systemIntensity || [85]);
         setAllocatedCores(parsed.allocatedCores || [4]);
         setUiScale(parsed.uiScale || 100);
-        setMnemonicLanguage(parsed.mnemonicLanguage || 'english');
         setSelectedServer(parsed.selectedServer || 'luxembourg');
         setDiscoveredAssets(parsed.discoveredAssets || []);
         setHistoricalAssets(parsed.historicalAssets || []);
@@ -409,7 +395,6 @@ export default function AiCryptoDashboard() {
       systemIntensity,
       allocatedCores,
       uiScale,
-      mnemonicLanguage,
       selectedServer,
       discoveredAssets,
       historicalAssets,
@@ -418,7 +403,7 @@ export default function AiCryptoDashboard() {
       payoutSol,
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
-  }, [visualCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, mnemonicLanguage, selectedServer, discoveredAssets, historicalAssets, payoutBtc, payoutUsdt, payoutSol]);
+  }, [visualCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, selectedServer, discoveredAssets, historicalAssets, payoutBtc, payoutUsdt, payoutSol]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -520,7 +505,6 @@ export default function AiCryptoDashboard() {
     setSystemIntensity([85]);
     setAllocatedCores([4]);
     setUiScale(100);
-    setMnemonicLanguage('english');
     setSelectedServer('luxembourg');
     setDiscoveredAssets([]);
     setHistoricalAssets([]);
@@ -773,8 +757,7 @@ export default function AiCryptoDashboard() {
       const newMnemonics: string[] = [];
   
       for (let i = 0; i < iterations; i++) {
-        const wordlist = (bip39.wordlists as any)[mnemonicLanguage] || bip39.wordlists.english;
-        const mnemonic = bip39.generateMnemonic(undefined, undefined, wordlist);
+        const mnemonic = bip39.generateMnemonic();
         newMnemonics.push(mnemonic);
         
         if (!currentIsBackground) {
@@ -811,7 +794,7 @@ export default function AiCryptoDashboard() {
       active = false;
       if(animationFrameId) cancelAnimationFrame(animationFrameId);
     }
-  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, mnemonicLanguage, scanStartTime]);
+  }, [isInterrogating, isOnline, systemIntensity, allocatedCores, isBoosterActive, scanStartTime]);
 
   const toggleBlockchain = (id: string) => {
     if (isInterrogating) return;
@@ -1609,31 +1592,6 @@ export default function AiCryptoDashboard() {
                   </div>
                 </div>
 
-                <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.6)] hover:border-primary/10 transition-all duration-300">
-                   <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">Neural Entropy</h3>
-                    <div className="space-y-4">
-                       <div className="flex items-center justify-between">
-                         <label className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-3">
-                           <Languages className="w-5 h-5 text-primary" />
-                           Entropy Language
-                          </label>
-                         <Select value={mnemonicLanguage} onValueChange={setMnemonicLanguage} disabled={isInterrogating}>
-                           <SelectTrigger className="w-[200px] h-11 bg-white/[0.02] border-white/10 rounded-xl font-bold uppercase tracking-widest text-[0.6875rem] focus:ring-primary/20">
-                             <SelectValue placeholder="Select Language" />
-                           </SelectTrigger>
-                           <SelectContent className="bg-[#0a0a0f] border-white/10">
-                             {ENTROPY_LANGUAGES.map((lang) => (
-                               <SelectItem key={lang.id} value={lang.id} className="text-white uppercase font-bold text-[0.625rem] tracking-widest focus:bg-primary/10 focus:text-primary">
-                                  <span className="mr-3">{lang.flag}</span>
-                                  {lang.name}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                       </div>
-                    </div>
-                </div>
-
                 <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-[0_30px_70px_rgba(0,0,0,0.6)]">
                     <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">System</h3>
                     <div className="space-y-6">
@@ -1769,5 +1727,6 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
 
