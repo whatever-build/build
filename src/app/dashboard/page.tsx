@@ -62,6 +62,10 @@ import {
   CartesianGrid, 
   Tooltip as RechartsTooltip, 
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
 } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
@@ -186,6 +190,7 @@ export default function AiCryptoDashboard() {
   } | null>(null)
 
   const [scanStartTime, setScanStartTime] = useState<number | null>(null)
+  const [chartView, setChartView] = useState<'graph' | 'pie'>('graph');
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const aiTerminalScrollRef = useRef<HTMLDivElement>(null)
@@ -251,6 +256,31 @@ export default function AiCryptoDashboard() {
 
     return { chartData, chartDomainMax };
   }, [historicalAssets]);
+  
+  const pieChartData = useMemo(() => {
+    if (discoveredAssets.length === 0) {
+      return [];
+    }
+    const coinTotals = discoveredAssets.reduce((acc, asset) => {
+        const value = parseFloat(asset.value.replace(/[^0-9.]/g, '')) || 0;
+        const name = asset.network;
+        if (!acc[name]) {
+            acc[name] = 0;
+        }
+        acc[name] += value;
+        return acc;
+    }, {} as { [key: string]: number });
+
+    return Object.entries(coinTotals).map(([name, value]) => ({
+        name,
+        value,
+    })).sort((a,b) => b.value - a.value);
+  }, [discoveredAssets]);
+
+  const PIE_COLORS = [
+      'hsl(var(--primary))', '#00C49F', '#FFBB28', '#FF8042', '#84d8a2',
+      '#8dd1e1', '#a4de6c', '#d0ed57', '#ffc658', '#8884d8'
+  ];
 
   const handleMemoryFlush = useCallback(() => {
     setLogs([]);
@@ -1183,7 +1213,6 @@ export default function AiCryptoDashboard() {
                             <p className="text-terminal-cyan">[BOOT] Initializing AI Crypto Engine v4.0 Elite...</p>
                             <p className="text-terminal-cyan">[BOOT] Verifying system modules...</p>
                             <p className="text-terminal-cyan">[BOOT] Secure node connection established.</p>
-                            <p className="text-green-400">[READY] System online. Awaiting interrogation command.</p>
                           </div>
                         )}
                         {isInterrogating && logs.length === 0 && !isBooting && (
@@ -1218,14 +1247,19 @@ export default function AiCryptoDashboard() {
                             )}
                           </div>
                         ))}
-                        <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0 pointer-events-none" : "opacity-100 animate-in fade-in duration-1000")}>
-                            <Image
-                                src="/logos/logo.png"
-                                alt="AI Crypto Logo"
-                                width={256}
-                                height={256}
-                                className="w-56 h-56 opacity-100 scale-110 drop-shadow-[0_0_40px_hsl(var(--primary)_/_0.6)] transition-all duration-300"
-                            />
+                        <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-500", (isInterrogating || isBooting || logs.length > 0) ? "opacity-0 pointer-events-none" : "opacity-100")}>
+                           <div className="relative group">
+                              <Image
+                                  src="/logos/logo.png"
+                                  alt="AI Crypto Logo"
+                                  width={256}
+                                  height={256}
+                                  className={cn(
+                                    "w-56 h-56 transition-all duration-500 ease-in-out",
+                                    "transform scale-110 drop-shadow-[0_0_40px_hsl(var(--primary)_/_0.6)]"
+                                  )}
+                              />
+                           </div>
                         </div>
                       </div>
                     </div>
@@ -1267,57 +1301,105 @@ export default function AiCryptoDashboard() {
                         <Activity className="w-5 h-5 text-primary" />
                         <h3 className="text-sm font-black uppercase tracking-widest text-white">Statistics</h3>
                       </div>
+                      <Select value={chartView} onValueChange={(value) => setChartView(value as 'graph' | 'pie')}>
+                        <SelectTrigger className="w-[150px] h-9 bg-white/[0.02] border-white/10 rounded-xl font-bold uppercase tracking-widest text-[0.625rem] focus:ring-primary/20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0a0a0f] border-white/10">
+                          <SelectItem value="graph" className="text-white uppercase font-bold text-[0.625rem] tracking-widest focus:bg-primary/10 focus:text-primary">By Graph</SelectItem>
+                          <SelectItem value="pie" className="text-white uppercase font-bold text-[0.625rem] tracking-widest focus:bg-primary/10 focus:text-primary">By Coins</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
   
                     <div className="flex-1 min-h-0 z-10 relative flex items-center justify-center">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={dynamicChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                          <XAxis 
-                            dataKey="name" 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                            dy={10}
-                          />
-                          <YAxis 
-                            domain={[0, chartDomainMax]}
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
-                            tickFormatter={(val) => `$${val/1000}k`}
-                          />
-                          <RechartsTooltip 
-                            cursor={false}
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
-                                    <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Yield</p>
-                                    <p className="text-sm font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                          />
-                          <Area 
-                            type="linear" 
-                            dataKey="value" 
-                            stroke="hsl(var(--primary))" 
-                            strokeWidth={2} 
-                            fillOpacity={1} 
-                            fill="url(#colorValue)" 
-                            animationDuration={2000}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
+                      {chartView === 'graph' ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={dynamicChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                            <XAxis 
+                              dataKey="name" 
+                              axisLine={false} 
+                              tickLine={false} 
+                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                              dy={10}
+                            />
+                            <YAxis 
+                              domain={[0, chartDomainMax]}
+                              axisLine={false} 
+                              tickLine={false} 
+                              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 'bold' }}
+                              tickFormatter={(val) => `$${val/1000}k`}
+                            />
+                            <RechartsTooltip 
+                              cursor={false}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
+                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Yield</p>
+                                      <p className="text-sm font-black text-white font-code">${payload[0].value?.toLocaleString()}</p>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Area 
+                              type="linear" 
+                              dataKey="value" 
+                              stroke="hsl(var(--primary))" 
+                              strokeWidth={2} 
+                              fillOpacity={1} 
+                              fill="url(#colorValue)" 
+                              animationDuration={2000}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <>
+                          {pieChartData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={'80%'} labelLine={false} label>
+                                    {pieChartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} stroke={entry.value > 0 ? 'rgba(0,0,0,0.3)' : 'none'} />
+                                    ))}
+                                </Pie>
+                                <Legend formatter={(value, entry) => <span className="text-white/70">{value}</span>} />
+                                <RechartsTooltip
+                                    content={({ active, payload }) => {
+                                        if (active && payload && payload.length) {
+                                            const data = payload[0];
+                                            const total = pieChartData.reduce((acc, curr) => acc + curr.value, 0);
+                                            const percent = total > 0 ? ((data.value as number / total) * 100).toFixed(2) : 0;
+                                            return (
+                                                <div className="bg-[#12121a] border border-white/10 p-3 rounded-lg shadow-glow">
+                                                    <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest mb-1">{data.name}</p>
+                                                    <p className="text-sm font-black text-white font-code">
+                                                        ${(data.value as number).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({percent}%)
+                                                    </p>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }}
+                                />
+                            </PieChart>
+                            </ResponsiveContainer>
+                          ) : (
+                            <div className="text-center text-gray-500 text-sm font-bold uppercase tracking-widest">
+                              No coin data to display
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1687,4 +1769,5 @@ export default function AiCryptoDashboard() {
     
 
     
+
 
