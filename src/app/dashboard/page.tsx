@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react'
@@ -666,7 +665,7 @@ export default function AiCryptoDashboard() {
                 <div className={cn("absolute inset-0 flex flex-col h-full transition-all duration-500", scanStep === 2 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8 pointer-events-none")}>
                   <div className="relative flex items-center justify-center shrink-0 h-14">
                       <Button variant="ghost" onClick={() => setScanStep(1)} className="text-primary absolute left-4 px-2"><ChevronLeft className="w-4 h-4 mr-2" /> Back</Button>
-                      <h3 className="text-[0.6875rem] font-black uppercase tracking-[0.2em] text-white/60">Forensic interrogation</h3>
+                      <h3 className="text-[0.6875rem] font-black uppercase tracking-[0.2em] text-white/60">WALLET SEARCH</h3>
                   </div>
                   <div className="flex-1 min-h-0 relative mb-4">
                     <div className="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col-reverse" ref={scrollRef}>
@@ -817,7 +816,7 @@ export default function AiCryptoDashboard() {
                     ].map((item, idx) => (
                       <div key={idx} className="space-y-6">
                         <div className="flex items-center justify-between"><div className="flex items-center gap-3"><item.icon className="w-5 h-5 text-primary" /><label className="text-sm font-bold text-white uppercase">{item.label}</label></div><span className="text-sm font-code text-primary">{item.value}</span></div>
-                        <Slider value={item.state} onValueChange={item.setState} min={item.min || 0} max={item.max} step={item.step} disabled={isInterrogating} />
+                        <Slider value={item.state} onValueChange={item.setState} min={item.min || 0} max={100} step={1} disabled={isInterrogating} />
                       </div>
                     ))}
                   </div>
