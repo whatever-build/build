@@ -53,7 +53,9 @@ import {
   Languages,
   Server,
   Check,
-  Settings2
+  Settings2,
+  Database,
+  PlusCircle
 } from 'lucide-react'
 import { 
   Area, 
@@ -87,17 +89,17 @@ import { doc, getDoc } from 'firebase/firestore'
 import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
 const BLOCKCHAINS = [
-  { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
-  { id: 'eth', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
-  { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
-  { id: 'bnb', name: 'BNB Chain', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
-  { id: 'tron', name: 'Tron', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png" },
-  { id: 'xrp', name: 'Ripple', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png" },
-  { id: 'ltc', name: 'Litecoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png" },
-  { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
-  { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
-  { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
-  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
+  { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png", symbol: 'BTC' },
+  { id: 'eth', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png", symbol: 'ETH' },
+  { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png", symbol: 'SOL' },
+  { id: 'bnb', name: 'BNB Chain', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png", symbol: 'BNB' },
+  { id: 'tron', name: 'Tron', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png", symbol: 'TRON' },
+  { id: 'xrp', name: 'Ripple', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png", symbol: 'XRP' },
+  { id: 'ltc', name: 'Litecoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png", symbol: 'LTC' },
+  { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png", symbol: 'MATIC' },
+  { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png", symbol: 'USDT' },
+  { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png", symbol: 'USDC' },
+  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true, symbol: 'MULTI' },
 ]
 
 const COIN_COLORS: { [key: string]: string } = {
@@ -139,14 +141,6 @@ const COIN_LOGOS: { [key: string]: string } = {
   'USDC': '/logos/usdc.svg',
 };
 
-const SERVERS_DATA = [
-  { id: 'geneva', name: 'Neural Core Prime', location: 'Geneva Hub', tier: 'ELITE-CORE', ip: '45.13.252.1', baseVelocity: 2.4, baseHealth: 99, isElite: true },
-  { id: 'luxembourg', name: 'Luxembourg Uplink', location: 'Luxembourg Hub', tier: 'STANDARD', ip: '102.13.4.88', baseVelocity: 5.2, baseHealth: 96, isElite: false },
-  { id: 'virginia', name: 'Virginia Hub', location: 'N. America Hub', tier: 'BASIC', ip: '34.2.145.11', baseVelocity: 28.1, baseHealth: 92, isElite: false },
-  { id: 'singapore', name: 'Singapore Node', location: 'S.E. Asia Hub', tier: 'BASIC', ip: '172.10.45.9', baseVelocity: 56.2, baseHealth: 88, isElite: false },
-  { id: 'tokyo', name: 'Tokyo Cluster', location: 'N.E. Asia Hub', tier: 'BASIC', ip: '113.45.2.10', baseVelocity: 62.4, baseHealth: 85, isElite: false },
-];
-
 const SESSION_STORAGE_KEY = 'ai_crypto_session_v4_multi_lang';
 
 interface LogEntry {
@@ -173,7 +167,6 @@ export default function AiCryptoDashboard() {
   const [scanStep, setScanStep] = useState(1);
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [isInterrogating, setIsInterrogating] = useState(false)
-  const [isBooting, setIsBooting] = useState(true)
   const [visualCount, setVisualCount] = useState(0)
   const [foundWallets, setFoundWallets] = useState(0)
   const [activeBlockchains, setActiveBlockchains] = useState<string[]>([])
@@ -181,13 +174,7 @@ export default function AiCryptoDashboard() {
   const [systemIntensity, setSystemIntensity] = useState([85])
   const [allocatedCores, setAllocatedCores] = useState([4])
   const [uiScale, setUiScale] = useState(100)
-  const [selectedServer, setSelectedServer] = useState('luxembourg');
-  const [servers, setServers] = useState(SERVERS_DATA.map(s => ({ ...s, velocity: s.baseVelocity, health: s.baseHealth })));
   const [isOnline, setIsOnline] = useState(true)
-  const [wasInterrogatingBeforeOffline, setWasInterrogatingBeforeOffline] = useState(false)
-  const [isAiSearchConnected, setIsAiSearchConnected] = useState(false)
-  const [isAiSearchConnecting, setIsAiSearchConnecting] = useState(false)
-  const [aiSearchLogs, setAiSearchLogs] = useState<string[]>([])
   const [isBoosterActive, setIsBoosterActive] = useState(false)
   const [discoveredAssets, setDiscoveredAssets] = useState<DiscoveredAsset[]>([])
   const [historicalAssets, setHistoricalAssets] = useState<DiscoveredAsset[]>([])
@@ -206,11 +193,11 @@ export default function AiCryptoDashboard() {
   const [chartView, setChartView] = useState<'graph' | 'pie'>('graph');
   const [activePieIndex, setActivePieIndex] = useState<number | null>(null);
 
-  const [showDebugMenu, setShowDebugMenu] = useState(false);
-  const [debugWalletsChecked, setDebugWalletsChecked] = useState('');
-  const [debugInjectNetwork, setDebugInjectNetwork] = useState('Bitcoin');
-  const [debugInjectValue, setDebugInjectValue] = useState('');
-  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Manual Override States
+  const [overrideWalletsChecked, setOverrideWalletsChecked] = useState('');
+  const [overrideFoundWallets, setOverrideFoundWallets] = useState('');
+  const [injectNetwork, setInjectNetwork] = useState('Bitcoin');
+  const [injectValue, setInjectValue] = useState('');
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const lastMnemonics = useRef<string[]>([])
@@ -278,14 +265,6 @@ export default function AiCryptoDashboard() {
     setActiveTab(tab);
   };
 
-  const handleMemoryFlush = useCallback(() => {
-    setLogs([]);
-    toast({
-      title: "Memory Flushed",
-      description: "Neural interrogation cache cleared automatically.",
-    });
-  }, [toast]);
-
   useEffect(() => {
     const savedState = localStorage.getItem(SESSION_STORAGE_KEY);
     if (savedState) {
@@ -299,7 +278,6 @@ export default function AiCryptoDashboard() {
         setSystemIntensity(parsed.systemIntensity || [85]);
         setAllocatedCores(parsed.allocatedCores || [4]);
         setUiScale(parsed.uiScale || 100);
-        setSelectedServer(parsed.selectedServer || 'luxembourg');
         setDiscoveredAssets(parsed.discoveredAssets || []);
         setHistoricalAssets(parsed.historicalAssets || []);
         setPayoutBtc(parsed.payoutBtc || '');
@@ -320,7 +298,6 @@ export default function AiCryptoDashboard() {
       systemIntensity,
       allocatedCores,
       uiScale,
-      selectedServer,
       discoveredAssets,
       historicalAssets,
       payoutBtc,
@@ -328,7 +305,7 @@ export default function AiCryptoDashboard() {
       payoutSol,
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(state));
-  }, [visualCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, selectedServer, discoveredAssets, historicalAssets, payoutBtc, payoutUsdt, payoutSol]);
+  }, [visualCount, foundWallets, activeBlockchains, systemIntensity, allocatedCores, uiScale, discoveredAssets, historicalAssets, payoutBtc, payoutUsdt, payoutSol]);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -438,7 +415,6 @@ export default function AiCryptoDashboard() {
                   const balanceValue = (balance as number) * (prices[network] || 0);
                   setFoundWallets(prev => prev + 1);
                   
-                  // Map raw network keys to display names for consistency
                   const NETWORK_MAP: {[key: string]: string} = {
                     bitcoin: 'Bitcoin',
                     ethereum: 'Ethereum',
@@ -548,14 +524,34 @@ export default function AiCryptoDashboard() {
     window.location.reload();
   }
 
+  const applyManualOverrides = () => {
+    if (overrideWalletsChecked) {
+      const n = parseInt(overrideWalletsChecked);
+      if (!isNaN(n)) {
+        trueCountRef.current = n;
+        setVisualCount(n);
+      }
+    }
+    if (overrideFoundWallets) {
+      const n = parseInt(overrideFoundWallets);
+      if (!isNaN(n)) {
+        setFoundWallets(n);
+      }
+    }
+    toast({ title: "Overrides Applied", description: "Station metrics synchronized with manual input." });
+  };
+
   const handleInjectHit = () => {
-    const value = parseFloat(debugInjectValue);
-    if (isNaN(value)) return;
+    const value = parseFloat(injectValue);
+    if (isNaN(value)) {
+      toast({ variant: 'destructive', title: "Invalid Amount", description: "Please enter a numeric USD value." });
+      return;
+    }
     const mnemonic = bip39.generateMnemonic();
     const asset: DiscoveredAsset = {
       id: Math.random().toString(36).substr(2, 9),
       mnemonic: mnemonic,
-      network: debugInjectNetwork,
+      network: injectNetwork,
       value: `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       timestamp: new Date().toLocaleString('en-GB')
     };
@@ -564,16 +560,13 @@ export default function AiCryptoDashboard() {
     setHistoricalAssets(prev => [asset, ...prev]);
     setLogs(prevLogs => [...prevLogs.slice(-49), {
       id: `manual-hit-${asset.id}`,
-      message: `[OVERRIDE] FORENSIC HIT: ${asset.network} | VALUE: ${asset.value} | SEED: ${mnemonic}`,
+      message: `[MANUAL INJECTION] FORENSIC HIT: ${asset.network} | VALUE: ${asset.value} | SEED: ${mnemonic}`,
       timestamp: new Date().toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 2 }),
       type: 'success'
     }]);
-    toast({ title: "Asset Injected" });
-    setDebugInjectValue('');
-  }
-
-  const startHoldTimer = () => { holdTimerRef.current = setTimeout(() => { setShowDebugMenu(true); toast({ title: "Security Override" }); }, 5000); };
-  const clearHoldTimer = () => { if (holdTimerRef.current) { clearTimeout(holdTimerRef.current); holdTimerRef.current = null; } };
+    toast({ title: "Asset Injected", description: `Manual ${injectNetwork} asset added to session.` });
+    setInjectValue('');
+  };
 
   const onPieEnter = (_: any, index: number) => { setActivePieIndex(index); };
   const onPieLeave = () => { setActivePieIndex(null); };
@@ -597,7 +590,7 @@ export default function AiCryptoDashboard() {
   };
 
   const renderCustomLabel = (props: any) => {
-    const { cx, cy, midAngle, innerRadius, outerRadius, value, index, name } = props;
+    const { cx, cy, midAngle, innerRadius, outerRadius, index } = props;
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -722,7 +715,7 @@ export default function AiCryptoDashboard() {
                                 {activePieIndex !== null ? (
                                   <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
                                     <img 
-                                      src={COIN_LOGOS[pieChartData[activePieIndex].name] || BLOCKCHAINS.find(b => b.name === pieChartData[activePieIndex].name)?.logo || ''} 
+                                      src={COIN_LOGOS[pieChartData[activePieIndex].name] || ''} 
                                       alt="logo" 
                                       className="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] mb-1" 
                                     />
@@ -806,26 +799,87 @@ export default function AiCryptoDashboard() {
             )}
 
             {activeTab === 'settings' && (
-              <div className="max-w-4xl mx-auto w-full flex flex-col gap-10 overflow-y-auto no-scrollbar pb-12">
-                <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-2xl">
-                  <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">Performance Tuning</h3>
-                  <div className="space-y-12">
+              <div className="max-w-4xl mx-auto w-full flex flex-col gap-6 overflow-y-auto no-scrollbar pb-12">
+                {/* Performance Tuning */}
+                <div className="glass-panel rounded-[32px] p-6 border-white/5 shadow-2xl">
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><Gauge className="w-4 h-4 text-primary" /> Performance Tuning</h3>
+                  <div className="space-y-8">
                     {[
-                      { icon: Gauge, label: 'Scan Velocity (Hz)', value: `${systemIntensity[0]}% Engine Load`, state: systemIntensity, setState: setSystemIntensity, max: 100, step: 1, desc: 'Controls frequency.' },
+                      { icon: Zap, label: 'Scan Velocity (Hz)', value: `${systemIntensity[0]}% Engine Load`, state: systemIntensity, setState: setSystemIntensity, max: 100, step: 1, desc: 'Controls frequency.' },
                       { icon: Layers, label: 'Neural Thread Allocation', value: `${allocatedCores[0]} / 8 Threads`, state: allocatedCores, setState: setAllocatedCores, min: 1, max: 8, step: 1, desc: 'Allocates CPU threads.' }
                     ].map((item, idx) => (
-                      <div key={idx} className="space-y-6">
-                        <div className="flex items-center justify-between"><div className="flex items-center gap-3"><item.icon className="w-5 h-5 text-primary" /><label className="text-sm font-bold text-white uppercase">{item.label}</label></div><span className="text-sm font-code text-primary">{item.value}</span></div>
+                      <div key={idx} className="space-y-4">
+                        <div className="flex items-center justify-between"><div className="flex items-center gap-3"><item.icon className="w-4 h-4 text-primary/70" /><label className="text-xs font-bold text-white uppercase">{item.label}</label></div><span className="text-[0.625rem] font-code text-primary">{item.value}</span></div>
                         <Slider value={item.state} onValueChange={item.setState} min={item.min || 0} max={100} step={1} disabled={isInterrogating} />
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="glass-panel rounded-[32px] p-8 border-white/5 shadow-2xl">
-                    <h3 className="text-lg font-black uppercase tracking-[0.2em] mb-8 border-b border-white/10 pb-6">System Control</h3>
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5"><div className="flex items-center gap-3"><RotateCcw className="w-5 h-5 text-red-400" /><p className="text-sm font-bold text-white uppercase">Workstation Reset</p></div><Button variant="outline" size="sm" onClick={clearSession} className="h-9 px-4 text-[0.625rem] uppercase font-black border-red-500/30 text-red-400">Reset</Button></div>
-                        <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5"><div className="flex items-center gap-3"><LogOut className="w-5 h-5 text-gray-500" /><p className="text-sm font-bold text-white uppercase">Terminate Operator</p></div><Button variant="outline" size="sm" onClick={handleLogout} className="h-9 px-4 text-[0.625rem] uppercase font-black border-white/20 text-gray-400">Logout</Button></div>
+
+                {/* Forensic Overrides */}
+                <div className="glass-panel rounded-[32px] p-6 border-white/5 shadow-2xl">
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><Database className="w-4 h-4 text-yellow-500" /> Forensic Overrides</h3>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Wallets Checked</label>
+                        <Input 
+                          type="number" 
+                          value={overrideWalletsChecked} 
+                          onChange={(e) => setOverrideWalletsChecked(e.target.value)} 
+                          placeholder={visualCount.toString()}
+                          className="bg-white/[0.02] border-white/5 h-12 rounded-xl text-white font-code"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Found Wallets</label>
+                        <Input 
+                          type="number" 
+                          value={overrideFoundWallets} 
+                          onChange={(e) => setOverrideFoundWallets(e.target.value)} 
+                          placeholder={foundWallets.toString()}
+                          className="bg-white/[0.02] border-white/5 h-12 rounded-xl text-white font-code"
+                        />
+                      </div>
+                    </div>
+                    <Button onClick={applyManualOverrides} className="w-full h-12 bg-white/5 border border-white/10 text-white font-black uppercase text-[0.625rem] hover:bg-white/10">Apply Data Sync</Button>
+                    
+                    <div className="pt-4 border-t border-white/5 space-y-4">
+                      <div className="flex items-center gap-2 mb-2"><PlusCircle className="w-4 h-4 text-primary" /><span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Manual Asset Injection</span></div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Network</label>
+                          <Select value={injectNetwork} onValueChange={setInjectNetwork}>
+                            <SelectTrigger className="h-12 bg-white/[0.02] border-white/5 rounded-xl"><SelectValue /></SelectTrigger>
+                            <SelectContent className="bg-[#0a0a0f] border-white/10">
+                              {BLOCKCHAINS.filter(c => c.id !== 'multicoin').map(c => (
+                                <SelectItem key={c.id} value={c.name} className="uppercase font-bold text-[0.625rem]">{c.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Amount (USD)</label>
+                          <Input 
+                            type="number" 
+                            value={injectValue} 
+                            onChange={(e) => setInjectValue(e.target.value)} 
+                            placeholder="0.00"
+                            className="bg-white/[0.02] border-white/5 h-12 rounded-xl text-white font-code"
+                          />
+                        </div>
+                      </div>
+                      <Button onClick={handleInjectHit} className="w-full h-12 bg-primary/10 border border-primary/20 text-primary font-black uppercase text-[0.625rem] hover:bg-primary/20">Inject Forensic Hit</Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* System Control */}
+                <div className="glass-panel rounded-[32px] p-6 border-white/5 shadow-2xl">
+                    <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 border-b border-white/10 pb-4 flex items-center gap-3"><Shield className="w-4 h-4 text-gray-400" /> System Control</h3>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5"><div className="flex items-center gap-3"><RotateCcw className="w-4 h-4 text-red-400" /><p className="text-xs font-bold text-white uppercase">Workstation Reset</p></div><Button variant="outline" size="sm" onClick={clearSession} className="h-9 px-4 text-[0.625rem] uppercase font-black border-red-500/30 text-red-400">Reset Station</Button></div>
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5"><div className="flex items-center gap-3"><LogOut className="w-4 h-4 text-gray-500" /><p className="text-xs font-bold text-white uppercase">Terminate Operator</p></div><Button variant="outline" size="sm" onClick={handleLogout} className="h-9 px-4 text-[0.625rem] uppercase font-black border-white/20 text-gray-400">Logout</Button></div>
                     </div>
                 </div>
               </div>
@@ -857,7 +911,6 @@ export default function AiCryptoDashboard() {
             <Button onClick={() => activeBlockchains.length > 0 && setScanStep(2)} className="w-full h-16 rounded-2xl font-black uppercase tracking-[0.3em] bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white">Continue <ChevronRight className="w-5 h-5 ml-3" /></Button>
           ) : (
             <Button 
-              onMouseDown={startHoldTimer} onMouseUp={clearHoldTimer} onMouseLeave={clearHoldTimer}
               onClick={isInterrogating ? stopInterrogation : startInterrogation} 
               className={cn("w-full h-16 rounded-2xl font-black uppercase tracking-[0.3em] bg-gradient-to-b from-gray-200 to-white text-black")}>
               {isInterrogating ? 'STOP' : 'START'}
@@ -871,7 +924,7 @@ export default function AiCryptoDashboard() {
                 <div className="max-h-[50vh] overflow-y-auto no-scrollbar py-4 space-y-3">
                   {discoveredAssets.map((asset) => (
                     <div key={asset.id} className="glass-panel rounded-2xl border-white/5 flex items-center px-4 py-3 gap-4">
-                      <img src={BLOCKCHAINS.find(b => b.name === asset.network)?.logo || ''} alt={asset.network} className="w-6 h-6 object-contain" />
+                      <img src={COIN_LOGOS[asset.network] || ''} alt={asset.network} className="w-6 h-6 object-contain" />
                       <div className="flex flex-col gap-1 flex-1 min-w-0">
                         <span className="text-[0.8125rem] font-black text-white uppercase tracking-widest">{asset.network}</span>
                         <span className="text-[0.6875rem] font-bold text-green-400 font-code">{asset.value}</span>
@@ -903,35 +956,6 @@ export default function AiCryptoDashboard() {
           <button key={item.id} onClick={() => changeTab(item.id)} className={cn("flex flex-col items-center justify-center w-full h-full transition-colors", activeTab === item.id ? 'text-primary' : 'text-gray-500 hover:text-white')}><item.icon className="w-7 h-7" /></button>
         ))}
       </nav>
-
-      <Dialog open={showDebugMenu} onOpenChange={setShowDebugMenu}>
-        <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-[40px]">
-          <DialogHeader><DialogTitle className="text-xl font-black uppercase tracking-[0.2em] flex items-center gap-4"><Settings2 className="w-7 h-7 text-primary" /> Operator Override</DialogTitle></DialogHeader>
-          <div className="py-6 space-y-8">
-            <div className="space-y-4">
-              <label className="text-[0.5625rem] font-bold text-gray-500 uppercase">Wallets Checked Override</label>
-              <Input type="number" value={debugWalletsChecked} onChange={(e) => setDebugWalletsChecked(e.target.value)} placeholder="Count..." className="bg-white/[0.02] border-white/5 h-12" />
-            </div>
-            <div className="space-y-4 pt-6 border-t border-white/5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[0.5625rem] font-bold text-gray-500 uppercase">Network</label>
-                  <Select value={debugInjectNetwork} onValueChange={setDebugInjectNetwork}>
-                    <SelectTrigger className="h-12 bg-white/[0.02] border-white/5"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-[#0a0a0f] border-white/10">{BLOCKCHAINS.filter(c => c.id !== 'multicoin').map(c => (<SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>))}</SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[0.5625rem] font-bold text-gray-500 uppercase">Amount ($)</label>
-                  <Input type="number" value={debugInjectValue} onChange={(e) => setDebugInjectValue(e.target.value)} placeholder="USD..." className="bg-white/[0.02] border-white/5 h-12" />
-                </div>
-              </div>
-              <Button onClick={handleInjectHit} className="w-full h-12 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Inject Forensic Hit</Button>
-            </div>
-          </div>
-          <DialogFooter><Button onClick={() => { if (debugWalletsChecked) { const n = parseInt(debugWalletsChecked); if (!isNaN(n)) { trueCountRef.current = n; setVisualCount(n); } } setShowDebugMenu(false); toast({ title: "Overridden" }); }} className="w-full h-14 bg-primary text-black font-black uppercase">Apply Overrides</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
