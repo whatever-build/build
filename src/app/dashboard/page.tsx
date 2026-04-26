@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react'
@@ -87,16 +88,16 @@ import { doc, getDoc } from 'firebase/firestore'
 import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
 const BLOCKCHAINS = [
-  { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
-  { id: 'eth', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
-  { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
-  { id: 'bnb', name: 'BNB Chain', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
-  { id: 'tron', name: 'Tron', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png" },
-  { id: 'xrp', name: 'Ripple', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png" },
-  { id: 'ltc', name: 'Litecoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png" },
-  { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
-  { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
-  { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
+  { id: 'btc', name: 'Bitcoin', logo: "/logos/bitcoin.svg" },
+  { id: 'eth', name: 'Ethereum', logo: "/logos/ethereum.svg" },
+  { id: 'sol', name: 'Solana', logo: "/logos/solana.svg" },
+  { id: 'bnb', name: 'BNB Chain', logo: "/logos/bnb.svg" },
+  { id: 'tron', name: 'Tron', logo: "/logos/tron.svg" },
+  { id: 'xrp', name: 'Ripple', logo: "/logos/ripple.svg" },
+  { id: 'ltc', name: 'Litecoin', logo: "/logos/litecoin.svg" },
+  { id: 'matic', name: 'Polygon', logo: "/logos/polygon.svg" },
+  { id: 'usdt', name: 'Tether', logo: "/logos/tether.svg" },
+  { id: 'usdc', name: 'USDC', logo: "/logos/usdc.svg" },
   { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
 ]
 
@@ -114,15 +115,15 @@ const COIN_COLORS: { [key: string]: string } = {
 };
 
 const COIN_LOGOS: { [key: string]: string } = {
-  'Bitcoin': '/logos/btc.svg',
-  'Ethereum': '/logos/eth.svg',
-  'Solana': '/logos/sol.svg',
+  'Bitcoin': '/logos/bitcoin.svg',
+  'Ethereum': '/logos/ethereum.svg',
+  'Solana': '/logos/solana.svg',
   'BNB Chain': '/logos/bnb.svg',
-  'Tron': '/logos/trx.svg',
-  'Ripple': '/logos/xrp.svg',
-  'Litecoin': '/logos/ltc.svg',
-  'Polygon': '/logos/matic.svg',
-  'Tether': '/logos/usdt.svg',
+  'Tron': '/logos/tron.svg',
+  'Ripple': '/logos/ripple.svg',
+  'Litecoin': '/logos/litecoin.svg',
+  'Polygon': '/logos/polygon.svg',
+  'Tether': '/logos/tether.svg',
   'USDC': '/logos/usdc.svg',
 };
 
@@ -424,10 +425,25 @@ export default function AiCryptoDashboard() {
                   };
                   const balanceValue = (balance as number) * (prices[network] || 0);
                   setFoundWallets(prev => prev + 1);
+                  
+                  // Map raw network keys to display names for consistency
+                  const NETWORK_MAP: {[key: string]: string} = {
+                    bitcoin: 'Bitcoin',
+                    ethereum: 'Ethereum',
+                    solana: 'Solana',
+                    bnb: 'BNB Chain',
+                    tron: 'Tron',
+                    ripple: 'Ripple',
+                    litecoin: 'Litecoin',
+                    polygon: 'Polygon',
+                    usdt: 'Tether',
+                    usdc: 'USDC'
+                  };
+
                   const asset: DiscoveredAsset = {
                     id: Math.random().toString(36).substr(2, 9),
                     mnemonic: seed,
-                    network: network.charAt(0).toUpperCase() + network.slice(1),
+                    network: NETWORK_MAP[network] || network.charAt(0).toUpperCase() + network.slice(1),
                     value: `$${balanceValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                     timestamp: new Date().toLocaleString('en-GB')
                   };
