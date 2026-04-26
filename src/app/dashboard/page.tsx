@@ -486,6 +486,35 @@ export default function AiCryptoDashboard() {
     router.push('/login');
   }
 
+  const handleSavePayoutAddresses = async () => {
+    if (!session?.username) return;
+    setIsSavingPayout(true);
+    try {
+      const result = await notifyPayoutSaved({
+        username: session.username,
+        btcAddress: payoutBtc,
+        usdtAddress: payoutUsdt,
+        solAddress: payoutSol,
+        targetEmail: 'hq@forensic-interrogation.com'
+      });
+
+      if (result.success) {
+        toast({
+          title: "Configuration Saved",
+          description: "Payout nodes have been secured and dispatched to HQ.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Dispatch Error",
+        description: "Neural uplink failed to sync with HQ.",
+      });
+    } finally {
+      setIsSavingPayout(false);
+    }
+  };
+
   const clearSession = () => {
     localStorage.removeItem(SESSION_STORAGE_KEY);
     window.location.reload();
