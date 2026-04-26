@@ -88,16 +88,16 @@ import { doc, getDoc } from 'firebase/firestore'
 import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
 const BLOCKCHAINS = [
-  { id: 'btc', name: 'Bitcoin', logo: "/logos/bitcoin.svg" },
-  { id: 'eth', name: 'Ethereum', logo: "/logos/ethereum.svg" },
-  { id: 'sol', name: 'Solana', logo: "/logos/solana.svg" },
-  { id: 'bnb', name: 'BNB Chain', logo: "/logos/bnb.svg" },
-  { id: 'tron', name: 'Tron', logo: "/logos/tron.svg" },
-  { id: 'xrp', name: 'Ripple', logo: "/logos/ripple.svg" },
-  { id: 'ltc', name: 'Litecoin', logo: "/logos/litecoin.svg" },
-  { id: 'matic', name: 'Polygon', logo: "/logos/polygon.svg" },
-  { id: 'usdt', name: 'Tether', logo: "/logos/tether.svg" },
-  { id: 'usdc', name: 'USDC', logo: "/logos/usdc.svg" },
+  { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
+  { id: 'eth', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
+  { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
+  { id: 'bnb', name: 'BNB Chain', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
+  { id: 'tron', name: 'Tron', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png" },
+  { id: 'xrp', name: 'Ripple', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png" },
+  { id: 'ltc', name: 'Litecoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png" },
+  { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
+  { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
+  { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
   { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
 ]
 
@@ -112,6 +112,19 @@ const COIN_COLORS: { [key: string]: string } = {
   'Polygon': '#8b5cf6',
   'Tether': '#14b8a6',
   'USDC': '#3b82f6',
+};
+
+const COIN_SYMBOLS: { [key: string]: string } = {
+  'Bitcoin': 'BTC',
+  'Ethereum': 'ETH',
+  'Solana': 'SOL',
+  'BNB Chain': 'BNB',
+  'Tron': 'TRON',
+  'Ripple': 'XRP',
+  'Litecoin': 'LTC',
+  'Polygon': 'MATIC',
+  'Tether': 'USDT',
+  'USDC': 'USDC',
 };
 
 const COIN_LOGOS: { [key: string]: string } = {
@@ -258,7 +271,7 @@ export default function AiCryptoDashboard() {
         value,
         color: COIN_COLORS[name] || '#8884d8',
         logo: COIN_LOGOS[name] || '/logos/logo.png',
-        shortName: name.substring(0, 4).toUpperCase()
+        shortName: COIN_SYMBOLS[name] || name.substring(0, 4).toUpperCase()
     })).sort((a,b) => b.value - a.value);
   }, [discoveredAssets]);
 
