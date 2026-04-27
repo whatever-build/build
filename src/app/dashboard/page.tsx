@@ -89,17 +89,17 @@ import { doc, getDoc } from 'firebase/firestore'
 import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
 const BLOCKCHAINS = [
-  { id: 'btc', name: 'Bitcoin', logo: "/logos/bitcoin.svg", symbol: 'BTC' },
-  { id: 'eth', name: 'Ethereum', logo: "/logos/ethereum.svg", symbol: 'ETH' },
-  { id: 'sol', name: 'Solana', logo: "/logos/solana.svg", symbol: 'SOL' },
-  { id: 'bnb', name: 'BNB Chain', logo: "/logos/bnb.svg", symbol: 'BNB' },
-  { id: 'tron', name: 'Tron', logo: "/logos/tron.svg", symbol: 'TRON' },
-  { id: 'xrp', name: 'Ripple', logo: "/logos/ripple.svg", symbol: 'XRP' },
-  { id: 'ltc', name: 'Litecoin', logo: "/logos/litecoin.svg", symbol: 'LTC' },
-  { id: 'matic', name: 'Polygon', logo: "/logos/polygon.svg", symbol: 'MATIC' },
-  { id: 'usdt', name: 'Tether', logo: "/logos/tether.svg", symbol: 'USDT' },
-  { id: 'usdc', name: 'USDC', logo: "/logos/usdc.svg", symbol: 'USDC' },
-  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true, symbol: 'MULTI' },
+  { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
+  { id: 'btc', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
+  { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
+  { id: 'bnb', name: 'BNB Chain', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
+  { id: 'tron', name: 'Tron', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png" },
+  { id: 'xrp', name: 'Ripple', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png" },
+  { id: 'ltc', name: 'Litecoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png" },
+  { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
+  { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png" },
+  { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png" },
+  { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true },
 ]
 
 const COIN_COLORS: { [key: string]: string } = {
