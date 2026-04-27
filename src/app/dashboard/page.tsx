@@ -89,16 +89,16 @@ import { doc, getDoc } from 'firebase/firestore'
 import BottomGlowEffect from '@/components/ui/bottom-glow-effect'
 
 const BLOCKCHAINS = [
-  { id: 'btc', name: 'Bitcoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png", symbol: 'BTC' },
-  { id: 'eth', name: 'Ethereum', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png", symbol: 'ETH' },
-  { id: 'sol', name: 'Solana', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png", symbol: 'SOL' },
-  { id: 'bnb', name: 'BNB Chain', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png", symbol: 'BNB' },
-  { id: 'tron', name: 'Tron', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png", symbol: 'TRON' },
-  { id: 'xrp', name: 'Ripple', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png", symbol: 'XRP' },
-  { id: 'ltc', name: 'Litecoin', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png", symbol: 'LTC' },
-  { id: 'matic', name: 'Polygon', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png", symbol: 'MATIC' },
-  { id: 'usdt', name: 'Tether', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png", symbol: 'USDT' },
-  { id: 'usdc', name: 'USDC', logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdc.png", symbol: 'USDC' },
+  { id: 'btc', name: 'Bitcoin', logo: "/logos/bitcoin.svg", symbol: 'BTC' },
+  { id: 'eth', name: 'Ethereum', logo: "/logos/ethereum.svg", symbol: 'ETH' },
+  { id: 'sol', name: 'Solana', logo: "/logos/solana.svg", symbol: 'SOL' },
+  { id: 'bnb', name: 'BNB Chain', logo: "/logos/bnb.svg", symbol: 'BNB' },
+  { id: 'tron', name: 'Tron', logo: "/logos/tron.svg", symbol: 'TRON' },
+  { id: 'xrp', name: 'Ripple', logo: "/logos/ripple.svg", symbol: 'XRP' },
+  { id: 'ltc', name: 'Litecoin', logo: "/logos/litecoin.svg", symbol: 'LTC' },
+  { id: 'matic', name: 'Polygon', logo: "/logos/polygon.svg", symbol: 'MATIC' },
+  { id: 'usdt', name: 'Tether', logo: "/logos/tether.svg", symbol: 'USDT' },
+  { id: 'usdc', name: 'USDC', logo: "/logos/usdc.svg", symbol: 'USDC' },
   { id: 'multicoin', name: 'Multicoin', logo: null, isPremium: true, symbol: 'MULTI' },
 ]
 
@@ -204,6 +204,10 @@ export default function AiCryptoDashboard() {
   const isAnalyzingRef = useRef(false);
   const trueCountRef = useRef(0);
   const uiMnemonicQueueRef = useRef<string[]>([]);
+  
+  const startTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isHoldingStart, setIsHoldingStart] = useState(false);
+  const [showOverrideDialog, setShowOverrideDialog] = useState(false);
 
   const totalVal = useMemo(() => {
     return discoveredAssets.reduce((acc, curr) => {
@@ -486,7 +490,7 @@ export default function AiCryptoDashboard() {
   const handleLogout = async () => {
     await logout();
     localStorage.removeItem(SESSION_STORAGE_KEY);
-    toast({ title: "Logged Out" });
+    toast({ title: "Logged out" });
     router.push('/login');
   }
 
@@ -568,25 +572,8 @@ export default function AiCryptoDashboard() {
     setInjectValue('');
   };
 
-  const onPieEnter = (_: any, index: number) => { setActivePieIndex(index); };
-  const onPieLeave = () => { setActivePieIndex(null); };
-
-  const renderActiveShape = (props: any) => {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
-    return (
-      <g>
-        <Sector
-          cx={cx}
-          cy={cy}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius + 8}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-          className="transition-all duration-300"
-        />
-      </g>
-    );
+  const onPieClick = (_: any, index: number) => { 
+    setActivePieIndex(prev => prev === index ? null : index); 
   };
 
   const renderCustomLabel = (props: any) => {
@@ -609,6 +596,21 @@ export default function AiCryptoDashboard() {
         {data?.shortName}
       </text>
     );
+  };
+
+  const handleStartHoldBegin = () => {
+    setIsHoldingStart(true);
+    startTimerRef.current = setTimeout(() => {
+      setShowOverrideDialog(true);
+      setIsHoldingStart(false);
+    }, 5000);
+  };
+
+  const handleStartHoldEnd = () => {
+    if (startTimerRef.current) {
+      clearTimeout(startTimerRef.current);
+    }
+    setIsHoldingStart(false);
   };
 
   const navItems: { id: TabType; icon: React.ElementType }[] = [
@@ -720,6 +722,7 @@ export default function AiCryptoDashboard() {
                                       className="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] mb-1" 
                                     />
                                     <span className="text-[10px] font-black uppercase text-primary tracking-widest">{pieChartData[activePieIndex].name}</span>
+                                    <span className="text-sm font-black text-white font-code mt-1">${pieChartData[activePieIndex].value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                   </div>
                                 ) : (
                                   <div className="flex flex-col items-center animate-in fade-in duration-200">
@@ -739,31 +742,22 @@ export default function AiCryptoDashboard() {
                                   cy="50%" 
                                   innerRadius="65%" 
                                   outerRadius="90%" 
-                                  paddingAngle={4}
-                                  activeShape={renderActiveShape}
-                                  activeIndex={activePieIndex !== null ? activePieIndex : undefined}
-                                  onMouseEnter={onPieEnter}
-                                  onMouseLeave={onPieLeave}
+                                  paddingAngle={0}
+                                  onClick={(_, index) => onPieClick(_, index)}
                                   label={renderCustomLabel}
                                   labelLine={false}
                                   stroke="none"
+                                  style={{ outline: 'none' }}
                                 >
                                     {pieChartData.map((entry, index) => (
                                       <Cell 
                                         key={`cell-${index}`} 
                                         fill={entry.color} 
                                         className="transition-all duration-300 cursor-pointer"
+                                        style={{ outline: 'none', stroke: 'none' }}
                                       />
                                     ))}
                                 </Pie>
-                                <RechartsTooltip 
-                                  content={({ active, payload }) => active && payload?.length ? (
-                                    <div className="bg-[#12121a] border border-white/10 p-3 rounded-xl shadow-2xl">
-                                      <p className="text-[0.625rem] font-bold text-gray-500 uppercase mb-1">{payload[0].name}</p>
-                                      <p className="text-sm font-black text-white font-code">${(payload[0].value as number).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                                    </div>
-                                  ) : null} 
-                                />
                             </PieChart>
                             </ResponsiveContainer>
                           </div>
@@ -911,8 +905,16 @@ export default function AiCryptoDashboard() {
             <Button onClick={() => activeBlockchains.length > 0 && setScanStep(2)} className="w-full h-16 rounded-2xl font-black uppercase tracking-[0.3em] bg-gradient-to-r from-[#AD4FE6] to-[#2937A3] text-white">Continue <ChevronRight className="w-5 h-5 ml-3" /></Button>
           ) : (
             <Button 
-              onClick={isInterrogating ? stopInterrogation : startInterrogation} 
-              className={cn("w-full h-16 rounded-2xl font-black uppercase tracking-[0.3em] bg-gradient-to-b from-gray-200 to-white text-black")}>
+              onMouseDown={handleStartHoldBegin}
+              onMouseUp={handleStartHoldEnd}
+              onMouseLeave={handleStartHoldEnd}
+              onTouchStart={handleStartHoldBegin}
+              onTouchEnd={handleStartHoldEnd}
+              onClick={() => !isHoldingStart && (isInterrogating ? stopInterrogation() : startInterrogation())} 
+              className={cn(
+                "w-full h-16 rounded-2xl font-black uppercase tracking-[0.3em] transition-all",
+                isHoldingStart ? "bg-primary/20 scale-95" : "bg-gradient-to-b from-gray-200 to-white text-black"
+              )}>
               {isInterrogating ? 'STOP' : 'START'}
             </Button>
           ))}
@@ -956,6 +958,73 @@ export default function AiCryptoDashboard() {
           <button key={item.id} onClick={() => changeTab(item.id)} className={cn("flex flex-col items-center justify-center w-full h-full transition-colors", activeTab === item.id ? 'text-primary' : 'text-gray-500 hover:text-white')}><item.icon className="w-7 h-7" /></button>
         ))}
       </nav>
+
+      {/* Operator Override Dialog */}
+      <Dialog open={showOverrideDialog} onOpenChange={setShowOverrideDialog}>
+        <DialogContent className="bg-[#0a0a0f] border-white/10 text-white max-w-md rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase tracking-widest flex items-center gap-4">
+              <ShieldAlert className="w-7 h-7 text-yellow-500" /> Operator Override
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">
+              Secured workstation manual entry mode enabled.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Wallets Checked</label>
+                <Input 
+                  type="number" 
+                  value={overrideWalletsChecked} 
+                  onChange={(e) => setOverrideWalletsChecked(e.target.value)} 
+                  placeholder={visualCount.toString()}
+                  className="bg-white/[0.02] border-white/5 h-12 rounded-xl text-white font-code"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Found Wallets</label>
+                <Input 
+                  type="number" 
+                  value={overrideFoundWallets} 
+                  onChange={(e) => setOverrideFoundWallets(e.target.value)} 
+                  placeholder={foundWallets.toString()}
+                  className="bg-white/[0.02] border-white/5 h-12 rounded-xl text-white font-code"
+                />
+              </div>
+            </div>
+            <Button onClick={() => { applyManualOverrides(); setShowOverrideDialog(false); }} className="w-full h-12 bg-white/5 border border-white/10 text-white font-black uppercase text-[0.625rem] hover:bg-white/10">Synchronize Statistics</Button>
+            
+            <div className="pt-4 border-t border-white/5 space-y-4">
+              <div className="flex items-center gap-2 mb-2"><PlusCircle className="w-4 h-4 text-primary" /><span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Manual Asset Injection</span></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Network</label>
+                  <Select value={injectNetwork} onValueChange={setInjectNetwork}>
+                    <SelectTrigger className="h-12 bg-white/[0.02] border-white/5 rounded-xl"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#0a0a0f] border-white/10">
+                      {BLOCKCHAINS.filter(c => c.id !== 'multicoin').map(c => (
+                        <SelectItem key={c.id} value={c.name} className="uppercase font-bold text-[0.625rem]">{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Amount (USD)</label>
+                  <Input 
+                    type="number" 
+                    value={injectValue} 
+                    onChange={(e) => setInjectValue(e.target.value)} 
+                    placeholder="0.00"
+                    className="bg-white/[0.02] border-white/5 h-12 rounded-xl text-white font-code"
+                  />
+                </div>
+              </div>
+              <Button onClick={() => { handleInjectHit(); setShowOverrideDialog(false); }} className="w-full h-12 bg-primary/10 border border-primary/20 text-primary font-black uppercase text-[0.625rem] hover:bg-primary/20">Inject Forensic Hit</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
